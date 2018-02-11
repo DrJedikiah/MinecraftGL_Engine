@@ -1,0 +1,15 @@
+#pragma once
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <iostream>
+
+class Texture
+{
+public:
+	Texture(std::string filename);
+	unsigned int textureId;
+private:
+	int m_width, m_height, m_nrChannels;
+};
