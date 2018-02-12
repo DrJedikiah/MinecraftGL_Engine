@@ -1,10 +1,6 @@
 #include "Minecraft.h"
 
-Minecraft Minecraft::m_instance = Minecraft();
-
-Minecraft::Minecraft() {}
-
-void Minecraft::Init(std::string name, int width, int height)
+Minecraft::Minecraft(std::string name, int width, int height)
 {
 	m_scr_width = width;
 	m_scr_height = height;
@@ -28,7 +24,20 @@ void Minecraft::Init(std::string name, int width, int height)
 	}
 
 	glfwMakeContextCurrent(m_window);
-	glfwSetFramebufferSizeCallback(m_window, Minecraft::size_callback);
+	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+	//Callbacks
+	glfwSetFramebufferSizeCallback(m_window, Minecraft::window_size_callback);
+	glfwSetCursorPosCallback(m_window, mouse_callback);
+
+	//Initialisation
+	Input::SetWindow(m_window);
+	{
+		double x, y;
+		glfwGetCursorPos(m_window, &x, &y);
+		Mouse::Update();
+	}
+
 
 	// glad: load all OpenGL function pointers
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -38,15 +47,10 @@ void Minecraft::Init(std::string name, int width, int height)
 	}
 }
 
-Minecraft& Minecraft::Instance()
-{
-	return m_instance;
-}
-
 void Minecraft::Start()
 {
 	//Shader
-	Shader ourShader("shaders/shader.vs", "shaders/shader.fs");
+	Shader shader("shaders/shader.vs", "shaders/shader.fs");
 
 	float vertices[] = {
 		// positions          // colors           // texture coords
@@ -79,18 +83,35 @@ void Minecraft::Start()
 	glEnableVertexAttribArray(2);
 
 	Texture texture("textures/grass.bmp");
-	ourShader.setInt("ourTexture", 0);
+	Camera camera(m_scr_width, m_scr_height);
+	PlayerController playerController(camera);
+	GameObject cube;
+	cube.translate(glm::vec3(0, 0, -10));
+
+	shader.setInt("ourTexture", 0);
+	shader.setMat4("model", cube.ModelMatrix());
+	shader.setMat4("view", camera.ViewMatrix());
+	shader.setMat4("projection", camera.ProjectionMatrix());
 
 	// render loop
 	while (!glfwWindowShouldClose(m_window))
 	{
-		processInput(m_window);
+
+		Mouse::Update();
+		if( Keyboard::IsKeyDown(GLFW_KEY_ESCAPE))
+			glfwSetWindowShouldClose(m_window, true);
+
+		playerController.Update( 0. );
+
+		shader.setMat4("model", cube.ModelMatrix());
+		shader.setMat4("view", camera.ViewMatrix());
+		shader.setMat4("projection", camera.ProjectionMatrix());
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glBindTexture(GL_TEXTURE_2D, texture.textureId);
-		ourShader.use();
+		shader.use();
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture.textureId);
@@ -108,18 +129,17 @@ void Minecraft::Start()
 	glfwTerminate();
 }
 
-
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-void Minecraft::processInput(GLFWwindow *window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-}
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-void Minecraft::size_callback(GLFWwindow* window, int width, int height)
+void Minecraft::window_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
+
+void Minecraft::mouse_callback(GLFWwindow* window, double x, double y)
+{
+	
+}
+
+
 
 Minecraft::~Minecraft()
 {
