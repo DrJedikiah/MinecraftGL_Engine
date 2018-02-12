@@ -19,11 +19,10 @@ class Mesh {
 public:
 	/*  Mesh Data  */
 	std::vector<Vertex> vertices;
-	Texture & texture;
+	Texture * texture;
+	Mesh(std::vector<Vertex> vertices);
 
-	/*  Functions  */
-	Mesh(std::vector<Vertex> vertices, Texture& texture);
-	virtual void Draw(Shader shader);
+	virtual void Draw(const Shader shader) const;
 
 private:
 	unsigned int VAO, VBO;

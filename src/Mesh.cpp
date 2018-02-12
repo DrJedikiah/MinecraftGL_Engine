@@ -1,19 +1,14 @@
 #include "Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex> verticesData, Texture& textureData) :
-	texture(textureData)
+Mesh::Mesh(std::vector<Vertex> verticesData)
 {
 	vertices = verticesData;
 	setupMesh();
 }
 
-void Mesh::Draw(Shader shader)
+void Mesh::Draw(const Shader shader) const
 {
-	glBindTexture(GL_TEXTURE_2D, texture.textureId);
 	shader.use();
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture.textureId);
 
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());

@@ -30,3 +30,9 @@ Texture::Texture(std::string filename)
 	stbi_image_free(data);
 }
 
+void Texture::Use() const
+{
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+}

@@ -9,6 +9,8 @@ class Texture
 {
 public:
 	Texture(std::string filename);
+	void Use() const;
+
 	unsigned int textureId;
 private:
 	int m_width, m_height, m_nrChannels;

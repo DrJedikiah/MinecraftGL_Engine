@@ -14,6 +14,8 @@
 #include "PlayerController.h"
 #include "Input.h"
 #include "Mesh.h"
+#include "Light.h"
+#include "World.h"
 
 //Design pattern singleton
 class Minecraft

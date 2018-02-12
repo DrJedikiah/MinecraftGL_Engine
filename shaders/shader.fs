@@ -4,8 +4,15 @@ in vec2 texCoord;
 in vec3 FragPos;
 in vec3 Normal;
 
+struct Light {
+    vec3 position;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
 #define MAX_LIGHTS 100
-uniform vec3 lights[MAX_LIGHTS];
+uniform Light lights[MAX_LIGHTS];
 uniform int numLights;
 
 uniform sampler2D tex;
@@ -26,7 +33,7 @@ void main()
 
 	for(int i=0;i<numLights;++i)
 	{
-		vec3 lightDir = normalize(lights[i] - FragPos);  
+		vec3 lightDir = normalize(lights[i].position - FragPos);  
 
 		//Diffuse
 		diffuse += max(dot(norm, lightDir), 0.0);

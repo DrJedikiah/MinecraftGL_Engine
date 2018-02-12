@@ -20,7 +20,7 @@ public:
 
 	Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
 
-	void use();
+	void use() const;
 
 	void setBool(const std::string &name, bool value) const;
 	void setInt(const std::string &name, int value) const;

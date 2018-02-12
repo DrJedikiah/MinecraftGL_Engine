@@ -54,77 +54,18 @@ Minecraft::Minecraft(std::string name, int width, int height)
 
 void Minecraft::Start()
 {
-
-	std::vector<Vertex> vertices = 
-	{
-		//Back
-		{ {-0.5f, -0.5f, -0.5f},	{ 0.f,0.f,-1.f},	{ 0.f, 0.5f } },//bot
-		{ { 0.5f,  0.5f, -0.5f },	{ 0.f,0.f,-1.f },	{ 0.5f, 1.0f } },
-		{ { 0.5f, -0.5f, -0.5f },	{ 0.f,0.f,-1.f },	{ 0.5f, 0.5f } },
-		{ { 0.5f,  0.5f, -0.5f },	{ 0.f,0.f,-1.f },	{ 0.5f, 1.0f } },//Top
-		{ { -0.5f, -0.5f, -0.5f },	{ 0.f,0.f,-1.f },	{ 0.f, 0.5f } },
-		{ { -0.5f,  0.5f, -0.5f },	{ 0.f,0.f,-1.f },	{ 0.f, 1.0f } },
-
-		//Front
-		{ { -0.5f, -0.5f, 0.5f },	{ 0.f,0.f,1.f },	{ 0.f, 0.5f } },//bot
-		{ { 0.5f, -0.5f, 0.5f },	{ 0.f,0.f,1.f },	{ 0.5f, 0.5f } },
-		{ { 0.5f,  0.5f, 0.5f },	{ 0.f,0.f,1.f },	{ 0.5f, 1.0f } },
-		{ { 0.5f,  0.5f, 0.5f },	{ 0.f,0.f,1.f },	{ 0.5f, 1.0f } },//Top
-		{ { -0.5f,  0.5f, 0.5f },	{ 0.f,0.f,1.f },	{ 0.f, 1.0f } },
-		{ { -0.5f, -0.5f, 0.5f },	{ 0.f,0.f,1.f },	{ 0.f, 0.5f } },
-		
-		//Left
-		{ { -0.5f,  0.5f,  0.5f },{ -1.f,0.f,0.f },{ 0.f, 1.f } },//Top
-		{ { -0.5f,  0.5f, -0.5f },{ -1.f,0.f,0.f },{ 0.5f, 1.f } },
-		{ { -0.5f, -0.5f, -0.5f },{ -1.f,0.f,0.f },{ 0.5f, 0.5f } },
-		{ { -0.5f, -0.5f, -0.5f },{ -1.f,0.f,0.f },{ 0.5f, 0.5f } },//Bot
-		{ { -0.5f, -0.5f,  0.5f },{ -1.f,0.f,0.f },{ 0.f, 0.5f } },
-		{ { -0.5f,  0.5f,  0.5f },{ -1.f,0.f,0.f },{ 0.f, 1.f } },
-
-		//Right
-		{ { 0.5f,  0.5f,  0.5f },{ 1.f,0.f,0.f },{ 0.f, 1.f } },//Top
-		{ { 0.5f, -0.5f, -0.5f },{ 1.f,0.f,0.f },{ 0.5f, 0.5f } },
-		{ { 0.5f,  0.5f, -0.5f },{ 1.f,0.f,0.f },{ 0.5f, 1.f } },
-		{ { 0.5f, -0.5f, -0.5f },{ 1.f,0.f,0.f },{ 0.5f, 0.5f } },//Bot
-		{ { 0.5f,  0.5f,  0.5f },{ 1.f,0.f,0.f },{ 0.f, 1.f } },
-		{ { 0.5f, -0.5f,  0.5f },{ 1.f,0.f,0.f },{ 0.f, 0.5f } },
-
-		//Bot
-		{ { -0.5f, -0.5f, -0.5f },	{ 0.f,-1.f,0.f },{ 0.5f, 1.0f } },
-		{ { 0.5f, -0.5f, -0.5f },	{ 0.f,-1.f,0.f },{ 1.0f, 1.0f } },
-		{ { 0.5f, -0.5f,  0.5f },	{ 0.f,-1.f,0.f },{ 1.0f, 0.5f } },
-		{ { 0.5f, -0.5f,  0.5f },	{ 0.f,-1.f,0.f },{ 1.0f, 0.5f } },
-		{ { -0.5f, -0.5f,  0.5f },	{ 0.f,-1.f,0.f },{ 0.5f, 0.5f } },
-		{ { -0.5f, -0.5f, -0.5f },	{ 0.f,-1.f,0.f },{ 0.5f, 1.0f } },
-
-		//Top
-		{ { 0.5f,  0.5f, -0.5f },	{ 0.f,1.f,0.f },{ 0.5f, 0.5f}},
-		{ { -0.5f,  0.5f, -0.5f },	{ 0.f,1.f,0.f },{ 0.0f, 0.5f } },
-		{ { 0.5f,  0.5f,  0.5f },	{ 0.f,1.f,0.f },{ 0.5f, 0.0f } },
-		{ { -0.5f,  0.5f,  0.5f },	{ 0.f,1.f,0.f },{ 0.0f, 0.0f } },
-		{ { 0.5f,  0.5f,  0.5f },	{ 0.f,1.f,0.f },{ 0.5f, 0.0f } },
-		{ { -0.5f,  0.5f, -0.5f },	{ 0.f,1.f,0.f },{ 0.0f, 0.5f } }
-	};
-
-
 	//Shader
 	Shader shader("shaders/shader.vs", "shaders/shader.fs");
 	Texture texture("textures/grass.bmp");
-
-
-	std::vector<glm::vec3> lights =
+	std::vector<Light> lights =
 	{
-		{ 0, 0, 0 },
-		{ -1,3, 3 }
+		Light({ 0, 100, 0 }),
 	};
 
-	Mesh cubeMesh(vertices, texture);
-	Model cube({ cubeMesh });
-		cube.Translate({ 5, 0, 0 });
-	Model sun1({ cubeMesh });
-		sun1.SetPosition(lights[0]);
-	Model sun2({ cubeMesh });
-		sun2.SetPosition(lights[1]);
+	shader.use();
+	texture.Use();
+
+	World world;
 
 	Camera camera(m_scr_width, m_scr_height);
 	PlayerController playerController(camera);
@@ -160,8 +101,6 @@ void Minecraft::Start()
 			Mouse::Update();
 			fixedUpdateTimer = 0.f;
 			playerController.Update(fixedUpdateDelta);
-
-			cube.RotateAround(fixedUpdateDelta, { 0,0,0 }, { 0,0,1 });
 		}
 
 		//Draws
@@ -172,7 +111,9 @@ void Minecraft::Start()
 
 			//Uniforms
 			shader.setMat4("view", camera.ViewMatrix());
-			shader.setVec3Array("lights", lights);
+			for (int i = 0; i < (int)lights.size(); ++i)
+				lights[i].SetLightUniform(shader, i);
+
 			shader.setVec3("viewPos", camera.Position());
 
 			//Clear
@@ -180,9 +121,10 @@ void Minecraft::Start()
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			//Draw
-			sun1.Draw(shader);
-			sun2.Draw(shader);
-			cube.Draw(shader);
+			shader.use();
+			texture.Use();
+			world.Draw(shader);
+
 			glfwSwapBuffers(m_window);
 		}
 	}

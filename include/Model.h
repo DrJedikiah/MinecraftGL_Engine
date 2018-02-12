@@ -10,7 +10,7 @@ class Model
 public:
 	Model( std::vector<Mesh> meshList );
 
-	void Draw( Shader shader);
+	void Draw( Shader shader) const;
 
 	const glm::mat4 ModelMatrix() const;
 

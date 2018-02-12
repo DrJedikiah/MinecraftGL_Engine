@@ -56,12 +56,12 @@ const glm::mat4 Model::ModelMatrix() const
 	return m_modelMatrix;
 }
 
-void Model::Draw(Shader shader)
+void Model::Draw(Shader shader) const
 {
 	if (modelMatrixChanged)
 		UpdateModelMatrix();
 		
 	shader.setMat4("model", m_modelMatrix);
-	for (Mesh & mesh : m_meshList)
+	for (const Mesh & mesh : m_meshList)
 		mesh.Draw(shader);
 }

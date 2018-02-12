@@ -80,7 +80,7 @@ Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
 	glEnableVertexAttribArray(0);
 }
 
-void Shader::use()
+void Shader::use() const
 {
 	glUseProgram(ID);
 }
