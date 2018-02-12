@@ -20,7 +20,7 @@ void PlayerController::Update(float delta)
 	if (Keyboard::IsKeyDown(AzertyKey::E))
 		m_camera.translate(m_moveSpeed * m_camera.Up());
 
-	if ( Mouse::KeyDown( GLFW_MOUSE_BUTTON_LEFT) )
+	if ( Mouse::KeyDown( GLFW_MOUSE_BUTTON_RIGHT) )
 	{
 		m_camera.rotateRight(m_mouseXspeed * Mouse::Delta().x);
 		m_camera.rotateUp(-m_mouseYspeed * Mouse::Delta().y);

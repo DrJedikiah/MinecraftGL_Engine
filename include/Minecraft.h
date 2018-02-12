@@ -12,7 +12,8 @@
 #include "Camera.h"
 #include "GameObject.h"
 #include "PlayerController.h"
-#include "Input.h" 
+#include "Input.h"
+#include "Mesh.h"
 
 //Design pattern singleton
 class Minecraft
