@@ -10,7 +10,7 @@
 #include "Physics.h"
 #include "Texture.h"
 #include "Camera.h"
-#include "GameObject.h"
+#include "Model.h"
 #include "PlayerController.h"
 #include "Input.h"
 #include "Mesh.h"
