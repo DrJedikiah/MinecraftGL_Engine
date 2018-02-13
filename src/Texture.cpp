@@ -36,3 +36,31 @@ void Texture::Use() const
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 }
+
+////////////BlockTextureCoords///////////////////////
+glm::ivec2 BlockTiles::m_nbTiles = {1,1};
+glm::vec2 BlockTiles::m_tileSize = { 1,1 };
+
+std::map<BlockTiles::Block, fRect> BlockTiles::m_blockRectangles;
+
+void BlockTiles::Initialize(int width, int height)
+{
+	m_nbTiles = glm::ivec2(width, height);
+	m_tileSize = glm::vec2(1.f / m_nbTiles.x, 1.f / m_nbTiles.y);
+}
+
+void BlockTiles::SetBlockTile(Block block, int x, int y)
+{
+	m_blockRectangles[block] = {
+		m_tileSize.x*x,//X
+		m_tileSize.y*y,//Y
+		m_tileSize.x*x + m_tileSize.x,//Width
+		m_tileSize.y*y + m_tileSize.y//Height
+	};
+}
+
+fRect BlockTiles::GetRectangle(Block block)
+{
+	return m_blockRectangles[block];
+}
+

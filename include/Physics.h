@@ -1,6 +1,7 @@
 #pragma once
 
 #include "btBulletDynamicsCommon.h"
+#include <iostream>
 
 class Physics
 {
@@ -8,8 +9,8 @@ public:
 	Physics();
 	~Physics();
 
-	void StepSimulation();
-
+	void StepSimulation( float timeStep );
+	btRigidBody* CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
 private:
 
 	btDefaultCollisionConfiguration * collisionConfiguration;
@@ -18,7 +19,5 @@ private:
 	btSequentialImpulseConstraintSolver* solver;
 	btDiscreteDynamicsWorld* dynamicsWorld;
 
-	//keep track of the shapes, we release memory at exit.
-	//make sure to re-use collision shapes among rigid bodies whenever possible!
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
 };

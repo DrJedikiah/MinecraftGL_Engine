@@ -2,13 +2,28 @@
 
 #include <glm/glm.hpp>
 
+enum CubeType { dirt, grass, water, air };
+
 class Cube
 {
 public:
-	enum Type{ dirt, grass, water, air };
+	
 	static const float size;
 
-	Cube(Type Type = air);
-	Type type;
+	Cube(CubeType type = CubeType::dirt);
+
+	CubeType Type() const;
+	void SetType(CubeType type);
+
+	bool IsEnabled() const;
+	bool IsSolid() const;
+
+	void SetEnabled(bool state);
+
+private:
+	CubeType m_type;
+
+	bool m_enabled = true;
+	bool m_solid = true;
 
 };

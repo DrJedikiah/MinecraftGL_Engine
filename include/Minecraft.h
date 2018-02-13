@@ -16,6 +16,7 @@
 #include "Mesh.h"
 #include "Light.h"
 #include "World.h"
+#include "Time.h"
 
 //Design pattern singleton
 class Minecraft

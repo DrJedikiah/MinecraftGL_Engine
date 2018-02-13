@@ -1,6 +1,15 @@
 #pragma once
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 class Time
 {
-	static float DeltaTime;
+public:
+	static float DeltaTime();
+	static float FixedDeltaTime();
+	static float ElapsedSinceStartup();
+private:
+	static float m_deltaTime;
+	static float m_fixedDeltaTime;
 };

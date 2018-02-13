@@ -2,6 +2,7 @@
 
 #include "Chunck.h"
 #include "Perlin.h"
+#include "Physics.h"
 
 
 class World
@@ -9,10 +10,11 @@ class World
 public:
 	World();
 
-	const int size = 2;
-	const int height = 2;
+	static const int size;
+	static const int height;
 
 	void Draw(const Shader& shader) const;
+	void GeneratePhysics(Physics & physicsEngine);
 
 private:
 	PerlinNoise perlinGen;

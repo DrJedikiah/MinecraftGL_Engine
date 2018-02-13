@@ -19,73 +19,53 @@ Cube& Chunck::GetCube(int x, int y, int z)
 
 void Chunck::GenerateMesh()
 {
+	fRect dirt = BlockTiles::GetRectangle(BlockTiles::grassTop);
+
 	std::vector<Vertex> vertices;
 	for (int y = 0; y < size; ++y)
-	{
 		for (int z = 0; z < size; ++z)
-		{
 			for (int x = 0; x < size; ++x)
 			{
-				if( GetCube( x, y, z).type != Cube::Type::air)
+				Cube& cube = GetCube(x, y, z);
+				if( cube.IsEnabled())
 				{
-					float s = Cube::size / 2;
-					float X = x * s * 2;
-					float Y = y * s * 2;
-					float Z = z * s * 2;
-					std::vector<Vertex> cube =
+					if (y + 1 == size || !GetCube(x, y + 1, z).IsSolid())
 					{
-						//Back
-						{ { X - s, Y - s, Z - s },{ 0.f,0.f,-1.f },{ 0.f, 0.5f } },//bot
-						{ { X + s, Y + s, Z - s },{ 0.f,0.f,-1.f },{ 0.5f, 1.0f } },
-						{ { X + s, Y - s, Z - s },{ 0.f,0.f,-1.f },{ 0.5f, 0.5f } },
-						{ { X + s, Y + s, Z - s },{ 0.f,0.f,-1.f },{ 0.5f, 1.0f } },//Top
-						{ { X - s, Y - s, Z - s },{ 0.f,0.f,-1.f },{ 0.f, 0.5f } },
-						{ { X - s, Y + s, Z - s },{ 0.f,0.f,-1.f },{ 0.f, 1.0f } },
+						std::vector<Vertex> topFace = Util::cubeTopFace(Cube::size, (float)x, (float)y, (float)z, dirt);
+						vertices.insert(vertices.end(), topFace.begin(), topFace.end());
+					}
+						
+					if (y - 1 == -1 || !GetCube(x, y + 1, z).IsSolid())
+					{
+						std::vector<Vertex> botFace = Util::cubeBotFace(Cube::size, (float)x, (float)y, (float)z, dirt);
+						vertices.insert(vertices.end(), botFace.begin(), botFace.end());
+					}
 
-						//Front
-						{ { X - s, Y - s, Z + s },{ 0.f,0.f,1.f },{ 0.f, 0.5f } },//bot
-						{ { X + s,Y - s, Z + s },{ 0.f,0.f,1.f },{ 0.5f, 0.5f } },
-						{ { X + s, Y + s,Z + s },{ 0.f,0.f,1.f },{ s, 1.0f } },
-						{ { X + s, Y + s, Z + s },{ 0.f,0.f,1.f },{ 0.5f, 1.0f } },//Top
-						{ { X - s, Y + s, Z + s },{ 0.f,0.f,1.f },{ 0.f, 1.0f } },
-						{ { X - s, Y - s,Z + s },{ 0.f,0.f,1.f },{ 0.f, 0.5f } },
+					if (x - 1 == -1 || !GetCube(x - 1, y, z).IsSolid())
+					{
+						std::vector<Vertex> leftFace = Util::cubeLeftFace(Cube::size, (float)x, (float)y, (float)z, dirt);
+						vertices.insert(vertices.end(), leftFace.begin(), leftFace.end());
+					}
 
-						//Left
-						{ { X - s, Y + s, Z + s },{ -1.f,0.f,0.f },{ 0.f, 1.f } },//Top
-						{ { X - s, Y + s, Z - s },{ -1.f,0.f,0.f },{ 0.5f, 1.f } },
-						{ { X - s, Y - s, Z - s },{ -1.f,0.f,0.f },{ 0.5f, 0.5f } },
-						{ { X - s, Y - s, Z - s },{ -1.f,0.f,0.f },{ 0.5f, 0.5f } },//Bot
-						{ { X - s, Y - s, Z + s },{ -1.f,0.f,0.f },{ 0.f, 0.5f } },
-						{ { X - s, Y + s, Z + s },{ -1.f,0.f,0.f },{ 0.f, 1.f } },
+					if (x + 1 == size || !GetCube(x + 1, y, z).IsSolid())
+					{
+						std::vector<Vertex> rightFace = Util::cubeRightFace(Cube::size, (float)x, (float)y, (float)z, dirt);
+						vertices.insert(vertices.end(), rightFace.begin(), rightFace.end());
+					}
 
-						//Right
-						{ { X + s, Y + s, Z + s },{ 1.f,0.f,0.f },{ 0.f, 1.f } },//Top
-						{ { X + s, Y - s, Z - s },{ 1.f,0.f,0.f },{ 0.5f, 0.5f } },
-						{ { X + s, Y + s, Z - s },{ 1.f,0.f,0.f },{ 0.5f, 1.f } },
-						{ { X + s, Y - s, Z - s },{ 1.f,0.f,0.f },{ 0.5f, 0.5f } },//Bot
-						{ { X + s, Y + s, Z + s },{ 1.f,0.f,0.f },{ 0.f, 1.f } },
-						{ { X + s, Y - s, Z + s },{ 1.f,0.f,0.f },{ 0.f, 0.5f } },
+					if (z - 1 == -1 || !GetCube(x, y, z - 1).IsSolid())
+					{
+						std::vector<Vertex> backFace = Util::cubeBackFace(Cube::size, (float)x, (float)y, (float)z, dirt);
+						vertices.insert(vertices.end(), backFace.begin(), backFace.end());
 
-						//Bot
-						{ { X - s, Y - s, Z - s },{ 0.f,-1.f,0.f },{ 0.5f, 1.0f } },
-						{ { X + s, Y - s, Z - s },{ 0.f,-1.f,0.f },{ 1.0f, 1.0f } },
-						{ { X + s, Y - s, Z + s },{ 0.f,-1.f,0.f },{ 1.0f, 0.5f } },
-						{ { X + s, Y - s, Z + s },{ 0.f,-1.f,0.f },{ 1.0f, 0.5f } },
-						{ { X - s, Y - s, Z + s },{ 0.f,-1.f,0.f },{ 0.5f, 0.5f } },
-						{ { X - s, Y - s, Z - s },{ 0.f,-1.f,0.f },{ 0.5f, 1.0f } },
+					}
 
-						//Top
-						{ { X + s,  Y + s, Z - s },{ 0.f,1.f,0.f },{ 0.5f, 0.5f } },
-						{ { X - s,  Y + s, Z - s },{ 0.f,1.f,0.f },{ 0.0f, 0.5f } },
-						{ { X + s,  Y + s, Z + s },{ 0.f,1.f,0.f },{ 0.5f, 0.0f } },
-						{ { X - s,  Y + s, Z + s },{ 0.f,1.f,0.f },{ 0.0f, 0.0f } },
-						{ { X + s,  Y + s, Z + s },{ 0.f,1.f,0.f },{ 0.5f, 0.0f } },
-						{ { X - s,  Y + s, Z - s },{ 0.f,1.f,0.f },{ 0.0f, 0.5f } }
-					};
-					vertices.insert(vertices.end(), cube.begin(), cube.end());
+					if (z + 1 == size || !GetCube(x, y, z + 1).IsSolid())
+					{
+						std::vector<Vertex> frontFace = Util::cubeFrontFace(Cube::size, (float)x, (float)y, (float)z, dirt);
+						vertices.insert(vertices.end(), frontFace.begin(), frontFace.end());
+					}
 				}
-			}
-		}
 	}
 	m_model = Model({ Mesh(vertices) });
 }
