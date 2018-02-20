@@ -1,4 +1,4 @@
-#include "Input.h"
+#include "util/Input.h"
 
 ////////////Input////////////
 void Input::SetWindow(GLFWwindow * window)

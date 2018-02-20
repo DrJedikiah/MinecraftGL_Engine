@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Chunck.h"
-#include "Perlin.h"
-#include "Physics.h"
+#include "engine/Chunck.h"
+#include "util/Perlin.h"
+#include "engine/Physics.h"
 
 class World
 {

@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include "graphics/Mesh.h"
 
 Mesh::Mesh(std::vector<Vertex> verticesData)
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Camera.h"
-#include "Input.h"
+#include "engine/Camera.h"
+#include "util/Input.h"
 
 class PlayerController
 {

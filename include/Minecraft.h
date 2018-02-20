@@ -6,17 +6,17 @@
 #include <iostream>
 #include <string>
 
-#include "Shader.h"
-#include "Physics.h"
-#include "Texture.h"
-#include "Camera.h"
-#include "Model.h"
-#include "PlayerController.h"
-#include "Input.h"
-#include "Mesh.h"
-#include "Light.h"
-#include "World.h"
-#include "Time.h"
+#include "graphics/Shader.h"
+#include "engine/Physics.h"
+#include "graphics/Texture.h"
+#include "engine/Camera.h"
+#include "graphics/Model.h"
+#include "engine/PlayerController.h"
+#include "util/Input.h"
+#include "graphics/Mesh.h"
+#include "graphics/Light.h"
+#include "engine/World.h"
+#include "util/Time.h"
 
 //Design pattern singleton
 class Minecraft

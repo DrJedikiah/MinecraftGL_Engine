@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "Mesh.h"
+#include "graphics/Mesh.h"
 
 namespace Util
 {

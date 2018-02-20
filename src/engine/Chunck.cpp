@@ -1,4 +1,4 @@
-#include "Chunck.h"
+#include "engine/Chunck.h"
 
 
 Chunck::Chunck() : m_model({})
@@ -32,7 +32,7 @@ void Chunck::GenerateCollider(PhysicsEngine & physicsEngine)
 	mesh->preallocateVertices(size*size*size);
 	mesh->preallocateIndices(size*size*size);
 
-	for (int i = 0; i < btVertices->size() / 3; ++i)
+	for (int i = 0; i < (int)btVertices->size() / 3; ++i)
 		mesh->addTriangle((*btVertices)[3 * i + 0], (*btVertices)[3 * i + 1], (*btVertices)[3 * i + 2]);
 
 	btBvhTriangleMeshShape * shape = new btBvhTriangleMeshShape(mesh, false);

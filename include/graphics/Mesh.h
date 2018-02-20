@@ -5,8 +5,8 @@
 
 #include <glm/glm.hpp>
 
-#include "Texture.h"
-#include "Shader.h"
+#include "graphics/Texture.h"
+#include "graphics/Shader.h"
 
 struct Vertex 
 {

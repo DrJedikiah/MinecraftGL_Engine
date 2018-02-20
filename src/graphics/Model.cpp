@@ -1,4 +1,4 @@
-#include "Model.h"
+#include "graphics/Model.h"
 
 Model::Model(std::vector<Mesh> meshList) :
 	m_modelMatrix(1.f),

@@ -3,10 +3,10 @@
 #include <vector>
 
 #include "Block.h"
-#include "Shader.h"
-#include "Model.h"
-#include "Util.h"
-#include "Physics.h"
+#include "graphics/Shader.h"
+#include "graphics/Model.h"
+#include "util/Util.h"
+#include "engine/Physics.h"
 
 
 

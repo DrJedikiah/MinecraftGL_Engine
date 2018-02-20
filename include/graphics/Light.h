@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "Shader.h"
+#include "graphics/Shader.h"
 
 class Light
 {
