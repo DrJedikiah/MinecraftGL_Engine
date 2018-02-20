@@ -4,26 +4,28 @@
 #include "Perlin.h"
 #include "Physics.h"
 
-
 class World
 {
 public:
 	World();
 
-	static const int size;
-	static const int height;
+	const static int size = 6;
+	const static int height = 1;
 
 	void Draw(const Shader& shader) const;
-	void GeneratePhysics(Physics & physicsEngine);
+	void GeneratePhysics(PhysicsEngine & physicsEngine);
 
 private:
 	PerlinNoise perlinGen;
-	std::vector<Chunck> m_chuncks;
+
+	Chunck ***m_chuncks;
 
 	void generate();
 
-	Cube& getCube(int x, int y, int z);
-	Chunck & getChunck(int x, int y, int z);
+	Block & GetBlock(int x, int y, int z);
+	Chunck & GetChunck(int x, int y, int z);
 
 };
+
+
 

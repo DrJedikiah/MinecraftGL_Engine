@@ -72,22 +72,24 @@ void Minecraft::Start()
 	shader.use();
 	texture.Use();
 
-	Physics physicsEngine;
+	PhysicsEngine physicsEngine;
 	World world;
 	world.GeneratePhysics(physicsEngine);
+
+
 	Camera camera(m_scr_width, m_scr_height, 100);
 	PlayerController playerController(camera);
 	camera.translate(glm::vec3(14, 16, 14 + 8) - camera.Position());
 	camera.rotateUp(glm::radians(-15.f));
 	btTransform transform = btTransform::getIdentity();
-	transform.setOrigin(btVector3(14,16,14.5));
+	transform.setOrigin(btVector3(5.5,16,4));
 	btRigidBody * rb = physicsEngine.CreateRigidBody(1, transform, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)));
-	transform.setOrigin(btVector3(13.6, 15.5, 14));
+	transform.setOrigin(btVector3(5.5+8, 17, 4));
 	btRigidBody * rb2 = physicsEngine.CreateRigidBody(1, transform, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)));
-	transform.setOrigin(btVector3(14, 13.5, 14.5));
+	transform.setOrigin(btVector3(4.8, 18, 5.5+8));
 	btRigidBody * rb3 = physicsEngine.CreateRigidBody(1, transform, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)));
 	
-	Model  cube({ Mesh(Util::DirtCubeMesh(1.f, 0.f, 0.f, 0.f)) });
+	Model  cube({  Mesh(Util::DirtCubeMesh(1.f, 0.f, 0.f, 0.f)) });
 	Model  cube2({ Mesh(Util::DirtCubeMesh(1.f, 0.f, 0.f, 0.f)) });
 	Model  cube3({ Mesh(Util::DirtCubeMesh(1.f, 0.f, 0.f, 0.f)) });
 
@@ -99,7 +101,7 @@ void Minecraft::Start()
 	float drawTimer = 0.f;
 	float fixedUpdateTimer = 0.f;
 	float time = Time::ElapsedSinceStartup();
-
+	
 	// render loop
 	while (!glfwWindowShouldClose(m_window))
 	{

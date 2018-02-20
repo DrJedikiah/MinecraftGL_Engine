@@ -1,6 +1,6 @@
 #include "Physics.h"
 
-Physics::Physics()
+PhysicsEngine::PhysicsEngine()
 {
 	///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
 	collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -19,12 +19,12 @@ Physics::Physics()
 	dynamicsWorld->setGravity(btVector3(0, -10, 0));
 }
 
-void Physics::StepSimulation(float timeStep)
+void PhysicsEngine::StepSimulation(float timeStep)
 {
 	dynamicsWorld->stepSimulation(timeStep, 10);
 }
 
-Physics::~Physics()
+PhysicsEngine::~PhysicsEngine()
 {
 	//cleanup in the reverse order of creation/initialization
 	//remove the rigidbodies from the dynamics world and delete them
@@ -66,7 +66,7 @@ Physics::~Physics()
 	collisionShapes.clear();
 }
 
-btRigidBody* Physics::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
+btRigidBody* PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
 {
 	bool isDynamic = (mass != 0.f);
 

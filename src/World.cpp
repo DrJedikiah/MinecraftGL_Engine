@@ -1,43 +1,38 @@
 #include "World.h"
 
-const int World::size = 2;
-const int World::height = 1;
-
 World::World()
 {
 	perlinGen.reseed(42);
-	m_chuncks.resize(size * size * height);
+
+	for (int y = 0; y < height; ++y)
+		for (int z = 0; z < size; ++z)
+			for (int x = 0; x < size; ++x)
+				m_chuncks[x][y][z].Setup(btVector3(x, y, z));
 	generate();
 }
 
-Chunck & World::getChunck(int x, int y, int z)
+
+
+Chunck & World::GetChunck(int x, int y, int z)
 {
-	return m_chuncks[x + z * size + y * size * size];
+	return m_chuncks[x][y][z];
 }
 
-Cube & World::getCube(int x, int y, int z)
+Block & World::GetBlock(int x, int y, int z)
 {
-	return getChunck(x / Chunck::size, y / Chunck::size, z / Chunck::size).GetCube(x%Chunck::size, y%Chunck::size, z%Chunck::size);
+	return GetChunck(x / Chunck::size, y / Chunck::size, z / Chunck::size).GetBlock(x%Chunck::size, y%Chunck::size, z%Chunck::size);
 }
-void World::GeneratePhysics(Physics & physicsEngine)
+
+void World::GeneratePhysics(PhysicsEngine & physicsEngine)
 {
-	for (int y = 0; y < height * Chunck::size; ++y)
-		for (int x = 0; x < size * Chunck::size; ++x)
-			for (int z = 0; z < size * Chunck::size; ++z)
-			{
-				if (getCube(x, y, z).IsEnabled())
-				{
-					const float hs = Cube::size / 2.f;
-					btTransform transform = btTransform::getIdentity();
-					transform.setOrigin(btVector3(x,y,z));
-					physicsEngine.CreateRigidBody(0, transform, new btBoxShape(btVector3(hs,hs,hs)));
-				}
-					
-			}	
+	for (int y = 0; y < height; ++y)
+		for (int z = 0; z < size; ++z)
+			for (int x = 0; x < size; ++x)
+				m_chuncks[x][y][z].GenerateCollider(physicsEngine);
 }
 
 void World::generate()
-{	
+{
 	//Perlin cubes generation
 	for (int y = 0; y < height * Chunck::size; ++y)
 		for (int x = 0; x < size * Chunck::size; ++x)
@@ -61,9 +56,9 @@ void World::generate()
 
 				}
 				if (density > 0)
-					getCube(x, y, z).SetType(CubeType::dirt);
+					GetBlock(x, y, z).SetType(Block::Type::dirt);
 				else
-					getCube(x, y, z).SetType(CubeType::air);
+					GetBlock(x, y, z).SetType(Block::Type::air);
 			}
 
 	//Removing hidden cubes
@@ -71,19 +66,19 @@ void World::generate()
 		for (int x = 1; x < size * Chunck::size - 1; ++x)
 			for (int z = 1; z < size * Chunck::size  - 1; ++z)
 			{
-				Cube& cube = getCube(x, y, z);
-				if (getCube( x+1,	y,		z	).IsSolid() &&
-					getCube( x-1,	y,		z	).IsSolid() &&
-					getCube( x,		y+1,	z	).IsSolid() &&
-					getCube( x,		y-1,	z	).IsSolid() &&
-					getCube( x,		y,		z+1	).IsSolid() &&
-					getCube( x,		y,		z-1	).IsSolid())
+				Block& cube = GetBlock(x, y, z);
+				if (GetBlock( x+1,	y,		z	).IsSolid() &&
+					GetBlock( x-1,	y,		z	).IsSolid() &&
+					GetBlock( x,		y+1,	z	).IsSolid() &&
+					GetBlock( x,		y-1,	z	).IsSolid() &&
+					GetBlock( x,		y,		z+1	).IsSolid() &&
+					GetBlock( x,		y,		z-1	).IsSolid())
 				{
 					cube.SetEnabled(false);
 				}
 
-				if (cube.Type() == CubeType::dirt && ! getCube(x, y + 1, z).IsSolid())
-					cube.SetType(CubeType::grass);
+				if (cube.GetType() == Block::Type::dirt && !GetBlock(x, y + 1, z).IsSolid())
+					cube.SetType(Block::Type::grass);
 			}
 
 	//Mesh generation
@@ -93,9 +88,9 @@ void World::generate()
 		{
 			for (int z = 0; z < size; ++z)
 			{
-				Chunck & chunck = getChunck(x, y, z);
+				Chunck & chunck = GetChunck(x, y, z);
 				chunck.GenerateMesh();
-				chunck.m_model.Translate(Chunck::size * Cube::size * glm::vec3{ x,y,z });
+				chunck.m_model.Translate(Chunck::size * Block::size * glm::vec3{ x,y,z });
 			}
 		}
 	}
@@ -104,6 +99,8 @@ void World::generate()
 
 void World::Draw(const Shader& shader) const
 {
-	for (const Chunck & chunck : m_chuncks)
-		chunck.Draw(shader);
+	for (int y = 0; y < height; ++y)
+		for (int z = 0; z < size; ++z)
+			for (int x = 0; x < size; ++x)
+				m_chuncks[x][y][z].Draw(shader);
 }

@@ -3,11 +3,11 @@
 #include "btBulletDynamicsCommon.h"
 #include <iostream>
 
-class Physics
+class PhysicsEngine
 {
 public:
-	Physics();
-	~Physics();
+	PhysicsEngine();
+	~PhysicsEngine();
 
 	void StepSimulation( float timeStep );
 	btRigidBody* CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
