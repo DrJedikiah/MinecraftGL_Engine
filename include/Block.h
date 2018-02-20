@@ -16,6 +16,8 @@ public:
 	void SetEnabled(bool state);
 	bool IsSolid() const;
 
+
+
 private:
 	Type m_type = Type::dirt;
 	bool m_enabled = true;

@@ -9,8 +9,8 @@ class World
 public:
 	World();
 
-	const static int size = 6;
-	const static int height = 1;
+	const static int size = 4;
+	const static int height = 2;
 
 	void Draw(const Shader& shader) const;
 	void GeneratePhysics(PhysicsEngine & physicsEngine);

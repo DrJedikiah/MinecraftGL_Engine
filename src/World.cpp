@@ -4,10 +4,19 @@ World::World()
 {
 	perlinGen.reseed(42);
 
+	m_chuncks = new Chunck**[size];
+	for (int i = 0; i < size; ++i)
+	{
+		m_chuncks[i] = new Chunck*[height];
+		for (int j = 0; j < height; ++j)
+			m_chuncks[i][j] = new Chunck[size];
+	}
+
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
-				m_chuncks[x][y][z].Setup(btVector3(x, y, z));
+				m_chuncks[x][y][z].Setup(btVector3((float)x, (float)y, (float)z));
+
 	generate();
 }
 
@@ -43,12 +52,12 @@ void World::generate()
 				if (y < heightMap / 100000 )
 				{
 					float scale3D = 1.f / 5.f;
-					density = perlinGen.noise((double)(scale3D * x), (double)(scale3D * y), (double)(scale3D * z));
+					density = (float)perlinGen.noise((double)(scale3D * x), (double)(scale3D * y), (double)(scale3D * z));
 				}
 				else
 				{
 					float scale2D = 1.f / 10.f;
-					int h = heightMap *(perlinGen.noise(scale2D*x, scale2D*z) + 1.f) / 2.f; 
+					int h = (int)(heightMap *(perlinGen.noise(scale2D*x, scale2D*z) + 1.f) / 2.f); 
 					if (y > h)
 						density = -1.f;
 					else

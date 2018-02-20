@@ -35,9 +35,6 @@ void Chunck::GenerateCollider(PhysicsEngine & physicsEngine)
 	for (int i = 0; i < btVertices->size() / 3; ++i)
 		mesh->addTriangle((*btVertices)[3 * i + 0], (*btVertices)[3 * i + 1], (*btVertices)[3 * i + 2]);
 
-
-
-
 	btBvhTriangleMeshShape * shape = new btBvhTriangleMeshShape(mesh, false);
 	btTransform transform = btTransform::getIdentity();
 	physicsEngine.CreateRigidBody(0, transform, shape); 
@@ -45,7 +42,7 @@ void Chunck::GenerateCollider(PhysicsEngine & physicsEngine)
 
 void Chunck::GenerateMesh()
 {
-	fRect dirt = BlockTiles::GetRectangle(BlockTiles::grassTop);
+	fRect dirt = BlockTiles::GetRectangle(BlockTiles::grassSide);
 	vertices.clear();
 	
 	for (int y = 0; y < size; ++y)

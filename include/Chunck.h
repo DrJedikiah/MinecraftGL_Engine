@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Cube.h"
+#include "Block.h"
 #include "Shader.h"
 #include "Model.h"
 #include "Util.h"

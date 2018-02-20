@@ -77,16 +77,16 @@ void Minecraft::Start()
 	world.GeneratePhysics(physicsEngine);
 
 
-	Camera camera(m_scr_width, m_scr_height, 100);
+	Camera camera(m_scr_width, m_scr_height, 1000);
 	PlayerController playerController(camera);
 	camera.translate(glm::vec3(14, 16, 14 + 8) - camera.Position());
 	camera.rotateUp(glm::radians(-15.f));
 	btTransform transform = btTransform::getIdentity();
-	transform.setOrigin(btVector3(5.5,16,4));
+	transform.setOrigin(btVector3(5.5f,16.f,4.f));
 	btRigidBody * rb = physicsEngine.CreateRigidBody(1, transform, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)));
-	transform.setOrigin(btVector3(5.5+8, 17, 4));
+	transform.setOrigin(btVector3(5.5f+8.f, 17.f, 4.f));
 	btRigidBody * rb2 = physicsEngine.CreateRigidBody(1, transform, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)));
-	transform.setOrigin(btVector3(4.8, 18, 5.5+8));
+	transform.setOrigin(btVector3(4.8f, 18.f, 5.5f+8.f));
 	btRigidBody * rb3 = physicsEngine.CreateRigidBody(1, transform, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)));
 	
 	Model  cube({  Mesh(Util::DirtCubeMesh(1.f, 0.f, 0.f, 0.f)) });
