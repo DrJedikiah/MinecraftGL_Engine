@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{29de983d-6583-455f-9b05-ec21a34350e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dependencies">
+      <UniqueIdentifier>{7b9b3f11-8ad6-44cf-91fd-0f035f15226c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine">
+      <UniqueIdentifier>{7d0c565a-e507-419f-b367-e83dbe903d85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\graphics">
+      <UniqueIdentifier>{9e4b18ae-9aa6-42f4-82cf-5dc6fb167bef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util">
+      <UniqueIdentifier>{97fb9c1f-0f3d-40a1-8364-39e9436dbc8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies">
+      <UniqueIdentifier>{ae6a2498-5c87-4942-838a-830bec85a4c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\engine">
+      <UniqueIdentifier>{5b10d9a4-7dc0-4cfd-86b0-4a8bd16e0a31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics">
+      <UniqueIdentifier>{d2167dd5-5624-4518-90f6-e2455950e3ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util">
+      <UniqueIdentifier>{a68affba-425e-4f0b-b61a-393f73f54ec6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Minecraft.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dependencies\stb_image.h">
+      <Filter>Header Files\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\Block.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\Camera.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\Chunck.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\Physics.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\PlayerController.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\World.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\Light.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\Mesh.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\Model.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\Shader.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\Texture.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\util\Input.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\util\Perlin.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\util\Time.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\util\Util.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\TexturesBlocks.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\util\Signal.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Minecraft.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\glad.c">
+      <Filter>Source Files\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\Block.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\Camera.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\Chunck.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\Physics.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\PlayerController.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\World.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\Light.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\Mesh.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\Model.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\Shader.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\Texture.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\Input.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\Time.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TexturesBlocks.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\shader.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\shader.vs">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
