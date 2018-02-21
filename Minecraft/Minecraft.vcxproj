@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>include;include/dependencies/Bullet;include/dependencies</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;include/dependencies/Bullet;include/dependencies </AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
