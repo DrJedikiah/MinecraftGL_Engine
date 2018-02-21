@@ -1,7 +1,7 @@
 #include "engine/Chunck.h"
 
 
-Chunck::Chunck() : m_model({})
+Chunck::Chunck() : m_model()
 {
 	m_btMesh.preallocateVertices(size*size*size);
 	m_btMesh.preallocateIndices(size*size*size);
@@ -12,7 +12,7 @@ void Chunck::Setup(glm::ivec3 position)
 	m_position = position;
 }
 
-void Chunck::Draw(const Shader& shader) const
+void Chunck::Draw(const Shader & shader) const
 {
 	m_model.Draw(shader);
 }
@@ -22,7 +22,7 @@ Block& Chunck::GetBlock(int x, int y, int z)
 	return m_blocks[x][y][z];
 }
 
-void Chunck::GenerateCollider(PhysicsEngine & physicsEngine)
+void Chunck::GenerateCollider()
 {
 	std::vector<btVector3> btVertices;
 	btVertices.reserve(size*size*size);
@@ -40,7 +40,7 @@ void Chunck::GenerateCollider(PhysicsEngine & physicsEngine)
 
 		m_shape = new btBvhTriangleMeshShape(&m_btMesh, false);
 		btTransform transform = btTransform::getIdentity();
-		physicsEngine.CreateRigidBody(0, transform, m_shape);
+		PhysicsEngine::CreateRigidBody(0, transform, m_shape);
 
 	}
 

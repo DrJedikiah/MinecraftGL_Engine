@@ -23,8 +23,7 @@ Chunck & World::GetChunck(glm::ivec3 position) { return m_chuncks[position.x][po
 Chunck & World::GetChunck(int x, int y, int z) { return m_chuncks[x][y][z]; } 
 
 Block & World::GetBlock(glm::ivec3 position) { return GetBlock(position.x, position.y, position.z); }
-Block & World::GetBlock(int x, int y, int z)
-{ 
+Block & World::GetBlock(int x, int y, int z){ 
 	return GetChunck(x / Chunck::size, y / Chunck::size, z / Chunck::size).GetBlock(x%Chunck::size, y%Chunck::size, z%Chunck::size);
 }
 
@@ -40,12 +39,12 @@ bool World::BlockExists(int x, int y, int z)
 }
 
 
-void World::GeneratePhysics(PhysicsEngine & physicsEngine)
+void World::GeneratePhysics()
 {
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
-				m_chuncks[x][y][z].GenerateCollider(physicsEngine);
+				m_chuncks[x][y][z].GenerateCollider();
 }  
 
 void World::GenerateChunks()
@@ -73,23 +72,23 @@ void World::GenerateChunks()
 			}
 	
 	//Removing hidden cubes
-	for (int y = 1; y < height * Chunck::size - 1; ++y)
-		for (int x = 1; x < size * Chunck::size - 1; ++x)
-			for (int z = 1; z < size * Chunck::size  - 1; ++z)
+	for (int y = 0; y < height * Chunck::size; ++y)
+		for (int x = 0; x < size * Chunck::size; ++x)
+			for (int z = 0; z < size * Chunck::size; ++z)
 			{
-				Block& cube = GetBlock(x, y, z);
-				if (GetBlock( x+1,	y,		z	).solid &&
-					GetBlock( x-1,	y,		z	).solid &&
-					GetBlock( x,		y+1,	z	).solid &&
-					GetBlock( x,		y-1,	z	).solid &&
-					GetBlock( x,		y,		z+1	).solid &&
-					GetBlock( x,		y,		z-1	).solid)
+				Block& block = GetBlock(x, y, z);
+				if ((x + 1 >= size * Chunck::size	|| GetBlock( x+1,	y, z ).solid ) &&
+					(x - 1 < 0						|| GetBlock( x-1,	y,		z	).solid )&&
+					(y + 1 >= size * Chunck::size	|| GetBlock( x,		y+1,	z	).solid )&&
+					(y - 1 < 0 * Chunck::size		|| GetBlock( x,		y-1,	z	).solid )&&
+					(z + 1 >= size * Chunck::size	|| GetBlock( x,		y,		z+1	).solid )&&
+					(z - 1 < 0 * Chunck::size		|| GetBlock( x,		y,		z-1	).solid) )
 				{
-					cube.enabled = false;
+					block.enabled = false;
 				}
 
-				if (cube.type == Block::Type::dirt && !GetBlock(x, y + 1, z).solid)
-					cube.type = Block::Type::grass;
+				if (block.type == Block::Type::dirt && ( y + 1 >= height * Chunck::size || ! GetBlock(x, y + 1, z).solid))
+					block.type = Block::Type::grass;
 			}
 
 	//Mesh generation

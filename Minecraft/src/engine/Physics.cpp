@@ -1,5 +1,16 @@
 #include "engine/Physics.h"
 
+PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
+
+ btDefaultCollisionConfiguration * PhysicsEngine::collisionConfiguration;
+ btCollisionDispatcher* PhysicsEngine::dispatcher;
+ btBroadphaseInterface* PhysicsEngine::overlappingPairCache;
+ btSequentialImpulseConstraintSolver* PhysicsEngine::solver;
+ btDiscreteDynamicsWorld* PhysicsEngine::dynamicsWorld;
+ btAlignedObjectArray<btCollisionShape*> PhysicsEngine::collisionShapes;
+
+
+
 PhysicsEngine::PhysicsEngine()
 {
 	///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.

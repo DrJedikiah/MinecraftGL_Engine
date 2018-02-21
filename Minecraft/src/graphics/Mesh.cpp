@@ -6,10 +6,8 @@ Mesh::Mesh(std::vector<Vertex> verticesData)
 	setupMesh(verticesData);
 }
 
-void Mesh::Draw(const Shader shader) const
+void Mesh::Draw(const Shader& shader) const
 {
-	shader.use();
-
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLES, 0, m_size);
 }

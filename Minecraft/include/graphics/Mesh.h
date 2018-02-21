@@ -7,6 +7,7 @@
 
 #include "graphics/Texture.h"
 #include "graphics/Shader.h"
+#include "graphics/Drawable.h"
 
 struct Vertex 
 {
@@ -15,14 +16,15 @@ struct Vertex
 	glm::vec2 texCoord;
 };
 
-class Mesh {
+class Mesh  : public Drawable
+{
 public:
 	/*  Mesh Data  */
 	//std::vector<Vertex> vertices;
 	Texture * texture;
 	Mesh(std::vector<Vertex> vertices);
 
-	virtual void Draw(const Shader shader) const;
+	void Draw(const Shader& shader) const override;
 
 private:
 	unsigned int VAO, VBO;

@@ -3,14 +3,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "graphics/Mesh.h"
 
-class Model
+#include "graphics/Mesh.h"
+#include "graphics/Drawable.h"
+
+class Model : public Drawable
 {
 public:
-	Model( std::vector<Mesh> meshList );
+	Model(std::vector<Mesh> meshList = std::vector<Mesh>());
+	Model(Mesh mesh);
 
-	void Draw( Shader shader) const;
+	void AddMesh(Mesh mesh);
 
 	const glm::mat4 ModelMatrix() const;
 
@@ -22,6 +25,8 @@ public:
 
 	glm::vec3 Position();
 	glm::vec3 Rotation();
+
+	void Draw(const Shader& shader) const override;
 
 private:
 	mutable bool modelMatrixChanged = true;

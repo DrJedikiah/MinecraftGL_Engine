@@ -4,23 +4,25 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "btBulletDynamicsCommon.h"
+
 class Camera
 {
 public:
 	Camera( int width, int height, float far = 100.f, float near = 0.1f, float fov = 45.f);
 
-	void translate(glm::vec3 vector);
-	void translate (float x, float y, float z );
-	void rotateUp(float angle);
-	void rotateRight(float angle);
+	void SetPosition(glm::vec3 vector);
+	void Translate(glm::vec3 vector);
+	void RotateUp(float angle);
+	void RotateRight(float angle);
 
-	const glm::mat4 ProjectionMatrix() const;
-	const glm::mat4 ViewMatrix() const;
+	const glm::mat4 projectionMatrix() const;
+	const glm::mat4 viewMatrix() const;
 
-	glm::vec3 Position() const ;
-	glm::vec3 Up() const;
-	glm::vec3 Forward() const;
-	glm::vec3 Right() const;
+	glm::vec3 position() const ;
+	glm::vec3 up() const;
+	glm::vec3 forward() const;
+	glm::vec3 right() const;
 
 private:
 	glm::vec3 m_position;
@@ -29,5 +31,7 @@ private:
 	glm::vec3 m_right;
 	
 	glm::mat4 m_projectionMatrix;
-	glm::mat4 m_viewMatrix;
+
+	mutable glm::mat4 m_viewMatrix;
+	mutable bool viewMatrixChanged = false;
 };

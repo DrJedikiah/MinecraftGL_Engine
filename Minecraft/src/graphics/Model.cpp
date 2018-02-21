@@ -8,7 +8,19 @@ Model::Model(std::vector<Mesh> meshList) :
 {
 }
 
+Model::Model(Mesh mesh) :
+	m_modelMatrix(1.f),
+	m_position(0.f, 0.f, 0.f),
+	m_rotation(glm::vec3(0, 0, 0)),
+	m_meshList({ mesh })
+{
 
+}
+
+void Model::AddMesh(Mesh mesh)
+{
+	m_meshList.push_back(mesh);
+}
 
 void Model::SetPosition(glm::vec3 vector)
 {
@@ -56,7 +68,7 @@ const glm::mat4 Model::ModelMatrix() const
 	return m_modelMatrix;
 }
 
-void Model::Draw(Shader shader) const
+void Model::Draw(const Shader& shader) const
 {
 	if (modelMatrixChanged)
 		UpdateModelMatrix();

@@ -1,44 +1,69 @@
 #include "engine/PlayerController.h"
 
-PlayerController::PlayerController(Camera& camera) :
-	m_camera(camera)
+PlayerController::PlayerController(Camera& camera, PlayerAvatar& avatar) :
+	m_camera(camera),
+	m_avatar(avatar)
 {
+	m_avatar.rb().setFriction(0.f);
 }
 
 void PlayerController::Update(float delta)
 {
-	if (Keyboard::IsKeyDown( AzertyKey::Z ) )
-		m_camera.translate(m_moveSpeed * m_camera.Forward() );
-	if (Keyboard::IsKeyDown( AzertyKey::S))
-		m_camera.translate( -m_moveSpeed * m_camera.Forward());
-	if (Keyboard::IsKeyDown( AzertyKey::Q))
-		m_camera.translate(-m_moveSpeed * m_camera.Right());
-	if (Keyboard::IsKeyDown( AzertyKey::D))
-		m_camera.translate(m_moveSpeed * m_camera.Right());
-	if (Keyboard::IsKeyDown(AzertyKey::A))
-		m_camera.translate(-m_moveSpeed * m_camera.Up());
-	if (Keyboard::IsKeyDown(AzertyKey::E))
-		m_camera.translate(m_moveSpeed * m_camera.Up());
-
-	if ( Mouse::KeyDown( GLFW_MOUSE_BUTTON_RIGHT) )
+	if (m_enabled)
 	{
-		m_camera.rotateRight(m_mouseXspeed * Mouse::Delta().x);
-		m_camera.rotateUp(-m_mouseYspeed * Mouse::Delta().y);
-	}
+		//Move
+		btVector3 direction(0, 0, 0);
+		if (Keyboard::KeyDown(Keyboard::AzertyKey::Z))
+			direction += btVector3(m_camera.forward().x, 0, m_camera.forward().z).normalized();
+		if (Keyboard::KeyDown(Keyboard::AzertyKey::S))
+			direction -= btVector3(m_camera.forward().x, 0, m_camera.forward().z).normalized();
+		if (Keyboard::KeyDown(Keyboard::AzertyKey::D))
+			direction += btVector3(m_camera.right().x, 0, m_camera.right().z).normalized();
+		if (Keyboard::KeyDown(Keyboard::AzertyKey::Q))
+			direction -= btVector3(m_camera.right().x, 0, m_camera.right().z).normalized();
+		
+		if(direction.norm() > 0.f )
+			direction.normalize();
+		direction *= 3;
+		direction.setY(m_avatar.rb().getLinearVelocity().getY());
+		m_avatar.rb().setLinearVelocity(direction);
+		
 
-	if (Mouse::KeyDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		/*btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
+		//Jump
+		if (Keyboard::KeyPressed(GLFW_KEY_SPACE))
+			m_avatar.rb().applyImpulse(btVector3(0,5, 0), btVector3(0, 0, 0));
 
-		// Perform raycast
-		World->rayTest(Start, End, RayCallback);
+		//Camera
+		m_camera.SetPosition(glm::toVec3(m_avatar.transform().getOrigin()) + glm::vec3(0,1.f, 0));
+		m_camera.RotateRight(m_mouseXspeed * Mouse::delta().x);
+		m_camera.RotateUp(-m_mouseYspeed * Mouse::delta().y);
 
-		if (RayCallback.hasHit()) {
+		if (Mouse::KeyDown(GLFW_MOUSE_BUTTON_LEFT))
+		{
+			/*btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
+
+			// Perform raycast
+			World->rayTest(Start, End, RayCallback);
+
+			if (RayCallback.hasHit()) {
 			End = RayCallback.m_hitPointWorld;
 			Normal = RayCallback.m_hitNormalWorld;*/
+		}
 	}
-
-
-
 }
+
+bool PlayerController::Enabled() const { return m_enabled; }
+void PlayerController::SetEnabled(bool state)
+{
+	if (m_enabled != state)
+	{
+		m_enabled = state;
+		if (m_enabled)
+		{
+			Mouse::SetCursor(Mouse::CursorState::hidden);
+			Mouse::CenterCursor(true);
+		}
+	}
+}
+
 

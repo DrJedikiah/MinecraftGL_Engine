@@ -5,7 +5,7 @@
 class Block
 {
 public:
-	enum Type { dirt=0, grass, air, water};
+	enum Type { dirt=0, grass, air, water, player};
 
 	const static float size;
 	Type type = dirt;

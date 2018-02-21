@@ -6,18 +6,22 @@
 class PhysicsEngine
 {
 public:
+	static void StepSimulation( float timeStep );
+	static btRigidBody* CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
+
+private:
+	static PhysicsEngine m_instance;
+
+	PhysicsEngine& operator= (const PhysicsEngine&) {}
+	PhysicsEngine(const PhysicsEngine&) {}
 	PhysicsEngine();
 	~PhysicsEngine();
 
-	void StepSimulation( float timeStep );
-	btRigidBody* CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
-private:
+	 static btDefaultCollisionConfiguration * collisionConfiguration;
+	 static btCollisionDispatcher* dispatcher;
+	 static btBroadphaseInterface* overlappingPairCache;
+	 static btSequentialImpulseConstraintSolver* solver;
+	 static btDiscreteDynamicsWorld* dynamicsWorld;
 
-	btDefaultCollisionConfiguration * collisionConfiguration;
-	btCollisionDispatcher* dispatcher;
-	btBroadphaseInterface* overlappingPairCache;
-	btSequentialImpulseConstraintSolver* solver;
-	btDiscreteDynamicsWorld* dynamicsWorld;
-
-	btAlignedObjectArray<btCollisionShape*> collisionShapes;
+	 static btAlignedObjectArray<btCollisionShape*> collisionShapes;
 };

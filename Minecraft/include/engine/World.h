@@ -4,20 +4,21 @@
 #include "util/Perlin.h"
 #include "engine/Physics.h"
 #include "engine/Chunck.h"
+#include "graphics/Drawable.h"
 
 class Chunck;
 
-class World
+class World : public Drawable
 {
 public:
 	World();
 
-	const static int size = 4;
-	const static int height = 8;
+	const static int size = 8;
+	const static int height = 1;
 
-	void Draw(const Shader& shader) const;
+	void Draw( const Shader& shader) const override;
 	void GenerateChunks();
-	void GeneratePhysics(PhysicsEngine & physicsEngine);
+	void GeneratePhysics();
 
 	Chunck & GetChunck(glm::ivec3 position);
 	bool BlockExists(glm::ivec3 position);

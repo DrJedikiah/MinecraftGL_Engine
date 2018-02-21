@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/Texture.h"
+#include "graphics/Tiles.h"
 #include "engine/Block.h"
 
 #include <array>
@@ -15,15 +15,7 @@ public:
 	inline static fRect Front(Block::Type block) { return items[block].front; }
 	inline static fRect Back(Block::Type block) { return items[block].back; }
 
-	static void SetBlock(Block::Type block, fRect top, fRect bot, fRect left, fRect right, fRect front, fRect back)
-	{
-		items[block] = {  top, bot, left, right, front, back };
-	}
-
-	static void SetBlock(Block::Type block, fRect rect)
-	{
-		items[block] = { rect, rect, rect, rect, rect, rect };
-	}
+	static void Initialize();
 
 private:
 	struct Item
@@ -35,6 +27,16 @@ private:
 		fRect front;
 		fRect back;
 	};
+
+	static void SetBlock(Block::Type block, fRect top, fRect bot, fRect left, fRect right, fRect front, fRect back)
+	{
+		items[block] = { top, bot, left, right, front, back };
+	}
+
+	static void SetBlock(Block::Type block, fRect rect)
+	{
+		items[block] = { rect, rect, rect, rect, rect, rect };
+	}
 
 	static std::array< Item, 256 > items;
 };

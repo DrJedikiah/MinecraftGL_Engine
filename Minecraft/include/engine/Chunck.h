@@ -12,7 +12,7 @@
 
 class World;
 
-class Chunck
+class Chunck : public Drawable
 {
 public:
 	Chunck();
@@ -21,8 +21,8 @@ public:
 	static const int size = 16;
 
 	void GenerateMesh(World& world);
-	void GenerateCollider(  PhysicsEngine & physicsEngine);
-	void Draw(const Shader& shader) const;
+	void GenerateCollider();
+	void Draw(const Shader & shader) const override;
 
 	Block& GetBlock( int x, int y, int z);
 
