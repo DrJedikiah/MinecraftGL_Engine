@@ -12,9 +12,10 @@ Texture::Texture(std::string filename)
 										   // set the texture wrapping parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	
 	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// load image, create texture and generate mipmaps
 	unsigned char *data = stbi_load(filename.c_str(), &m_width, &m_height, &m_nrChannels, 0);
@@ -38,18 +39,19 @@ void Texture::Use() const
 }
 
 ////////////BlockTextureCoords///////////////////////
-glm::ivec2 BlockTiles::m_nbTiles = {1,1};
-glm::vec2 BlockTiles::m_tileSize = { 1,1 };
 
-std::map<BlockTiles::Block, fRect> BlockTiles::m_blockRectangles;
+glm::ivec2 Tiles::m_nbTiles = {1,1};
+glm::vec2 Tiles::m_tileSize = { 1,1 };
 
-void BlockTiles::Initialize(int width, int height)
+std::map<Tiles::ID, fRect> Tiles::m_blockRectangles;
+
+void Tiles::Initialize(int width, int height)
 {
 	m_nbTiles = glm::ivec2(width, height);
 	m_tileSize = glm::vec2(1.f / m_nbTiles.x, 1.f / m_nbTiles.y);
 }
 
-void BlockTiles::SetBlockTile(Block block, int x, int y)
+void Tiles::SetBlockTile(Tiles::ID block, int x, int y)
 {
 	m_blockRectangles[block] = {
 		m_tileSize.x*x,//X
@@ -59,7 +61,7 @@ void BlockTiles::SetBlockTile(Block block, int x, int y)
 	};
 }
 
-fRect BlockTiles::GetRectangle(Block block)
+fRect Tiles::GetRectangle(Tiles::ID block)
 {
 	return m_blockRectangles[block];
 }

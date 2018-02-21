@@ -54,16 +54,26 @@ Minecraft::Minecraft(std::string name, int width, int height)
 
 void Minecraft::Start()
 {
+	PhysicsEngine physicsEngine;
+	float t1 = Time::ElapsedSinceStartup();
 	//Shader
 	Shader shader("shaders/shader.vs", "shaders/shader.fs");
 	Texture texture("textures/grass.bmp");
 
 	//Block Tiles
-	BlockTiles::Initialize(2,2);
-	BlockTiles::SetBlockTile(BlockTiles::dirt, 1, 1);
-	BlockTiles::SetBlockTile(BlockTiles::grassTop, 0, 0);
-	BlockTiles::SetBlockTile(BlockTiles::grassSide, 0, 1);
+	Tiles::Initialize(2,2);
+	Tiles::SetBlockTile(Tiles::dirt, 1, 1);
+	Tiles::SetBlockTile(Tiles::grassTop, 1, 0);
+	Tiles::SetBlockTile(Tiles::grassSide, 0, 1);
 
+	//Block Textures
+	fRect dirtRect = Tiles::GetRectangle(Tiles::dirt);
+	fRect grassSideRect = Tiles::GetRectangle(Tiles::grassSide);
+	fRect grassTopRect = Tiles::GetRectangle(Tiles::grassTop);
+	TexturesBlocks::SetBlock(Block::dirt, dirtRect);
+	TexturesBlocks::SetBlock(Block::grass, grassTopRect, dirtRect, grassSideRect, grassSideRect, grassSideRect, grassSideRect);
+
+	//Lights
 	std::vector<Light> lights =
 	{
 		Light({ 30,30,14.5 }),
@@ -72,10 +82,9 @@ void Minecraft::Start()
 	shader.use();
 	texture.Use();
 
-	PhysicsEngine physicsEngine;
-	World world;
+	world.GenerateChunks();
 	world.GeneratePhysics(physicsEngine);
-
+	
 
 	Camera camera(m_scr_width, m_scr_height, 1000);
 	PlayerController playerController(camera);
@@ -101,6 +110,10 @@ void Minecraft::Start()
 	float drawTimer = 0.f;
 	float fixedUpdateTimer = 0.f;
 	float time = Time::ElapsedSinceStartup();
+	
+	float t2 = Time::ElapsedSinceStartup();
+	std::cout << 1000.f*(t2 - t1) << std::endl;
+
 	
 	// render loop
 	while (!glfwWindowShouldClose(m_window))

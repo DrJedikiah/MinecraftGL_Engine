@@ -1,10 +1,13 @@
 #pragma once
 
 #include <vector>
+
+
 #include "graphics/Mesh.h"
 
 namespace Util
 {
+
 	static std::vector<Vertex> cubeTopFace(float size, float x, float y, float z, fRect rect)
 	{
 		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;

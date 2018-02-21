@@ -1,3 +1,11 @@
 Debug/
 Minecraft.vcxproj
 Minecraft.vcxproj.filters
+.vs/
+Minecraft.psess
+Minecraft180220.vsp
+OtherRessources/
+Release/
+Minecraft/sh.exe.stackdump
+Minecraft/Debug
+Minecraft/Release

@@ -28,18 +28,17 @@ struct fRect
 	float y2=0;
 };
 
-
-class BlockTiles
+class Tiles
 {
 public:
-	enum Block{ dirt, grassTop, grassSide };
+	enum ID{ dirt, grassTop, grassSide };
 
 	static void Initialize( int width, int height);
-	static fRect GetRectangle(Block block);
-	static void SetBlockTile(Block block, int x, int y);
+	static fRect GetRectangle(ID block);
+	static void SetBlockTile(ID block, int x, int y);
 
 private:
 	static glm::ivec2 m_nbTiles;
 	static glm::vec2 m_tileSize;
-	static std::map<Block, fRect> m_blockRectangles;
+	static std::map<ID, fRect> m_blockRectangles;
 };

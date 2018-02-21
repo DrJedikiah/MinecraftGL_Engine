@@ -2,23 +2,25 @@
 
 #include <vector>
 
-#include "Block.h"
 #include "graphics/Shader.h"
 #include "graphics/Model.h"
-#include "util/Util.h"
+#include "graphics/TexturesBlocks.h"
+#include "engine/Block.h"
 #include "engine/Physics.h"
+#include "engine/World.h"
+#include "util/Util.h"
 
-
+class World;
 
 class Chunck
 {
 public:
 	Chunck();
-	void Setup(btVector3 position);
+	void Setup( glm::ivec3 position);
 
 	static const int size = 16;
 
-	void GenerateMesh();
+	void GenerateMesh(World& world);
 	void GenerateCollider(  PhysicsEngine & physicsEngine);
 	void Draw(const Shader& shader) const;
 
@@ -27,12 +29,16 @@ public:
 	friend class World;
 
 private:
-	btVector3 m_position;
+	glm::ivec3 m_position;
 
 	Model m_model;
 	Block m_blocks[size][size][size];
 
 	std::vector<Vertex> vertices;
 
+	//Collider
+	btTriangleMesh m_btMesh;
+	btBvhTriangleMeshShape * m_shape = nullptr;
+		
 };
 

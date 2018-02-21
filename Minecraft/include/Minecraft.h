@@ -7,6 +7,7 @@
 #include <string>
 
 #include "graphics/Shader.h"
+#include "graphics/TexturesBlocks.h"
 #include "engine/Physics.h"
 #include "graphics/Texture.h"
 #include "engine/Camera.h"
@@ -18,6 +19,7 @@
 #include "engine/World.h"
 #include "util/Time.h"
 
+
 //Design pattern singleton
 class Minecraft
 {
@@ -26,6 +28,8 @@ public:
 	~Minecraft();
 	
 	void Start();
+
+	World world;
 
 private:
 	unsigned int m_scr_width;

@@ -26,5 +26,19 @@ void PlayerController::Update(float delta)
 		m_camera.rotateUp(-m_mouseYspeed * Mouse::Delta().y);
 	}
 
+	if (Mouse::KeyDown(GLFW_MOUSE_BUTTON_LEFT))
+	{
+		/*btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
+
+		// Perform raycast
+		World->rayTest(Start, End, RayCallback);
+
+		if (RayCallback.hasHit()) {
+			End = RayCallback.m_hitPointWorld;
+			Normal = RayCallback.m_hitNormalWorld;*/
+	}
+
+
+
 }
 

@@ -13,3 +13,4 @@ private:
 	static float m_deltaTime;
 	static float m_fixedDeltaTime;
 };
+

@@ -2,8 +2,8 @@
 
 Mesh::Mesh(std::vector<Vertex> verticesData)
 {
-	vertices = verticesData;
-	setupMesh();
+	//vertices = verticesData;
+	setupMesh(verticesData);
 }
 
 void Mesh::Draw(const Shader shader) const
@@ -11,11 +11,13 @@ void Mesh::Draw(const Shader shader) const
 	shader.use();
 
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	glDrawArrays(GL_TRIANGLES, 0, m_size);
 }
 
-void Mesh::setupMesh()
+void Mesh::setupMesh(std::vector<Vertex> vertices)
 {
+	m_size = vertices.size();
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 

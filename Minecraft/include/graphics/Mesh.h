@@ -18,7 +18,7 @@ struct Vertex
 class Mesh {
 public:
 	/*  Mesh Data  */
-	std::vector<Vertex> vertices;
+	//std::vector<Vertex> vertices;
 	Texture * texture;
 	Mesh(std::vector<Vertex> vertices);
 
@@ -26,7 +26,8 @@ public:
 
 private:
 	unsigned int VAO, VBO;
+	unsigned int m_size;
 
-	void setupMesh();
+	void setupMesh(std::vector<Vertex> vertices);
 };
 
