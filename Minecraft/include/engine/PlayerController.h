@@ -1,5 +1,7 @@
 #pragma once
 
+#include<algorithm>
+
 #include "engine/World.h"
 #include "engine/Camera.h"
 #include "engine/PlayerAvatar.h"
@@ -22,6 +24,9 @@ public:
 private:
 	Camera & m_camera;
 	PlayerAvatar& m_avatar;
+
+	void OnCollisionEnter(RigidBody& other, btManifoldPoint& point);
+	void OnCollisionExit(RigidBody& other);
 
 	bool m_enabled;
 

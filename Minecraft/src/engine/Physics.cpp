@@ -9,6 +9,72 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
  btDiscreteDynamicsWorld* PhysicsEngine::dynamicsWorld;
  btAlignedObjectArray<btCollisionShape*> PhysicsEngine::collisionShapes;
 
+ bool PhysicsEngine::ContactAdded(btManifoldPoint& pt, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
+ {
+	 //Get the two RigidBodies
+	 RigidBody* objA = (RigidBody*)colObj0Wrap->getCollisionObject();
+	 RigidBody* objB = (RigidBody*)colObj1Wrap->getCollisionObject();
+
+	 //If the contact has not been processed yet
+	 if (pt.m_userPersistentData == nullptr)
+	 {
+		 //colA and colB are set if their CollisionSignals are Activateds
+		 RigidBody::Collision * colA = nullptr;
+		 RigidBody::Collision * colB = nullptr;
+		 if(objA->CollisionSignalsActivateds())
+			 colA = &(objA->m_collisions[objB->id()]);
+		 if (objB->CollisionSignalsActivateds())
+			 colB = &(objB->m_collisions[objA->id()]);
+
+		 //Get the first RigidBody::Collision activated, returns if none is
+		 RigidBody::Collision * col = nullptr;
+		 if (colA)
+			 col = colA;
+		 else
+			 col = colB;
+		 if ( ! col ) return false;
+
+		 //Set the  RigidBody::Collision data and the point PersistentData for Destruction lk
+		pt.m_userPersistentData = (void*)col;
+		++col->numContacts;
+		col->rb1 = objA;
+		col->rb2 = objB;
+
+		//Send signals if it is the first contact
+		 if (col->numContacts == 1)
+		 {
+			if(colA)
+				objA->onCollisionEnter.emmit(*objB, pt);
+			if (colB)
+				objB->onCollisionEnter.emmit(*objA, pt);
+		 } 
+	 }
+	 return true;
+ }
+
+ bool PhysicsEngine::ContactDestroyed(void* userPersistentData)
+ {
+	 //Get the RigidBody::Collision data
+	 RigidBody::Collision * col = ((RigidBody::Collision*)userPersistentData);
+	 --col->numContacts;
+
+	 //Send signals if there is no more contact
+	 if (col->numContacts == 0)
+	 {
+		 if (col->rb1->CollisionSignalsActivateds())
+		 {
+			 col->rb1->onCollisionExit.emmit(*col->rb2);
+			 col->rb1->m_collisions.erase(col->rb2->id());
+		 }
+		 if (col->rb2->CollisionSignalsActivateds())
+		 {
+			 col->rb2->onCollisionExit.emmit(*col->rb1);
+			 col->rb2->m_collisions.erase(col->rb1->id());
+		 }
+	 }
+
+	 return true;
+ }
 
 
 PhysicsEngine::PhysicsEngine()
@@ -28,11 +94,32 @@ PhysicsEngine::PhysicsEngine()
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
 	dynamicsWorld->setGravity(btVector3(0, -10, 0));
+
+	gContactAddedCallback = ContactAdded;
+	gContactDestroyedCallback = ContactDestroyed;
 }
 
 void PhysicsEngine::StepSimulation(float timeStep)
 {
 	dynamicsWorld->stepSimulation(timeStep, 10);
+}
+
+
+RigidBody& PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
+{
+	bool isDynamic = (mass != 0.f);
+
+	btVector3 localInertia(0, 0, 0);
+	if (isDynamic)
+		shape->calculateLocalInertia(mass, localInertia);
+
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
+	RigidBody* body = new RigidBody(cInfo);
+
+	body->setUserIndex(-1);
+	dynamicsWorld->addRigidBody(body);
+	return *body;
 }
 
 PhysicsEngine::~PhysicsEngine()
@@ -77,19 +164,4 @@ PhysicsEngine::~PhysicsEngine()
 	collisionShapes.clear();
 }
 
-btRigidBody* PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
-{
-	bool isDynamic = (mass != 0.f);
 
-	btVector3 localInertia(0, 0, 0);
-	if (isDynamic)
-		shape->calculateLocalInertia(mass, localInertia);
-
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-	btRigidBody* body = new btRigidBody(cInfo);
-
-	body->setUserIndex(-1);
-	dynamicsWorld->addRigidBody(body);
-	return body;
-}

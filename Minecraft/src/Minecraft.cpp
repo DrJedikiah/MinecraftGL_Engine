@@ -114,7 +114,7 @@ void Minecraft::Start()
 			if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE))
 				glfwSetWindowShouldClose(m_window, true);
 
-			PhysicsEngine::StepSimulation(0.01f);
+			PhysicsEngine::StepSimulation(Time::FixedDeltaTime());
 
 			freeCameraController.Update(Time::FixedDeltaTime());
 			playerController.Update(Time::FixedDeltaTime());

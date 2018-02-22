@@ -40,8 +40,9 @@ void Chunck::GenerateCollider()
 
 		m_shape = new btBvhTriangleMeshShape(&m_btMesh, false);
 		btTransform transform = btTransform::getIdentity();
-		PhysicsEngine::CreateRigidBody(0, transform, m_shape);
-
+		RigidBody& rb =  PhysicsEngine::CreateRigidBody(0, transform, m_shape);
+		
+		rb.SetTag(Tag::chunck);
 	}
 
 }

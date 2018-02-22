@@ -5,6 +5,11 @@ PlayerController::PlayerController(Camera& camera, PlayerAvatar& avatar) :
 	m_avatar(avatar)
 {
 	m_avatar.rb().setFriction(0.f);
+
+	m_avatar.rb().onCollisionEnter.connect(&PlayerController::OnCollisionEnter, this);
+	m_avatar.rb().onCollisionExit.connect(&PlayerController::OnCollisionExit, this);
+
+	m_avatar.rb().ActivateCollisionSignals(true);
 }
 
 void PlayerController::Update(float delta)
@@ -22,12 +27,19 @@ void PlayerController::Update(float delta)
 		if (Keyboard::KeyDown(Keyboard::AzertyKey::Q))
 			direction -= btVector3(m_camera.right().x, 0, m_camera.right().z).normalized();
 		
-		if(direction.norm() > 0.f )
-			direction.normalize();
-		direction *= 3;
-		direction.setY(m_avatar.rb().getLinearVelocity().getY());
-		m_avatar.rb().setLinearVelocity(direction);
-		
+		if (direction.norm() <= 0.f)
+		{
+			direction.setY(m_avatar.rb().getLinearVelocity().getY());
+			m_avatar.rb().setLinearVelocity(direction);
+		}
+		else
+		{
+			btVector3 vel = m_avatar.rb().getLinearVelocity();
+			vel.setY(0.f);
+			direction =  mathf::clamp(vel.norm() + 0.1f, 0.f, 3.f) * direction.normalized();
+			direction.setY(m_avatar.rb().getLinearVelocity().getY());
+			m_avatar.rb().setLinearVelocity(direction);
+		}
 
 		//Jump
 		if (Keyboard::KeyPressed(GLFW_KEY_SPACE))
@@ -50,6 +62,16 @@ void PlayerController::Update(float delta)
 			Normal = RayCallback.m_hitNormalWorld;*/
 		}
 	}
+}
+
+void PlayerController::OnCollisionEnter(RigidBody& other, btManifoldPoint& point)
+{
+		std::cout << "OnCollisionEnter" << std::endl;
+}
+
+void PlayerController::OnCollisionExit(RigidBody& other)
+{
+		std::cout << "OnCollisionExit" << std::endl;
 }
 
 bool PlayerController::Enabled() const { return m_enabled; }

@@ -28,7 +28,7 @@ glm::ivec2 Input::GetWindowSize(){ return m_windowSize; }
 GLFWwindow * Input::m_window = nullptr;
 glm::ivec2  Input::m_windowSize;
 
-unsigned Input::GetCount() { return m_count;  }
+unsigned Input::FrameCount() { return m_count;  }
 
 void Input::Update()
 {
@@ -44,14 +44,14 @@ std::array< unsigned, 349 > Keyboard::m_keysReleased;
 
 int Keyboard::KeyDown(int GLFW_KEY){return glfwGetKey(Input::GetWindow(), GLFW_KEY) == GLFW_PRESS;}
 
-bool Keyboard::KeyPressed(int GLFW_MOUSE_BUTTON) { return m_keysPressed[GLFW_MOUSE_BUTTON] == Input::GetCount();}
-bool Keyboard::KeyReleased(int GLFW_MOUSE_BUTTON) { return m_keysReleased[GLFW_MOUSE_BUTTON] == Input::GetCount(); }
+bool Keyboard::KeyPressed(int GLFW_MOUSE_BUTTON) { return m_keysPressed[GLFW_MOUSE_BUTTON] == Input::FrameCount();}
+bool Keyboard::KeyReleased(int GLFW_MOUSE_BUTTON) { return m_keysReleased[GLFW_MOUSE_BUTTON] == Input::FrameCount(); }
 void Keyboard::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS)
-		m_keysPressed[key] = Input::GetCount();
+		m_keysPressed[key] = Input::FrameCount();
 	else if (action == GLFW_RELEASE)
-		m_keysReleased[key] = Input::GetCount();
+		m_keysReleased[key] = Input::FrameCount();
 }
 
 ////////////Mouse////////////

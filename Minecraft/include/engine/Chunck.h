@@ -39,6 +39,5 @@ private:
 	//Collider
 	btTriangleMesh m_btMesh;
 	btBvhTriangleMeshShape * m_shape = nullptr;
-		
 };
 

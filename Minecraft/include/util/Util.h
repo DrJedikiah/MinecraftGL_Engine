@@ -2,9 +2,10 @@
 
 #include <vector>
 
-
+#include "graphics/Tiles.h"
 #include "graphics/Mesh.h"
 
+enum Tag { default, chunck, entity };
 
 namespace glm
 {
@@ -14,6 +15,16 @@ namespace glm
 namespace bt
 {
 	inline btVector3 toVec3(glm::vec3 vector) { return btVector3(vector.x, vector.y, vector.z); };
+}
+
+namespace mathf
+{
+	inline float clamp(float value, float min, float max)
+	{
+		if ( value < min ) return min;
+		if (value > max) return max;
+		return value;
+	}
 }
 
 namespace Util

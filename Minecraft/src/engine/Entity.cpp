@@ -1,16 +1,17 @@
 #include "engine/Entity.h"
 
 Entity::Entity(float mass, btCollisionShape * shape, btTransform transform) :
-	m_shape(shape)
+	m_shape(shape),
+	m_rb(PhysicsEngine::CreateRigidBody(mass, transform, shape))
 {
-	m_rb = PhysicsEngine::CreateRigidBody(mass, transform, shape);
+
 }
 
-btTransform Entity::transform()
+btTransform Entity::transform() const
 {
 	btTransform trans;
 	rb().getMotionState()->getWorldTransform(trans);
 	return trans;
 }
 
-btRigidBody& Entity::rb() { return *m_rb; }
+RigidBody& Entity::rb() const { return m_rb; }

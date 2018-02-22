@@ -139,6 +139,7 @@
     <ClInclude Include="include\engine\Physics.h" />
     <ClInclude Include="include\engine\PlayerAvatar.h" />
     <ClInclude Include="include\engine\PlayerController.h" />
+    <ClInclude Include="include\engine\RigidBody.h" />
     <ClInclude Include="include\engine\World.h" />
     <ClInclude Include="include\graphics\Drawable.h" />
     <ClInclude Include="include\graphics\Light.h" />
@@ -166,6 +167,7 @@
     <ClCompile Include="src\engine\Physics.cpp" />
     <ClCompile Include="src\engine\PlayerAvatar.cpp" />
     <ClCompile Include="src\engine\PlayerController.cpp" />
+    <ClCompile Include="src\engine\RigidBody.cpp" />
     <ClCompile Include="src\engine\World.cpp" />
     <ClCompile Include="src\graphics\Drawable.cpp" />
     <ClCompile Include="src\graphics\Light.cpp" />

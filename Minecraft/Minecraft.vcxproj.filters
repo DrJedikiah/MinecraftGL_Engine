@@ -113,6 +113,9 @@
     <ClInclude Include="include\engine\FreeCameraController.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
+    <ClInclude Include="include\engine\RigidBody.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -182,6 +185,9 @@
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\FreeCameraController.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\RigidBody.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
   </ItemGroup>

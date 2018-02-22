@@ -30,9 +30,6 @@ private:
 	PerlinNoise perlinGen;
 
 	Chunck ***m_chuncks;
-
-	
-
 };
 
 

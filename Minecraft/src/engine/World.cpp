@@ -38,7 +38,6 @@ bool World::BlockExists(int x, int y, int z)
 		return false;
 }
 
-
 void World::GeneratePhysics()
 {
 	for (int y = 0; y < height; ++y)
