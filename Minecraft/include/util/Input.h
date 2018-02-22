@@ -16,6 +16,7 @@ public:
 	static GLFWwindow * GetWindow();
 	static glm::ivec2 GetWindowSize();
 	static unsigned FrameCount();
+	static bool ShuttingDown();
 
 private:
 	static void window_size_callback(GLFWwindow* window, int width, int height);

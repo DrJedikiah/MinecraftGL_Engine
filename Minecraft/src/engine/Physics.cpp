@@ -9,6 +9,35 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
  btDiscreteDynamicsWorld* PhysicsEngine::dynamicsWorld;
  btAlignedObjectArray<btCollisionShape*> PhysicsEngine::collisionShapes;
 
+ void PhysicsEngine::StepSimulation(float timeStep)
+ {
+	 dynamicsWorld->stepSimulation(timeStep, 10);
+ }
+
+ RigidBody& PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
+ {
+	 bool isDynamic = (mass != 0.f);
+
+	 btVector3 localInertia(0, 0, 0);
+	 if (isDynamic)
+		 shape->calculateLocalInertia(mass, localInertia);
+
+	 btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	 btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
+	 RigidBody* body = new RigidBody(cInfo);
+
+	 body->setUserIndex(-1);
+	 dynamicsWorld->addRigidBody(body);
+	 return *body;
+ }
+
+ btCollisionWorld::ClosestRayResultCallback PhysicsEngine::RayCast(btVector3 Start, btVector3 End)
+ {
+	 btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
+	 dynamicsWorld->rayTest(Start, End, RayCallback);
+	 return RayCallback;
+ }
+
  bool PhysicsEngine::ContactAdded(btManifoldPoint& pt, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
  {
 	 //Get the two RigidBodies
@@ -32,7 +61,8 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
 			 col = colA;
 		 else
 			 col = colB;
-		 if ( ! col ) return false;
+		 if ( ! col )
+			 return false;
 
 		 //Set the  RigidBody::Collision data and the point PersistentData for Destruction lk
 		pt.m_userPersistentData = (void*)col;
@@ -49,11 +79,12 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
 				objB->onCollisionEnter.emmit(*objA, pt);
 		 } 
 	 }
-	 return true;
+	 return false;
  }
 
  bool PhysicsEngine::ContactDestroyed(void* userPersistentData)
  {
+
 	 //Get the RigidBody::Collision data
 	 RigidBody::Collision * col = ((RigidBody::Collision*)userPersistentData);
 	 --col->numContacts;
@@ -62,18 +93,12 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
 	 if (col->numContacts == 0)
 	 {
 		 if (col->rb1->CollisionSignalsActivateds())
-		 {
 			 col->rb1->onCollisionExit.emmit(*col->rb2);
-			 col->rb1->m_collisions.erase(col->rb2->id());
-		 }
 		 if (col->rb2->CollisionSignalsActivateds())
-		 {
 			 col->rb2->onCollisionExit.emmit(*col->rb1);
-			 col->rb2->m_collisions.erase(col->rb1->id());
-		 }
 	 }
 
-	 return true;
+	 return false;
  }
 
 
@@ -93,40 +118,17 @@ PhysicsEngine::PhysicsEngine()
 
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
-	dynamicsWorld->setGravity(btVector3(0, -10, 0));
+	dynamicsWorld->setGravity(btVector3(0, -20, 0));
 
 	gContactAddedCallback = ContactAdded;
 	gContactDestroyedCallback = ContactDestroyed;
-}
-
-void PhysicsEngine::StepSimulation(float timeStep)
-{
-	dynamicsWorld->stepSimulation(timeStep, 10);
-}
-
-
-RigidBody& PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
-{
-	bool isDynamic = (mass != 0.f);
-
-	btVector3 localInertia(0, 0, 0);
-	if (isDynamic)
-		shape->calculateLocalInertia(mass, localInertia);
-
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-	RigidBody* body = new RigidBody(cInfo);
-
-	body->setUserIndex(-1);
-	dynamicsWorld->addRigidBody(body);
-	return *body;
 }
 
 PhysicsEngine::~PhysicsEngine()
 {
 	//cleanup in the reverse order of creation/initialization
 	//remove the rigidbodies from the dynamics world and delete them
-	for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+	/*for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -161,7 +163,7 @@ PhysicsEngine::~PhysicsEngine()
 	delete collisionConfiguration;
 
 	//next line is optional: it will be cleared by the destructor when the array goes out of scope
-	collisionShapes.clear();
+	collisionShapes.clear();*/
 }
 
 

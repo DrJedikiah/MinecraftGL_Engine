@@ -6,14 +6,16 @@
 
 class PlayerAvatar : public Entity
 {
-public:
-	PlayerAvatar();
+public: 
+	PlayerAvatar( float mass = 1.f, float height = 1.8f, float radius = 0.4f);
 	
 	void Update(float delta) override;
 	void Draw(const Shader& shader) const override;
 	void UpdateModels() override;
 
+	const float height;
+	const float radius;
+
 private:
 	Model m_modelBody;
-
 };

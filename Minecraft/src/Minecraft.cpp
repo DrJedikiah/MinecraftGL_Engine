@@ -1,5 +1,7 @@
 #include "Minecraft.h"
 
+GLFWwindow* Minecraft::m_window = nullptr;
+
 Minecraft::Minecraft(std::string name, int width, int height)
 {
 	m_scr_width = width;
@@ -69,7 +71,7 @@ void Minecraft::Start()
 	camera.RotateUp(glm::radians(-15.f));
 
 	PlayerAvatar player;
-	player.rb().translate(btVector3(8, 20, 8));
+	player.rb().translate(btVector3(8, 25, 8));
 
 	FreeCameraController freeCameraController( camera);
 	freeCameraController.SetEnabled(false);
@@ -86,8 +88,9 @@ void Minecraft::Start()
 
 	float drawTimer = 0.f;
 	float fixedUpdateTimer = 0.f;
-	float time = Time::ElapsedSinceStartup();
 	
+	float time = Time::ElapsedSinceStartup();
+
 	float t2 = Time::ElapsedSinceStartup();
 	std::cout << 1000.f*(t2 - t1) << std::endl;
 
@@ -96,7 +99,7 @@ void Minecraft::Start()
 	{
 		float delta = Time::ElapsedSinceStartup() - time;
 		time += delta;
-	
+
 		//Fixed update
 		fixedUpdateTimer += delta;
 		if (fixedUpdateTimer >= Time::FixedDeltaTime())
@@ -113,6 +116,7 @@ void Minecraft::Start()
 			}
 			if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE))
 				glfwSetWindowShouldClose(m_window, true);
+				
 
 			PhysicsEngine::StepSimulation(Time::FixedDeltaTime());
 

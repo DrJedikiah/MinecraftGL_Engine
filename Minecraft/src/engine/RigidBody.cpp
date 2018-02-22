@@ -4,6 +4,7 @@ int RigidBody::m_count = 0;
 
 
 RigidBody::RigidBody(const btRigidBodyConstructionInfo &constructionInfo, Tag tag) :
+
 	btRigidBody(constructionInfo),
 	m_tag(tag)
 { 
@@ -12,8 +13,14 @@ RigidBody::RigidBody(const btRigidBodyConstructionInfo &constructionInfo, Tag ta
 }
 
 Tag RigidBody::tag() const { return m_tag;  }
-
 void RigidBody::SetTag(Tag tag) { m_tag = tag; }
+
+btTransform RigidBody::transform() const
+{
+	btTransform trans;
+	getMotionState()->getWorldTransform(trans);
+	return trans;
+}
 
 void RigidBody::ActivateCollisionSignals(bool state)
 {

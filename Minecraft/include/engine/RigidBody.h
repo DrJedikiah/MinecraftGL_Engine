@@ -16,12 +16,12 @@ public:
 
 	Tag tag() const;
 	void SetTag(Tag tag);
+	btTransform transform() const;
 
 	void ActivateCollisionSignals(bool state);
 	bool CollisionSignalsActivateds();
 
 	Signal<RigidBody&, btManifoldPoint&> onCollisionEnter;
-	Signal<RigidBody&, btManifoldPoint&> onCollisionStay;
 	Signal<RigidBody&> onCollisionExit;
 
 	int id() const;

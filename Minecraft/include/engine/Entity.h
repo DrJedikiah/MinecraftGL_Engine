@@ -10,7 +10,6 @@ public:
 	Entity(float mass, btCollisionShape * shape, btTransform transform = btTransform::getIdentity());
 
 	RigidBody & rb() const;
-	btTransform transform() const;
 
 	virtual void Update(float delta) = 0;
 	virtual void UpdateModels() = 0;

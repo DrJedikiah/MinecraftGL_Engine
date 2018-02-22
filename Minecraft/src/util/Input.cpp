@@ -30,6 +30,11 @@ glm::ivec2  Input::m_windowSize;
 
 unsigned Input::FrameCount() { return m_count;  }
 
+bool Input::ShuttingDown()
+{
+	return glfwWindowShouldClose(m_window);
+}
+
 void Input::Update()
 {
 	++m_count;

@@ -39,7 +39,7 @@ public:
 private:
 	unsigned int m_scr_width;
 	unsigned int m_scr_height;
-	GLFWwindow* m_window;
+	static GLFWwindow* m_window;
 
 	PlayerState m_playerState = PlayerState::survival;
 };

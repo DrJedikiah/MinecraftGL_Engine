@@ -9,11 +9,13 @@
 
 #include "btBulletDynamicsCommon.h"
 
+
 class PhysicsEngine
 {
 public:
 	static void StepSimulation( float timeStep );
 	static RigidBody& CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
+	static btCollisionWorld::ClosestRayResultCallback RayCast(btVector3 Start, btVector3 End);
 
 private:
 	//Singleton pattern

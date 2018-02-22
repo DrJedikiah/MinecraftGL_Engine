@@ -25,14 +25,21 @@ private:
 	Camera & m_camera;
 	PlayerAvatar& m_avatar;
 
+	bool isHittingFloor();
 	void OnCollisionEnter(RigidBody& other, btManifoldPoint& point);
 	void OnCollisionExit(RigidBody& other);
 
-	bool m_enabled;
+	const float m_jumpStrenght = 8.f;
+	const float m_walkSpeed = 4.f;
+	const float m_runSpeed = 6.f;
+	const float m_acceleration = 30.f;
 
-	float m_moveSpeed = 0.2f;
+
 	float m_mouseXspeed = 0.005f;
 	float m_mouseYspeed = 0.005f;
 
+	bool m_isRunning = false;
+	bool m_isJumping = false;
 
+	bool m_enabled;
 };
