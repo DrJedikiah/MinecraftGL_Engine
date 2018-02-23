@@ -15,20 +15,22 @@ class World;
 class Chunck : public Drawable
 {
 public:
+	friend class World;
+
 	Chunck();
-	void Setup( glm::ivec3 position);
+	void Setup( World* world, glm::ivec3 position);
 
 	static const int size = 16;
 
-	void GenerateMesh(World& world);
+	void GenerateMesh();
 	void GenerateCollider();
 	void Draw(const Shader & shader) const override;
 
-	Block& GetBlock( int x, int y, int z);
-
-	friend class World;
+	Block& GetBlock(glm::ivec3 position);
+	void RemoveBlock(glm::ivec3 position);
 
 private:
+	World* m_world;
 	glm::ivec3 m_position;
 
 	Model m_model;

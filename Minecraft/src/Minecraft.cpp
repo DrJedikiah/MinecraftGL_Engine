@@ -63,8 +63,8 @@ void Minecraft::Start()
 	shader.use();
 	texture.Use();
 
-	world.GenerateChunks();
-	world.GeneratePhysics();
+	World::GenerateChunks();
+	World::GeneratePhysics();
 
 	Camera camera(m_scr_width, m_scr_height, 1000);
 	camera.Translate(glm::vec3(14, 16, 14 + 8) - camera.position());
@@ -153,7 +153,7 @@ void Minecraft::Start()
 			cube.UpdateModels();
 			cube.Draw(shader);
 
-			world.Draw(shader);
+			World::Draw(shader);
 
 			glfwSwapBuffers(m_window);
 		}

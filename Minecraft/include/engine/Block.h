@@ -11,10 +11,9 @@ public:
 	Type type = dirt;
 	bool enabled = true;
 	bool solid = true;
-};
 
-/*
-void ToDirt( Block& block)
-{
-	
-}*/
+	void ToDirt()  { type = dirt;  enabled = true; solid = true;  }
+	void ToGrass() { type = grass; enabled = true; solid = true;  }
+	void ToAir()   { type = air;   enabled = true; solid = false; }
+	void ToWater() { type = water; enabled = true; solid = false; }
+};

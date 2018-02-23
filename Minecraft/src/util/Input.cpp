@@ -15,6 +15,7 @@ void Input::Setup(GLFWwindow * window)
 	glfwSetFramebufferSizeCallback(m_window, Input::window_size_callback);
 	glfwSetCursorPosCallback(m_window, Mouse::mouse_callback);
 	glfwSetKeyCallback(m_window, Keyboard::key_callback);
+	glfwSetMouseButtonCallback(m_window, Mouse::mouse_button_callback);
 }
 
 void Input::window_size_callback(GLFWwindow* window, int width, int height)
@@ -49,8 +50,8 @@ std::array< unsigned, 349 > Keyboard::m_keysReleased;
 
 int Keyboard::KeyDown(int GLFW_KEY){return glfwGetKey(Input::GetWindow(), GLFW_KEY) == GLFW_PRESS;}
 
-bool Keyboard::KeyPressed(int GLFW_MOUSE_BUTTON) { return m_keysPressed[GLFW_MOUSE_BUTTON] == Input::FrameCount();}
-bool Keyboard::KeyReleased(int GLFW_MOUSE_BUTTON) { return m_keysReleased[GLFW_MOUSE_BUTTON] == Input::FrameCount(); }
+bool Keyboard::KeyPressed(int GLFW_KEY) { return m_keysPressed[GLFW_KEY] == Input::FrameCount();}
+bool Keyboard::KeyReleased(int GLFW_KEY) { return m_keysReleased[GLFW_KEY] == Input::FrameCount(); }
 void Keyboard::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS)
@@ -63,6 +64,9 @@ void Keyboard::key_callback(GLFWwindow* window, int key, int scancode, int actio
 
 glm::vec2 Mouse::position() { return m_position; }
 glm::vec2 Mouse::delta() { return m_delta; }
+std::array< unsigned, 11 > Mouse::m_buttonsPressed;
+std::array< unsigned, 11 > Mouse::m_buttonsReleased;
+
 
 void Mouse::SetCursor(CursorState state)
 {
@@ -81,9 +85,20 @@ bool Mouse::KeyDown(int  GLFW_MOUSE_BUTTON)
 	return glfwGetMouseButton(Input::GetWindow(), GLFW_MOUSE_BUTTON) == GLFW_PRESS;
 }
 
+bool Mouse::ButtonPressed(int GLFW_MOUSE_BUTTON) { return m_buttonsPressed[GLFW_MOUSE_BUTTON] == Input::FrameCount(); }
+bool Mouse::ButtonReleased(int GLFW_MOUSE_BUTTON) { return m_buttonsReleased[GLFW_MOUSE_BUTTON] == Input::FrameCount(); }
+
 void Mouse::mouse_callback(GLFWwindow* window, double x, double y)
 {
+	
+}
 
+void Mouse::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+		m_buttonsPressed[button] = Input::FrameCount();
+	else if (action == GLFW_RELEASE)
+		m_buttonsReleased[button] = Input::FrameCount();
 }
 
 void Mouse::Update(int count)

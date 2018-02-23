@@ -8,28 +8,35 @@
 
 class Chunck;
 
-class World : public Drawable
+class World
 {
 public:
-	World();
-
 	const static int size = 8;
 	const static int height = 1;
 
-	void Draw( const Shader& shader) const override;
-	void GenerateChunks();
-	void GeneratePhysics();
+	static void Draw(const Shader& shader);
+	static void GenerateChunks();
+	static void GeneratePhysics();
 
-	Chunck & GetChunck(glm::ivec3 position);
-	bool BlockExists(glm::ivec3 position);
-	Block & GetBlock(glm::ivec3 position);
-	bool BlockExists( int x, int y, int z);
-	Block & GetBlock(int x, int y, int z);
-	Chunck & GetChunck(int x, int y, int z);
+	static Chunck & GetChunck(glm::ivec3 position);
+	static bool BlockExists(glm::ivec3 position);
+	static Block & GetBlock(glm::ivec3 position);
+
+	static void RemoveBlock(glm::ivec3 position);
+	static void UpdateAround(glm::ivec3 position);
+
 private:
-	PerlinNoise perlinGen;
+	//Singleton pattern
+	static World m_instance;
+	World& operator= (const World&) {}
+	World(const PhysicsEngine&) {}
+	World();
+	~World();
 
-	Chunck ***m_chuncks;
+	static bool IsVisible(glm::ivec3 position);
+
+	static PerlinNoise perlinGen;
+	static Chunck ***m_chuncks;
 };
 
 

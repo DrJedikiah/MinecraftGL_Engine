@@ -22,6 +22,9 @@ public:
 	const float moveSpeed = 3;
 
 private:
+	void MoveAvatar();
+	void SetCamera();
+
 	Camera & m_camera;
 	PlayerAvatar& m_avatar;
 
@@ -29,10 +32,11 @@ private:
 	void OnCollisionEnter(RigidBody& other, btManifoldPoint& point);
 	void OnCollisionExit(RigidBody& other);
 
-	const float m_jumpStrenght = 8.f;
-	const float m_walkSpeed = 4.f;
+	const float m_jumpStrenght = 8.4f;
+	const float m_walkSpeed = 3.f;
 	const float m_runSpeed = 6.f;
-	const float m_acceleration = 30.f;
+	const float m_accelerationWalk = 15.f;
+	const float m_accelerationRun = 30.f;
 
 
 	float m_mouseXspeed = 0.005f;

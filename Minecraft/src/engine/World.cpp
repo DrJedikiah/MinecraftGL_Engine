@@ -1,5 +1,9 @@
 #include "engine/World.h"
 
+World World::m_instance = World();
+PerlinNoise World::perlinGen;
+Chunck *** World::m_chuncks;
+
 World::World()
 {
 	perlinGen.reseed(42); 
@@ -15,24 +19,20 @@ World::World()
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
-				m_chuncks[x][y][z].Setup(glm::ivec3((float)x, (float)y, (float)z));
+				m_chuncks[x][y][z].Setup(this, glm::ivec3((float)x, (float)y, (float)z));
 }
 
  
 Chunck & World::GetChunck(glm::ivec3 position) { return m_chuncks[position.x][position.y][position.z];}
-Chunck & World::GetChunck(int x, int y, int z) { return m_chuncks[x][y][z]; } 
 
-Block & World::GetBlock(glm::ivec3 position) { return GetBlock(position.x, position.y, position.z); }
-Block & World::GetBlock(int x, int y, int z){ 
-	return GetChunck(x / Chunck::size, y / Chunck::size, z / Chunck::size).GetBlock(x%Chunck::size, y%Chunck::size, z%Chunck::size);
+Block & World::GetBlock(glm::ivec3 position) {
+	return GetChunck(position / Chunck::size).GetBlock(position % Chunck::size);
 }
 
-
-
-bool World::BlockExists(glm::ivec3 position) { return BlockExists(position.x, position.y, position.z); }
-bool World::BlockExists(int x, int y, int z)
+bool World::BlockExists(glm::ivec3 position)
 {
-	if (x >= 0 && y >= 0 && z >= 0 && x < size*Chunck::size && y < height * Chunck::size && z < size*Chunck::size)
+	if (position.x >= 0 && position.y >= 0 && position.z >= 0 && 
+		position.x < size*Chunck::size && position.y < height * Chunck::size && position.z < size*Chunck::size)
 		return true;
 	else
 		return false;
@@ -60,13 +60,13 @@ void World::GenerateChunks()
 
 				if (y > h) 
 				{
-					GetBlock(x, y, z).solid = false;
-					GetBlock(x, y, z).enabled = false;
+					GetBlock({ x, y, z }).solid = false;
+					GetBlock({ x, y, z }).enabled = false;
 				}
 				else
 				{
-					GetBlock(x, y, z).solid = true;
-					GetBlock(x, y, z).enabled = true;
+					GetBlock({ x, y, z }).solid = true;
+					GetBlock({ x, y, z }).enabled = true;
 				}
 			}
 	
@@ -75,18 +75,18 @@ void World::GenerateChunks()
 		for (int x = 0; x < size * Chunck::size; ++x)
 			for (int z = 0; z < size * Chunck::size; ++z)
 			{
-				Block& block = GetBlock(x, y, z);
-				if ((x + 1 >= size * Chunck::size	|| GetBlock( x+1,	y, z ).solid ) &&
-					(x - 1 < 0						|| GetBlock( x-1,	y,		z	).solid )&&
-					(y + 1 >= size * Chunck::size	|| GetBlock( x,		y+1,	z	).solid )&&
-					(y - 1 < 0 * Chunck::size		|| GetBlock( x,		y-1,	z	).solid )&&
-					(z + 1 >= size * Chunck::size	|| GetBlock( x,		y,		z+1	).solid )&&
-					(z - 1 < 0 * Chunck::size		|| GetBlock( x,		y,		z-1	).solid) )
-				{
+				Block& block = GetBlock({ x, y, z });
+				if (!IsVisible({ x, y, z }))
 					block.enabled = false;
-				}
+			}
 
-				if (block.type == Block::Type::dirt && ( y + 1 >= height * Chunck::size || ! GetBlock(x, y + 1, z).solid))
+	//Setting grass	
+	for (int y = 0; y < height * Chunck::size; ++y)
+		for (int x = 0; x < size * Chunck::size; ++x)
+			for (int z = 0; z < size * Chunck::size; ++z)
+			{
+				Block& block = GetBlock({ x, y, z });
+				if (block.type == Block::Type::dirt && (y + 1 >= height * Chunck::size || !GetBlock({ x, y + 1, z }).solid))
 					block.type = Block::Type::grass;
 			}
 
@@ -97,19 +97,61 @@ void World::GenerateChunks()
 		{
 			for (int z = 0; z < size; ++z)
 			{
-				Chunck & chunck = GetChunck(x, y, z);
-				chunck.GenerateMesh( *this );
+				Chunck & chunck = GetChunck({ x, y, z });
+				chunck.GenerateMesh();
 				chunck.m_model.Translate(Chunck::size * Block::size * glm::vec3{ x,y,z });
 			}
 		}
 	}
-
 }
 
-void World::Draw(const Shader& shader) const
+bool World::IsVisible(glm::ivec3 position)
+{
+	if ((position.x + 1 >= size * Chunck::size || GetBlock({ position.x + 1, position.y, position.z }).solid) &&
+		(position.x - 1 < 0 || GetBlock({ position.x - 1,	position.y,	position.z }).solid) &&
+		(position.y + 1 >= size * Chunck::size || GetBlock({ position.x, position.y + 1, position.z }).solid) &&
+		(position.y - 1 < 0 * Chunck::size || GetBlock({ position.x, position.y - 1,  position.z }).solid) &&
+		(position.z + 1 >= size * Chunck::size || GetBlock({ position.x, position.y, position.z + 1 }).solid) &&
+		(position.z - 1 < 0 * Chunck::size || GetBlock({ position.x, position.y, position.z - 1 }).solid))
+		return false;
+	return true;
+}
+
+void World::RemoveBlock(glm::ivec3 position)
+{
+	GetChunck(position / Chunck::size).RemoveBlock(position % Chunck::size);
+}
+
+void World::UpdateAround(glm::ivec3 position)
+{
+	glm::ivec3 pos = position + glm::ivec3(0, 1, 0);
+	if (BlockExists(pos)) GetBlock(pos).enabled = IsVisible(pos);
+
+	pos = position + glm::ivec3(0, -1, 0);
+	if (BlockExists(pos)) GetBlock(pos).enabled = IsVisible(pos);
+
+	pos = position + glm::ivec3(1, 0, 0);
+	if (BlockExists(pos)) GetBlock(pos).enabled = IsVisible(pos);
+
+	pos = position + glm::ivec3(-1, 0, 0);
+	if (BlockExists(pos)) GetBlock(pos).enabled = IsVisible(pos);
+
+	pos = position + glm::ivec3(0, 0, 1);
+	if (BlockExists(pos)) GetBlock(pos).enabled = IsVisible(pos);
+
+	pos = position + glm::ivec3(0, 0, -1);
+	if (BlockExists(pos)) GetBlock(pos).enabled = IsVisible(pos);
+}
+
+void World::Draw(const Shader& shader)
 {
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
 				m_chuncks[x][y][z].Draw(shader);
+}
+
+World::~World()
+{
+
 }

@@ -17,7 +17,7 @@ namespace bt
 	inline btVector3 toVec3(glm::vec3 vector) { return btVector3(vector.x, vector.y, vector.z); };
 }
 
-namespace mathf
+namespace std
 {
 	inline float clamp(float value, float min, float max)
 	{

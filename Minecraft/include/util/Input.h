@@ -63,7 +63,8 @@ class Mouse
 
 public:
 	enum CursorState { disabled = GLFW_CURSOR_DISABLED, hidden = GLFW_CURSOR_HIDDEN, normal = GLFW_CURSOR_NORMAL };
-	
+	enum Button{left = 0, right = 1, button3, button4, button5, button6, button7, button8};
+
 	static glm::vec2 position();
 	static glm::vec2 delta();
 
@@ -71,9 +72,11 @@ public:
 	static void CenterCursor( bool state);
 
 	static bool KeyDown(int GLFW_MOUSE_BUTTON);
-
+	static bool ButtonPressed(int GLFW_MOUSE_BUTTON);
+	static bool ButtonReleased(int GLFW_MOUSE_BUTTON);
 private:
 	static void mouse_callback(GLFWwindow* window, double x, double y);
+	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 	static void Update(int count);
 
 	static bool m_centerCursor;
@@ -81,6 +84,9 @@ private:
 	static glm::vec2 m_oldPosition;
 	static glm::vec2 m_position;
 	static glm::vec2 m_delta;
+
+	static std::array< unsigned, 11 > m_buttonsPressed;
+	static std::array< unsigned, 11 > m_buttonsReleased;
 
 };
 

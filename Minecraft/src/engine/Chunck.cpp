@@ -1,14 +1,16 @@
 #include "engine/Chunck.h"
 
 
-Chunck::Chunck() : m_model()
+Chunck::Chunck() : 
+	m_model()
 {
 	m_btMesh.preallocateVertices(size*size*size);
 	m_btMesh.preallocateIndices(size*size*size);
 }
 
-void Chunck::Setup(glm::ivec3 position)
+void Chunck::Setup(World* world, glm::ivec3 position)
 {
+	m_world = world;
 	m_position = position;
 }
 
@@ -17,9 +19,9 @@ void Chunck::Draw(const Shader & shader) const
 	m_model.Draw(shader);
 }
 
-Block& Chunck::GetBlock(int x, int y, int z)
+Block& Chunck::GetBlock(glm::ivec3 position)
 {
-	return m_blocks[x][y][z];
+	return m_blocks[position.x][position.y][position.z];
 }
 
 void Chunck::GenerateCollider()
@@ -47,54 +49,65 @@ void Chunck::GenerateCollider()
 
 }
 
-void Chunck::GenerateMesh(World& world)
+void Chunck::RemoveBlock(glm::ivec3 position)
+{
+	Block& block = GetBlock(position);
+	block.ToAir();
+
+	World::UpdateAround(position);
+
+	GenerateMesh();
+	GenerateCollider();
+}
+
+void Chunck::GenerateMesh()
 {
 	vertices.clear();
 	for (int y = 0; y < size; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
 			{
-				Block& block = GetBlock(x, y, z);
-				if(block.enabled)
+				Block& block = GetBlock({ x, y, z });
+				if(block.enabled && block.solid)
 				{
 
-					if ((y + 1 < size && !GetBlock(x, y + 1, z).solid) || 
-						(world.BlockExists( m_position*size + glm::ivec3( x, y + 1, z )) && !world.GetBlock(m_position*size + glm::ivec3(x, y + 1, z)).solid))
+					if ((y + 1 < size && !GetBlock({x, y + 1, z}).solid) ||
+						(World::BlockExists( m_position*size + glm::ivec3( x, y + 1, z )) && !World::GetBlock(m_position*size + glm::ivec3(x, y + 1, z)).solid))
 					{
 						std::vector<Vertex> topFace = Util::cubeTopFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Top(block.type));
 						vertices.insert(vertices.end(), topFace.begin(), topFace.end());
 					}
 						
-					if ((y - 1 >= 0 && !GetBlock(x, y - 1, z).solid) ||
-						(world.BlockExists(m_position*size + glm::ivec3(x, y - 1, z)) && ! world.GetBlock(m_position*size + glm::ivec3(x, y - 1, z)).solid))
+					if ((y - 1 >= 0 && !GetBlock({ x, y - 1, z }).solid) ||
+						(World::BlockExists(m_position*size + glm::ivec3(x, y - 1, z)) && ! World::GetBlock(m_position*size + glm::ivec3(x, y - 1, z)).solid))
 					{
 						std::vector<Vertex> botFace = Util::cubeBotFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Bot(block.type));
 						vertices.insert(vertices.end(), botFace.begin(), botFace.end());
 					}
 
-					if ((x - 1 >= 0 && !GetBlock(x - 1, y, z).solid) ||
-					   (world.BlockExists(m_position*size + glm::ivec3(x-1, y, z)) && !world.GetBlock(m_position*size + glm::ivec3(x-1, y, z)).solid))
+					if ((x - 1 >= 0 && !GetBlock({x - 1, y, z}).solid) ||
+					   (World::BlockExists(m_position*size + glm::ivec3(x-1, y, z)) && !World::GetBlock(m_position*size + glm::ivec3(x-1, y, z)).solid))
 					{
 						std::vector<Vertex> leftFace = Util::cubeLeftFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Left(block.type));
 						vertices.insert(vertices.end(), leftFace.begin(), leftFace.end());
 					}
 
-					if ((x + 1 < size && !GetBlock(x + 1, y, z).solid) ||
-						(world.BlockExists(m_position*size + glm::ivec3(x + 1, y, z)) && !world.GetBlock(m_position*size + glm::ivec3(x + 1, y, z)).solid))
+					if ((x + 1 < size && !GetBlock({ x + 1, y, z }).solid) ||
+						(World::BlockExists(m_position*size + glm::ivec3(x + 1, y, z)) && !World::GetBlock(m_position*size + glm::ivec3(x + 1, y, z)).solid))
 					{
 						std::vector<Vertex> rightFace = Util::cubeRightFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Right(block.type));
 						vertices.insert(vertices.end(), rightFace.begin(), rightFace.end());
 					}
 
-					if ((z - 1 >= 0 && !GetBlock(x, y, z - 1).solid) ||
-						(world.BlockExists(m_position*size + glm::ivec3(x, y, z-1)) && !world.GetBlock(m_position*size + glm::ivec3(x, y, z-1)).solid))
+					if ((z - 1 >= 0 && !GetBlock({x, y, z - 1}).solid) ||
+						(World::BlockExists(m_position*size + glm::ivec3(x, y, z-1)) && !World::GetBlock(m_position*size + glm::ivec3(x, y, z-1)).solid))
 					{
 						std::vector<Vertex> backFace = Util::cubeBackFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Back(block.type));
 						vertices.insert(vertices.end(), backFace.begin(), backFace.end());
 					}
 
-					if ((z + 1 < size && !GetBlock(x, y, z + 1).solid) ||
-						(world.BlockExists(m_position*size + glm::ivec3(x, y, z + 1)) && !world.GetBlock(m_position*size + glm::ivec3(x, y, z + 1)).solid))
+					if ((z + 1 < size && !GetBlock({x, y, z + 1}).solid) ||
+						(World::BlockExists(m_position*size + glm::ivec3(x, y, z + 1)) && !World::GetBlock(m_position*size + glm::ivec3(x, y, z + 1)).solid))
 					{
 						std::vector<Vertex> frontFace = Util::cubeFrontFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Front(block.type));
 						vertices.insert(vertices.end(), frontFace.begin(), frontFace.end());
@@ -103,3 +116,4 @@ void Chunck::GenerateMesh(World& world)
 	}
 	m_model = Model({ Mesh(vertices) });
 }
+

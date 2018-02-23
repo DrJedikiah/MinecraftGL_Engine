@@ -34,7 +34,6 @@ public:
 	enum PlayerState{ spectator, survival };
 	
 	void Start();
-	World world;
 
 private:
 	unsigned int m_scr_width;

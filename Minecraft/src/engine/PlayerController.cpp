@@ -12,7 +12,6 @@ PlayerController::PlayerController(Camera& camera, PlayerAvatar& avatar) :
 	m_avatar.rb().ActivateCollisionSignals(true);
 	m_avatar.rb().setActivationState(DISABLE_DEACTIVATION);
 
-
 	m_avatar.rb().setFriction(0.f);
 }
 
@@ -20,67 +19,91 @@ void PlayerController::Update(float delta)
 {
 	if (m_enabled)
 	{
-		//Run
-		if (Keyboard::KeyPressed(GLFW_KEY_LEFT_SHIFT))
-			m_isRunning = true;
-		if (Keyboard::KeyReleased(GLFW_KEY_LEFT_SHIFT))
-			m_isRunning = false;
+		MoveAvatar();
+		SetCamera();
 
-		//Set a movemennt direction vector
-		btVector3 direction(0, 0, 0);
-		if (Keyboard::KeyDown(Keyboard::AzertyKey::Z))
-			direction += btVector3(m_camera.forward().x, 0, m_camera.forward().z).normalized();
-		if (Keyboard::KeyDown(Keyboard::AzertyKey::S))
-			direction -= btVector3(m_camera.forward().x, 0, m_camera.forward().z).normalized();
-		if (Keyboard::KeyDown(Keyboard::AzertyKey::D))
-			direction += btVector3(m_camera.right().x, 0, m_camera.right().z).normalized();
-		if (Keyboard::KeyDown(Keyboard::AzertyKey::Q))
-			direction -= btVector3(m_camera.right().x, 0, m_camera.right().z).normalized();
-		
-		
-		if (direction.isZero())
+		if (Mouse::ButtonPressed(Mouse::Button::left))
 		{
-			//Stops the player whe not trying to move
-			if ( ! m_isJumping)
-				m_avatar.rb().setLinearVelocity(btVector3(0, m_avatar.rb().getLinearVelocity().getY(), 0));
-		}
-		else
-		{	
-			btVector3 velocity = m_avatar.rb().getLinearVelocity();
-			velocity.setY(0);
-			if (!velocity.isZero())
+			btVector3 direction = bt::toVec3(m_camera.forward());
+			btVector3 start = bt::toVec3(m_camera.position());
+			btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(start, start + 2.f * direction);
+			if (res.hasHit())
 			{
-				//Slow down if too fast
-				float maxSpeed = m_isRunning ? m_runSpeed : m_walkSpeed;
-				if (velocity.norm() > maxSpeed)
-				{
-					velocity = maxSpeed * velocity.normalized(); 
-					velocity.setY(m_avatar.rb().getLinearVelocity().getY());
-					m_avatar.rb().setLinearVelocity(velocity);
-				}
-
-				//Stop if the player want's to go in the reverse direction
-				if (velocity.dot(direction) < 0) 
-					m_avatar.rb().setLinearVelocity( btVector3(0, m_avatar.rb().getLinearVelocity().getY(), 0));
+				glm::ivec3 blockCoord = glm::toVec3(res.m_hitPointWorld - Block::size / 2 * res.m_hitNormalWorld);
+				World::RemoveBlock(blockCoord);
 			}
-
-			//Increase speed
-			m_avatar.rb().applyCentralForce(m_acceleration * direction);
-		}
-
-		//Jump
-		if (Keyboard::KeyPressed(GLFW_KEY_SPACE) && isHittingFloor())
-		{
-			m_isJumping = true;
-			m_avatar.rb().applyCentralImpulse(btVector3(0, m_jumpStrenght, 0));
-		}
-
-		//Camera
-		m_camera.SetPosition(glm::toVec3(m_avatar.rb().transform().getOrigin()) + glm::vec3(0,1.f, 0));
-		m_camera.RotateRight(m_mouseXspeed * Mouse::delta().x);
-		m_camera.RotateUp(-m_mouseYspeed * Mouse::delta().y);
+		}	
 	} 
 } 
+
+void PlayerController::MoveAvatar()
+{
+	//Run
+	if (Keyboard::KeyPressed(GLFW_KEY_LEFT_SHIFT))
+		m_isRunning = true;
+	if (Keyboard::KeyReleased(GLFW_KEY_LEFT_SHIFT))
+		m_isRunning = false;
+
+	//Set a movemennt direction vector
+	btVector3 direction(0, 0, 0);
+	if (Keyboard::KeyDown(Keyboard::AzertyKey::Z))
+		direction += btVector3(m_camera.forward().x, 0, m_camera.forward().z).normalized();
+	if (Keyboard::KeyDown(Keyboard::AzertyKey::S))
+		direction -= btVector3(m_camera.forward().x, 0, m_camera.forward().z).normalized();
+	if (Keyboard::KeyDown(Keyboard::AzertyKey::D))
+		direction += btVector3(m_camera.right().x, 0, m_camera.right().z).normalized();
+	if (Keyboard::KeyDown(Keyboard::AzertyKey::Q))
+		direction -= btVector3(m_camera.right().x, 0, m_camera.right().z).normalized();
+
+
+	if (direction.isZero())
+	{
+		//Stops the player whe not trying to move
+		if (!m_isJumping)
+			m_avatar.rb().setLinearVelocity(btVector3(0, m_avatar.rb().getLinearVelocity().getY(), 0));
+	}
+	else
+	{
+		btVector3 velocity = m_avatar.rb().getLinearVelocity();
+		velocity.setY(0);
+		if (!velocity.isZero())
+		{	
+			//Stop if the player want's to go in the reverse direction
+			if (velocity.dot(direction) < 0)
+				m_avatar.rb().setLinearVelocity(btVector3(0, m_avatar.rb().getLinearVelocity().getY(), 0));
+
+			//Slow down if too fast
+			float maxSpeed = m_isRunning ? m_runSpeed : m_walkSpeed;
+			if (velocity.norm() > maxSpeed)
+			{
+				velocity = maxSpeed * velocity.normalized();
+				velocity.setY(m_avatar.rb().getLinearVelocity().getY());
+				m_avatar.rb().setLinearVelocity(velocity);
+			}
+		}  
+
+		//Increase speed 
+		if(m_isRunning)
+			m_avatar.rb().applyCentralForce(m_accelerationRun * direction);
+		else
+			m_avatar.rb().applyCentralForce(m_accelerationWalk * direction);
+	}
+
+	//Jump
+	if (Keyboard::KeyPressed(GLFW_KEY_SPACE) && isHittingFloor())
+	{
+		m_isJumping = true;
+		m_avatar.rb().applyCentralImpulse(btVector3(0, m_jumpStrenght, 0));
+	}
+}
+
+void PlayerController::SetCamera()
+{
+	//Camera
+	m_camera.SetPosition(glm::toVec3(m_avatar.rb().transform().getOrigin()) + glm::vec3(0, 1.f, 0));
+	m_camera.RotateRight(m_mouseXspeed * Mouse::delta().x);
+	m_camera.RotateUp(-m_mouseYspeed * Mouse::delta().y);
+}
 
 ///<summary>Returns true if the player is touching the ground (performs raycasts)</summary>
 bool PlayerController::isHittingFloor()
