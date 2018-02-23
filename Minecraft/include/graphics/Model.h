@@ -10,11 +10,9 @@
 class Model : public Drawable
 {
 public:
-	Model(std::vector<Mesh> meshList = std::vector<Mesh>());
-	Model(Mesh mesh);
-
-	void AddMesh(Mesh mesh);
-
+	Model(std::vector<Mesh::Vertex> vertices);
+	Model();
+	~Model();
 	const glm::mat4 ModelMatrix() const;
 
 	void SetPosition(glm::vec3 vector);
@@ -36,6 +34,5 @@ private:
 	glm::vec3 m_position;
 	glm::quat m_rotation;
 
-	std::vector<Mesh> m_meshList;
-	
+	Mesh m_mesh;
 };

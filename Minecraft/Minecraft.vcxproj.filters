@@ -116,6 +116,9 @@
     <ClInclude Include="include\engine\RigidBody.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
+    <ClInclude Include="include\util\Debug.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -190,12 +193,27 @@
     <ClCompile Include="src\engine\RigidBody.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
+    <ClCompile Include="src\util\Debug.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.fs">
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\shader.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\shader_debug.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\shader_debug.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\shader_debug_ui.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\shader_debug_ui.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

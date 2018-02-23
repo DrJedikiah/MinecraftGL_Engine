@@ -31,7 +31,7 @@ void Cube::Draw(const Shader & shader) const
 	m_model.Draw(shader);
 }
 
-Mesh Cube::CreateCubeMesh(float size, Block::Type type)
+std::vector<Mesh::Vertex> Cube::CreateCubeMesh(float size, Block::Type type)
 {
 	fRect backRect =  TexturesBlocks::Back(type);
 	fRect frontRect = TexturesBlocks::Front(type);
@@ -40,7 +40,7 @@ Mesh Cube::CreateCubeMesh(float size, Block::Type type)
 	fRect botRect = TexturesBlocks::Bot(type);
 	fRect topRect = TexturesBlocks::Top(type);
 
-	return Mesh( std::vector<Vertex>
+	return std::vector<Mesh::Vertex>
 	{
 		//Back
 		{ { -size/2.f, -size/2.f, -size/2.f},{ 0.f,0.f,-1.f },{ backRect.x1, backRect.y1 } },//bot
@@ -89,7 +89,7 @@ Mesh Cube::CreateCubeMesh(float size, Block::Type type)
 		{ { -size/2.f,  +size/2.f, +size/2.f},{ 0.f,1.f,0.f },{ topRect.x1, topRect.y1 } },
 		{ { +size/2.f,  +size/2.f, +size/2.f},{ 0.f,1.f,0.f },{ topRect.x2, topRect.y1 } },
 		{ { -size/2.f,  +size/2.f, -size/2.f},{ 0.f,1.f,0.f },{ topRect.x1, topRect.y2 } }
-	});
+	};
 }
 
 

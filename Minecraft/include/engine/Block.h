@@ -14,6 +14,6 @@ public:
 
 	void ToDirt()  { type = dirt;  enabled = true; solid = true;  }
 	void ToGrass() { type = grass; enabled = true; solid = true;  }
-	void ToAir()   { type = air;   enabled = true; solid = false; }
+	void ToAir()   { type = air;   enabled = false; solid = false; }
 	void ToWater() { type = water; enabled = true; solid = false; }
 };

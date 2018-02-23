@@ -9,6 +9,8 @@
 #include "engine/Physics.h"
 #include "engine/World.h"
 #include "util/Util.h"
+#include "util/Time.h"
+
 
 class World;
 
@@ -18,27 +20,35 @@ public:
 	friend class World;
 
 	Chunck();
+	~Chunck();
 	void Setup( World* world, glm::ivec3 position);
 
 	static const int size = 16;
 
-	void GenerateMesh();
-	void GenerateCollider();
+
+
+	void Update(float delta);
 	void Draw(const Shader & shader) const override;
 
 	Block& GetBlock(glm::ivec3 position);
-	void RemoveBlock(glm::ivec3 position);
+
+	void GenerateLater();
+	void GenerateMesh();
+	void GenerateCollider();
 
 private:
+	bool m_generateLater = false;
+
 	World* m_world;
 	glm::ivec3 m_position;
 
-	Model m_model;
+	Model * m_model;
 	Block m_blocks[size][size][size];
 
-	std::vector<Vertex> vertices;
+	std::vector<Mesh::Vertex> vertices;
 
 	//Collider
+	RigidBody * m_rb;
 	btTriangleMesh m_btMesh;
 	btBvhTriangleMeshShape * m_shape = nullptr;
 };

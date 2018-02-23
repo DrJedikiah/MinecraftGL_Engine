@@ -14,7 +14,8 @@ class PhysicsEngine
 {
 public:
 	static void StepSimulation( float timeStep );
-	static RigidBody& CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
+	static RigidBody* CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
+	static bool DeleteRigidBody(RigidBody* rigidBody);
 	static btCollisionWorld::ClosestRayResultCallback RayCast(btVector3 Start, btVector3 End);
 
 private:
@@ -31,7 +32,6 @@ private:
 	 static btBroadphaseInterface* overlappingPairCache;
 	 static btSequentialImpulseConstraintSolver* solver;
 	 static btDiscreteDynamicsWorld* dynamicsWorld;
-	 static btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
 	 //Callbacks for the physics collisions between rigidbodies
 	 static bool ContactDestroyed(void* userPersistentData);

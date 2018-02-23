@@ -8,6 +8,14 @@
 
 #include "util/Input.h"
 #include "util/Signal.h"
+#include "util/Debug.h"
+
+
+inline glm::vec3 a( btVector3 vec )
+{
+
+};
+
 
 class PlayerController
 {
@@ -18,7 +26,7 @@ public:
 	void SetEnabled(bool state);
 	bool Enabled() const;
 
-	const float jumpStrength = 100.f;
+	const float jumpStrength = 1000.f;
 	const float moveSpeed = 3;
 
 private:

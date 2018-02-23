@@ -30,7 +30,7 @@ namespace std
 namespace Util
 {
 
-	inline std::vector<Vertex> cubeTopFace(float size, float x, float y, float z, fRect rect)
+	inline std::vector<Mesh::Vertex> cubeTopFace(float size, float x, float y, float z, fRect rect)
 	{
 		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
 		return {{ { X + s,  Y + s, Z - s },{ 0.f,1.f,0.f },{ rect.x2, rect.y2 } },
@@ -41,7 +41,7 @@ namespace Util
 				{ { X - s,  Y + s, Z - s },{ 0.f,1.f,0.f },{ rect.x1, rect.y2 } }};
 	}
 
-	inline std::vector<Vertex> cubeBotFace(float size, float x, float y, float z, fRect rect)
+	inline std::vector<Mesh::Vertex> cubeBotFace(float size, float x, float y, float z, fRect rect)
 	{
 		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
 		return {{ { X - s, Y - s, Z - s },{ 0.f,-1.f,0.f },{ rect.x1, rect.y2 } },
@@ -52,7 +52,7 @@ namespace Util
 				{ { X - s, Y - s, Z - s },{ 0.f,-1.f,0.f },{ rect.x1, rect.y2 } }};
 	}
 
-	inline std::vector<Vertex> cubeLeftFace(float size, float x, float y, float z, fRect rect)
+	inline std::vector<Mesh::Vertex> cubeLeftFace(float size, float x, float y, float z, fRect rect)
 	{
 		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
 		return{ { { X - s, Y + s, Z + s },{ -1.f,0.f,0.f },{ rect.x1, rect.y2 } },
@@ -63,7 +63,7 @@ namespace Util
 				{ { X - s, Y + s, Z + s },{ -1.f,0.f,0.f },{ rect.x1, rect.y2 } }, };
 	}
 
-	inline std::vector<Vertex> cubeRightFace(float size, float x, float y, float z, fRect rect)
+	inline std::vector<Mesh::Vertex> cubeRightFace(float size, float x, float y, float z, fRect rect)
 	{
 		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
 		return{ { { X + s, Y + s, Z + s },{ 1.f,0.f,0.f },{ rect.x1, rect.y2 } },//Top
@@ -74,7 +74,7 @@ namespace Util
 				{ { X + s, Y - s, Z + s },{ 1.f,0.f,0.f },{ rect.x1, rect.y1 } }, };
 	}
 
-	inline std::vector<Vertex> cubeFrontFace(float size, float x, float y, float z, fRect rect)
+	inline std::vector<Mesh::Vertex> cubeFrontFace(float size, float x, float y, float z, fRect rect)
 	{
 		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
 		return{ { { X - s, Y - s, Z + s },{ 0.f,0.f,1.f },{ rect.x1, rect.y1 } },//bot
@@ -85,7 +85,7 @@ namespace Util
 				{ { X - s, Y - s,Z + s },{ 0.f,0.f,1.f },{ rect.x1, rect.y1 } }, };
 	}
 
-	inline std::vector<Vertex> cubeBackFace(float size, float x, float y, float z, fRect rect)
+	inline std::vector<Mesh::Vertex> cubeBackFace(float size, float x, float y, float z, fRect rect)
 	{
 		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
 		return{ { { X - s, Y - s, Z - s },{ 0.f,0.f,-1.f },{ rect.x1, rect.y1 } },//bot

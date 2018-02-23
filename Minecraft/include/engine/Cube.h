@@ -16,7 +16,7 @@ public:
 	void Update(float delta) override;
 	void UpdateModels() override ;
 
-	static Mesh CreateCubeMesh(float size, Block::Type type = Block::Type::dirt);
+	static std::vector<Mesh::Vertex> CreateCubeMesh(float size, Block::Type type = Block::Type::dirt);
 private:
 	Model m_model;
 	float m_size;

@@ -47,7 +47,11 @@ void Minecraft::Start()
 {
 	float t1 = Time::ElapsedSinceStartup();
 	//Shader
+	Shader shader_debug("shaders/shader_debug.vs", "shaders/shader_debug.fs");
+	Shader shader_debug_ui("shaders/shader_debug_ui.vs", "shaders/shader_debug_ui.fs");
 	Shader shader("shaders/shader.vs", "shaders/shader.fs");
+
+
 	Texture texture("textures/grass.bmp");
 
 	//Block Tiles and textures
@@ -59,32 +63,35 @@ void Minecraft::Start()
 	{
 		Light({ 30,30,14.5 }),
 	};
-
 	shader.use();
 	texture.Use();
 
+	Chunck ch;
 	World::GenerateChunks();
 	World::GeneratePhysics();
-
 	Camera camera(m_scr_width, m_scr_height, 1000);
 	camera.Translate(glm::vec3(14, 16, 14 + 8) - camera.position());
 	camera.RotateUp(glm::radians(-15.f));
 
 	PlayerAvatar player;
-	player.rb().translate(btVector3(8, 25, 8));
+	player.rb().translate(btVector3(8, 32, 8));
 
 	FreeCameraController freeCameraController( camera);
 	freeCameraController.SetEnabled(false);
 	PlayerController playerController(camera, player);
 	playerController.SetEnabled(true);
-
+	
 	Cube cube;
 	cube.rb().translate(btVector3(4.5, 20, 4.5));
-
+	
 	shader.setFloat("ambient", 0.2f);
 	shader.setMat4("view", camera.viewMatrix());
 	shader.setMat4("projection", camera.projectionMatrix());
 	shader.setInt("numLights", lights.size());
+
+	shader_debug.use();
+	shader_debug.setMat4("view", camera.viewMatrix());
+	shader_debug.setMat4("projection", camera.projectionMatrix());
 
 	float drawTimer = 0.f;
 	float fixedUpdateTimer = 0.f;
@@ -125,6 +132,7 @@ void Minecraft::Start()
 
 			player.Update(Time::FixedDeltaTime());
 			cube.Update(Time::FixedDeltaTime());
+			World::Update(Time::FixedDeltaTime());
 		}
 
 		//Draws
@@ -132,30 +140,32 @@ void Minecraft::Start()
 		if (drawTimer >= Time::DeltaTime())
 		{
 			drawTimer = 0.f;
-			//Uniforms
-			shader.setMat4("view", camera.viewMatrix());
-			for (int i = 0; i < (int)lights.size(); ++i)
-				lights[i].SetLightUniform(shader, i);
-
-			shader.setVec3("viewPos", camera.position());
 
 			//Clear
 			glClearColor(33.f / 255.f, 146.f / 255.f, 248.f/255.f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			//Draw
+			
+			//Draw world
 			shader.use();
 			texture.Use();
-
+			shader.setMat4("view", camera.viewMatrix());
+			for (int i = 0; i < (int)lights.size(); ++i)
+				lights[i].SetLightUniform(shader, i);
+			shader.setVec3("viewPos", camera.position());
 			player.UpdateModels();
 			player.Draw(shader);
-
 			cube.UpdateModels();
 			cube.Draw(shader);
-
 			World::Draw(shader);
 
+			//Debug
+			shader_debug.use();
+			shader_debug.setMat4("view", camera.viewMatrix());
+			Debug::Draw(shader_debug, shader_debug_ui);
+
 			glfwSwapBuffers(m_window);
+
+			Debug::Clear();
 		}
 	}
 

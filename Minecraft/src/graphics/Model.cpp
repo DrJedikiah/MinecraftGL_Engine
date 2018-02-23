@@ -1,25 +1,19 @@
 #include "graphics/Model.h"
 
-Model::Model(std::vector<Mesh> meshList) :
-	m_modelMatrix(1.f),
-	m_position(0.f, 0.f, 0.f),
-	m_rotation( glm::vec3(0,0,0)),
-	m_meshList(meshList)
-{
-}
 
-Model::Model(Mesh mesh) :
+
+Model::Model(std::vector<Mesh::Vertex> vertices) :
 	m_modelMatrix(1.f),
 	m_position(0.f, 0.f, 0.f),
 	m_rotation(glm::vec3(0, 0, 0)),
-	m_meshList({ mesh })
+	m_mesh(vertices)
 {
 
 }
 
-void Model::AddMesh(Mesh mesh)
+Model::Model()
 {
-	m_meshList.push_back(mesh);
+
 }
 
 void Model::SetPosition(glm::vec3 vector)
@@ -74,6 +68,9 @@ void Model::Draw(const Shader& shader) const
 		UpdateModelMatrix();
 		
 	shader.setMat4("model", m_modelMatrix);
-	for (const Mesh & mesh : m_meshList)
-		mesh.Draw(shader);
+	m_mesh.Draw(shader);
+}
+
+Model::~Model()
+{
 }

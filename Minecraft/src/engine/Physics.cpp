@@ -7,14 +7,13 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
  btBroadphaseInterface* PhysicsEngine::overlappingPairCache;
  btSequentialImpulseConstraintSolver* PhysicsEngine::solver;
  btDiscreteDynamicsWorld* PhysicsEngine::dynamicsWorld;
- btAlignedObjectArray<btCollisionShape*> PhysicsEngine::collisionShapes;
 
  void PhysicsEngine::StepSimulation(float timeStep)
  {
 	 dynamicsWorld->stepSimulation(timeStep, 10);
  }
 
- RigidBody& PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
+ RigidBody* PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
  {
 	 bool isDynamic = (mass != 0.f);
 
@@ -28,7 +27,19 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
 
 	 body->setUserIndex(-1);
 	 dynamicsWorld->addRigidBody(body);
-	 return *body;
+	 return body;
+ }
+
+
+
+ bool PhysicsEngine::DeleteRigidBody(RigidBody* rigidBody)
+ {
+	 if (rigidBody && rigidBody->getMotionState())
+	 	 delete rigidBody->getMotionState();
+	 dynamicsWorld->removeCollisionObject(rigidBody);
+	 delete rigidBody;
+
+	 return false;
  }
 
  btCollisionWorld::ClosestRayResultCallback PhysicsEngine::RayCast(btVector3 Start, btVector3 End)

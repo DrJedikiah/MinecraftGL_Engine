@@ -31,6 +31,7 @@ private:
 
 	static int m_count;
 	int m_id;
+	int m_index;
 
 	struct Collision
 	{
