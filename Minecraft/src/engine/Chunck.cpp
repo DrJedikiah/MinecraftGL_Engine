@@ -14,14 +14,9 @@ void Chunck::Update(float delta)
 {
 	if (m_generateLater)
 	{
-		float t1 = Time::ElapsedSinceStartup();
-
 		GenerateMesh();
 		GenerateCollider();
 		m_generateLater = false;
-
-		float t2 = Time::ElapsedSinceStartup();
-		std::cout << 1000.f*(t2 - t1) << std::endl;
 	}
 }
 
