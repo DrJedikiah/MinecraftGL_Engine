@@ -15,6 +15,8 @@ PlayerController::PlayerController(Camera& camera, PlayerAvatar& avatar) :
 	m_avatar.rb().setFriction(0.f);
 }
 
+
+
 void PlayerController::Update(float delta)
 {
 	if (m_enabled)
@@ -22,18 +24,50 @@ void PlayerController::Update(float delta)
 		MoveAvatar();
 		SetCamera();
 
-		if (Mouse::ButtonPressed(Mouse::Button::left))
+		/*if (Mouse::ButtonPressed(Mouse::Button::left))
 		{
-			btVector3 direction = bt::toVec3(m_camera.forward());
+			
 			btVector3 start = bt::toVec3(m_camera.position());
+			btVector3 direction = bt::toVec3(m_camera.forward());
 			btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(start, start + 2.f * direction);
 			if (res.hasHit())
 			{
-				glm::ivec3 blockCoord = glm::toVec3(res.m_hitPointWorld - Block::size / 2 * res.m_hitNormalWorld);
-				World::RemoveBlock(blockCoord);
+				glm::ivec3 blockCoord = glm::toVec3(res.m_hitPointWorld);// -Block::size / 2 * res.m_hitNormalWorld);
+				
+				if (Mouse::ButtonPressed(Mouse::Button::left))
+					World::RemoveBlock(blockCoord);
+			
+
+
+				start = bt::toVec3(m_camera.position());
+				Debug::DrawCross(bt::toVec3(blockCoord), { 1,0,0 });
+				
 			}
-		}	
+			
+			Debug::DrawLine(start, start + direction);
+		}	*/
+
 	} 
+	btVector3 start = bt::toVec3(m_camera.position());
+	btVector3 direction = bt::toVec3( 3.f * m_camera.forward());
+
+	Debug::DrawLine(start, start + direction);
+	btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(start, start + direction);
+	if (res.hasHit())
+	{
+		glm::ivec3 blockCoord = glm::toVec3(res.m_hitPointWorld + btVector3(0.5f, 0.5f, 0.5f) - Block::size / 2 * res.m_hitNormalWorld);
+		Debug::DrawCross(res.m_hitPointWorld - Block::size / 2  *res.m_hitNormalWorld, 0.5f, { 1,0,0 });
+		Debug::DrawCross({ (float)blockCoord.x, (float)blockCoord.y, (float)blockCoord.z }, 2.f , { 0,1,0 });
+
+		if (Mouse::ButtonPressed(Mouse::Button::left))
+		{
+			std::cout << res.m_hitPointWorld.getX() << "\t" << res.m_hitPointWorld.getZ() << " ###" << blockCoord.x << " " << blockCoord.z << std::endl;
+			World::RemoveBlock(blockCoord);
+		}
+
+	}
+	//Debug::DrawCross(, { 1,0,0 });
+
 } 
 
 void PlayerController::MoveAvatar()
@@ -100,7 +134,7 @@ void PlayerController::MoveAvatar()
 void PlayerController::SetCamera()
 {
 	//Camera
-	m_camera.SetPosition(glm::toVec3(m_avatar.rb().transform().getOrigin()) + glm::vec3(0, 1.f, 0));
+	m_camera.SetPosition(glm::toVec3(m_avatar.rb().transform().getOrigin()) + glm::vec3(0, 3.f * m_avatar.height / 4.f, 0));
 	m_camera.RotateRight(m_mouseXspeed * Mouse::delta().x);
 	m_camera.RotateUp(-m_mouseYspeed * Mouse::delta().y);
 }

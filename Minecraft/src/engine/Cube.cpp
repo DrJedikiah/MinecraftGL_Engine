@@ -40,7 +40,7 @@ Mesh Cube::CreateCubeMesh(float size, Block::Type type)
 	fRect botRect = TexturesBlocks::Bot(type);
 	fRect topRect = TexturesBlocks::Top(type);
 
-	return Mesh( std::vector<Vertex>
+	return Mesh( std::vector<Mesh::Vertex>
 	{
 		//Back
 		{ { -size/2.f, -size/2.f, -size/2.f},{ 0.f,0.f,-1.f },{ backRect.x1, backRect.y1 } },//bot

@@ -150,6 +150,7 @@
     <ClInclude Include="include\graphics\TexturesBlocks.h" />
     <ClInclude Include="include\graphics\Tiles.h" />
     <ClInclude Include="include\Minecraft.h" />
+    <ClInclude Include="include\util\Debug.h" />
     <ClInclude Include="include\util\Input.h" />
     <ClInclude Include="include\util\Perlin.h" />
     <ClInclude Include="include\util\Signal.h" />
@@ -179,12 +180,17 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Minecraft.cpp" />
     <ClCompile Include="src\TexturesBlocks.cpp" />
+    <ClCompile Include="src\util\Debug.cpp" />
     <ClCompile Include="src\util\Input.cpp" />
     <ClCompile Include="src\util\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.fs" />
     <None Include="shaders\shader.vs" />
+    <None Include="shaders\shader_debug.fs" />
+    <None Include="shaders\shader_debug.vs" />
+    <None Include="shaders\shader_debug_ui.fs" />
+    <None Include="shaders\shader_debug_ui.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

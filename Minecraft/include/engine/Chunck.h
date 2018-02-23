@@ -36,7 +36,7 @@ private:
 	Model m_model;
 	Block m_blocks[size][size][size];
 
-	std::vector<Vertex> vertices;
+	std::vector<Mesh::Vertex> vertices;
 
 	//Collider
 	btTriangleMesh m_btMesh;

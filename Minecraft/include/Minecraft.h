@@ -21,6 +21,7 @@
 #include "graphics/Texture.h"
 #include "graphics/Model.h"
 
+#include "util/Debug.h"
 #include "util/Time.h"
 #include "util/Input.h"
 

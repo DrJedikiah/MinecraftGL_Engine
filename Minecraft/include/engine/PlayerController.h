@@ -8,6 +8,14 @@
 
 #include "util/Input.h"
 #include "util/Signal.h"
+#include "util/Debug.h"
+
+
+inline glm::vec3 a( btVector3 vec )
+{
+
+};
+
 
 class PlayerController
 {

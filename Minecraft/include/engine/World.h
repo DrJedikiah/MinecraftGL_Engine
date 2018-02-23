@@ -11,7 +11,7 @@ class Chunck;
 class World
 {
 public:
-	const static int size = 8;
+	const static int size = 1;
 	const static int height = 1;
 
 	static void Draw(const Shader& shader);

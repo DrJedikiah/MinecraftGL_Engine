@@ -7,7 +7,7 @@
 class PlayerAvatar : public Entity
 {
 public: 
-	PlayerAvatar( float mass = 1.f, float height = 1.8f, float radius = 0.4f);
+	PlayerAvatar( float mass = 1.f, float height = 0.9f, float radius = 0.4f);
 	
 	void Update(float delta) override;
 	void Draw(const Shader& shader) const override;

@@ -9,16 +9,16 @@
 #include "graphics/Shader.h"
 #include "graphics/Drawable.h"
 
-struct Vertex 
-{
-	glm::vec3 vertex;
-	glm::vec3 normals;
-	glm::vec2 texCoord;
-};
-
 class Mesh  : public Drawable
 {
 public:
+	struct Vertex
+	{
+		glm::vec3 vertex;
+		glm::vec3 normals;
+		glm::vec2 texCoord;
+	};
+
 	/*  Mesh Data  */
 	//std::vector<Vertex> vertices;
 	Texture * texture;
