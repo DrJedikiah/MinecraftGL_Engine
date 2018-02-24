@@ -11,8 +11,8 @@ class Chunck;
 class World
 {
 public:
-	const static int size = 2;
-	const static int height = 1;
+	const static int size = 8;
+	const static int height = 4;
 
 	static void Update(float delta);
 
@@ -21,10 +21,13 @@ public:
 	static void GeneratePhysics();
 
 	static Chunck & GetChunck(glm::ivec3 position);
-	static bool BlockGenerated(glm::ivec3 position);
 	static Block & GetBlock(glm::ivec3 position);
 
+
 	static void RemoveBlock(glm::ivec3 position);
+	static void AddBlock(glm::ivec3 position);
+	static bool BlockGenerated(glm::ivec3 position);
+	static glm::ivec3 BlockAt(btVector3 worldPos);
 	static void UpdateAround(glm::ivec3 position);
 	static void UpdateBlock(glm::ivec3 position);
 

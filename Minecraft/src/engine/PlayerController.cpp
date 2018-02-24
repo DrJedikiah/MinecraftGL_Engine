@@ -24,18 +24,14 @@ void PlayerController::Update(float delta)
 		MoveAvatar();
 		SetCamera();
 
+		glm::ivec3 blockCoord;
 		if (Mouse::ButtonPressed(Mouse::Button::left))
-		{
-			btVector3 start = bt::toVec3(m_camera.position());
-			btVector3 direction = bt::toVec3(3.f * m_camera.forward());
-			btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(start, start + direction);
-			if (res.hasHit())
-			{
-				glm::ivec3 blockCoord = glm::toVec3(res.m_hitPointWorld + btVector3(0.5f, 0.5f, 0.5f) - Block::size / 2 * res.m_hitNormalWorld);
-
+			if (SelectBlock(blockCoord))
 				World::RemoveBlock(blockCoord);
-			};
-		}
+
+		if (Mouse::ButtonPressed(Mouse::Button::right))
+			if (SelectSpace(blockCoord))
+				World::AddBlock(blockCoord);
 	} 
 } 
 
@@ -106,6 +102,32 @@ void PlayerController::SetCamera()
 	m_camera.SetPosition(glm::toVec3(m_avatar.rb().transform().getOrigin()) + glm::vec3(0, 3.f * m_avatar.height / 4.f, 0));
 	m_camera.RotateRight(m_mouseXspeed * Mouse::delta().x);
 	m_camera.RotateUp(-m_mouseYspeed * Mouse::delta().y);
+}
+
+bool PlayerController::SelectBlock(glm::ivec3 & blockCoord)
+{
+	btVector3 start = bt::toVec3(m_camera.position());
+	btVector3 direction = bt::toVec3(m_range * m_camera.forward());
+	btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(start, start + direction);
+	if (res.hasHit())
+	{
+		blockCoord = World::BlockAt(res.m_hitPointWorld - Block::size / 2 * res.m_hitNormalWorld);
+		return true;
+	}
+	return false;
+}
+
+bool PlayerController::SelectSpace(glm::ivec3 & blockCoord)
+{
+	btVector3 start = bt::toVec3(m_camera.position());
+	btVector3 direction = bt::toVec3(m_range * m_camera.forward());
+	btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(start, start + direction);
+	if (res.hasHit())
+	{
+		blockCoord = World::BlockAt(res.m_hitPointWorld + Block::size / 2 * res.m_hitNormalWorld);
+		return true;
+	}
+	return false;
 }
 
 ///<summary>Returns true if the player is touching the ground (performs raycasts)</summary>

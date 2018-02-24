@@ -33,6 +33,9 @@ private:
 	void MoveAvatar();
 	void SetCamera();
 
+	bool SelectBlock(glm::ivec3 & blockCoord);
+	bool SelectSpace(glm::ivec3 & blockCoord);
+
 	Camera & m_camera;
 	PlayerAvatar& m_avatar;
 
@@ -45,7 +48,7 @@ private:
 	const float m_runSpeed = 6.f;
 	const float m_accelerationWalk = 15.f;
 	const float m_accelerationRun = 30.f;
-
+	const float m_range = 4.f;
 
 	float m_mouseXspeed = 0.005f;
 	float m_mouseYspeed = 0.005f;

@@ -38,6 +38,11 @@ bool World::BlockGenerated(glm::ivec3 position)
 		return false;
 }
 
+glm::ivec3 World::BlockAt(btVector3 worldPos)
+{
+	return glm::toVec3(worldPos + 0.5f * btVector3(Block::size, Block::size, Block::size));
+}
+
 void World::GeneratePhysics()
 {
 	for (int y = 0; y < height; ++y)
@@ -122,15 +127,34 @@ bool World::IsVisible(glm::ivec3 position)
 void World::RemoveBlock(glm::ivec3 position)
 {
 		Block& block = GetBlock(position);
-		block.ToAir();
-		UpdateAround(position);
-		GetChunck(position / Chunck::size).GenerateLater();
+		if (block.solid)
+		{
+			block.ToAir();
+			UpdateAround(position);
+		}
 }
+ 
+void World::AddBlock(glm::ivec3 position)
+{
+	if (BlockGenerated(position))
+	{
+		Block& block = GetBlock(position);
+		if (!block.solid)
+		{
+			block.ToDirt();
+			UpdateAround(position);
+		}
+	}
+}
+
 
 void World::UpdateBlock(glm::ivec3 position)
 {
-	GetBlock(position).enabled = IsVisible(position);
-	GetChunck(position / Chunck::size).GenerateLater();
+	if (BlockGenerated(position))
+	{
+		GetBlock(position).enabled = IsVisible(position);
+		GetChunck(position / Chunck::size).GenerateLater();
+	}
 }
 
 void World::Update(float delta)
