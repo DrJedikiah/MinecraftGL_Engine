@@ -51,33 +51,92 @@ void World::GeneratePhysics()
 				m_chuncks[x][y][z].GenerateCollider();
 }  
 
-void World::GenerateChunks()
+void World::GenerateChunks() 
 {
-	//Perlin cubes generation
-	for (int y = 0; y < height * Chunck::size; ++y)
-		for (int x = 0; x < size * Chunck::size; ++x)
+	glm::vec3 sizeMap(size * Chunck::size, height * Chunck::size,  size * Chunck::size);
+
+	for (int x = 0; x < size * Chunck::size; ++x)
+		for (int y = 0; y < height * Chunck::size; ++y)
 			for (int z = 0; z < size * Chunck::size; ++z)
 			{
-				const int heightMap = height * Chunck::size; 
+				glm::vec3 pos((float)x, (float)y, (float)z);
 
-				float scale2D = 1.f / 10.f;
-				int h = (int)((float)heightMap *( perlinGen.noise(scale2D*x, scale2D*z) + 1.f) / 2.f);
 
-				if (y > h) 
-					GetBlock({ x, y, z }).ToAir();
+				float density = perlinGen.CustomPerlin(pos.x, pos.y, pos.z,100.f, 30.f, 10.f, 1.f, 0.5f, 0.25f);
+
+				//Plateau
+				float scaleHeight;
+				float high = 0.95f * sizeMap.y;
+				float low = 0.75*sizeMap.y;
+				if (pos.y > high)
+					scaleHeight = 0.f; 
+				else if (pos.y > low)
+					scaleHeight = (high - pos.y) / (high - low);
 				else
-					GetBlock({ x, y, z }).ToDirt();
+					scaleHeight = 1.f;
+
+				//Rondeur
+				float scaleDist = 0.15f * glm::length(sizeMap) / glm::distance(pos, glm::vec3(sizeMap.x / 2.f, low, sizeMap.z / 2.f));
+				
+				//Caves
+				
+
+				density *= scaleHeight * scaleDist;
+
+
+
+				//Set blocks
+				Block& block = GetBlock({ x, y, z });
+				if (density > 0.4)
+					block.ToStone();
+				else
+					block.ToAir();
 			}
-	
-	//Removing hidden cubes
-	for (int y = 0; y < height * Chunck::size; ++y)
+
+	//Perlin cubes generation
+	/*for (int y = 0; y < height * Chunck::size; ++y)
 		for (int x = 0; x < size * Chunck::size; ++x)
 			for (int z = 0; z < size * Chunck::size; ++z)
 			{
-				Block& block = GetBlock({ x, y, z });
-				if ( ! IsVisible({ x, y, z }))
-					block.enabled = false;
+				glm::vec2 pos((float)x, (float)z);
+
+				float scale = 1.f / 60.f;
+				
+				float lowFreq = perlinGen.noise(pos.x / 100.f, pos.y / 100.f);
+				float highFreq = perlinGen.noise(pos.x / 30.f, pos.y / 30.f);
+				float density = lowFreq + 0.4 * highFreq;
+				density /= 1.f + 0.4f;
+
+				float top = 0.8f * height * Chunck::size * 0.5f * (1.f + density);
+
+				float dist = glm::distance(center, pos);
+				top -=  0.5f * dist;
+
+				//Get the top 
+				if (top > maxTop)
+					maxTop = top;
+
+				if (y < (int)top)
+					GetBlock({ x, y, z }).ToDirt();
+				else
+					GetBlock({ x, y, z }).ToAir();
 			}
+
+	float offset = heightMap - maxTop;
+
+	std::cout << "  heightMap :" << heightMap;
+	std::cout << "  maxTop :" << maxTop;
+	std::cout << "  offset :" << offset << std::endl;
+
+	for (int x = 0; x < size * Chunck::size; ++x)
+		for (int z = 0; z < size * Chunck::size; ++z)
+			for (int y = (int)heightMap - 1; y >= 0; --y)
+			{
+				if(GetBlock({ x, y, z }).solid)
+					GetBlock({ x, y + (int)offset, z }).ToDirt();
+				if (y < offset)
+					GetBlock({ x, y, z }).ToAir();
+			}*/
 
 	//Setting grass	
 	for (int y = 0; y < height * Chunck::size; ++y)

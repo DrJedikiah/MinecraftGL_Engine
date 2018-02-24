@@ -164,4 +164,18 @@ public:
 	{
 		return octaveNoise(x, y, z, octaves) * 0.5 + 0.5;
 	}
+
+	double CustomPerlin(float x, float y, float z, float lowFreq, float highFreq, float veryhighFreq, float lowWeight, float highWeight, float veryhighWeight)
+	{
+		float low = 0.5f * (1.f + noise(x / lowFreq, y / lowFreq, z / lowFreq));
+
+		float high = 0.5f * (1.f + noise(x / highFreq, y / highFreq, z / highFreq));
+
+		float veryhigh = 0.5f * (1.f + noise(x / veryhighFreq, y / veryhighFreq, z / veryhighFreq));
+
+
+		float density = lowWeight*low + highWeight * high + veryhighWeight * veryhigh;
+		density /= lowWeight + highWeight + veryhighWeight;
+		return density;
+	}
 };

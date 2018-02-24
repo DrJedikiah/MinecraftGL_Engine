@@ -14,12 +14,20 @@ struct fRect
 class Tiles
 {
 public:
-	enum ID { dirt, grassTop, grassSide, player };
-
+	enum ID
+	{
+		invalid,
+		dirt,
+		grassTop,
+		grassSide,
+		bedrock,
+		stone,
+		wood,
+		leaf,
+	};
+	
 	static void Initialize(int width, int height);
 	static fRect GetRectangle(ID block);
-
-
 private:
 	static void SetBlockTile(ID block, int x, int y);
 

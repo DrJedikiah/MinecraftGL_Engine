@@ -55,7 +55,7 @@ void Minecraft::Start()
 	Texture texture("textures/grass.bmp");
 
 	//Block Tiles and textures
-	Tiles::Initialize(2,2);
+	Tiles::Initialize(4,4);
 	TexturesBlocks::Initialize();
 
 	//Lights
@@ -66,7 +66,6 @@ void Minecraft::Start()
 	shader.use();
 	texture.Use();
 
-	Chunck ch;
 	World::GenerateChunks();
 	World::GeneratePhysics();
 	Camera camera(m_scr_width, m_scr_height, 1000);
@@ -74,7 +73,9 @@ void Minecraft::Start()
 	camera.RotateUp(glm::radians(-15.f));
 
 	PlayerAvatar player;
-	player.rb().translate(btVector3(8, 32, 8));
+	player.rb().translate(btVector3(8, 4*16+2, 8));
+	
+	//player.rb().translate(btVector3(World::size * Chunck::size/2, World::height * Chunck::size, World::size * Chunck::size/2));
 
 	FreeCameraController freeCameraController( camera);
 	freeCameraController.SetEnabled(false);
