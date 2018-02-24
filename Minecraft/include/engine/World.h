@@ -11,7 +11,7 @@ class Chunck;
 class World
 {
 public:
-	const static int size = 16;
+	const static int size = 25;
 	const static int height = 16;
 
 	static void Update(float delta);

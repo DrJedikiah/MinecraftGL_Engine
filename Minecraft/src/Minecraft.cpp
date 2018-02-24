@@ -73,9 +73,9 @@ void Minecraft::Start()
 	camera.RotateUp(glm::radians(-15.f));
 
 	PlayerAvatar player;
-	player.rb().translate(btVector3(8, 4*16+2, 8));
+	//player.rb().translate(btVector3(8, 4*16+2, 8));
 	
-	//player.rb().translate(btVector3(World::size * Chunck::size/2, World::height * Chunck::size, World::size * Chunck::size/2));
+	player.rb().translate(btVector3(World::size * Chunck::size/2, World::height * Chunck::size, World::size * Chunck::size/2));
 
 	FreeCameraController freeCameraController( camera);
 	freeCameraController.SetEnabled(false);
