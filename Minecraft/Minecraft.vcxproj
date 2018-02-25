@@ -81,7 +81,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>lib;lib/BulletDebug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;BulletDynamics_Debug.lib;BulletCollision_Debug.lib;LinearMath_Debug.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;glfw3d.lib;BulletDynamics_Debug.lib;BulletCollision_Debug.lib;LinearMath_Debug.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
@@ -106,12 +106,13 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>include;include/dependencies/Bullet;include/dependencies</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>lib;lib/BulletRelease</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;glfw3.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,6 +147,7 @@
     <ClInclude Include="include\graphics\Mesh.h" />
     <ClInclude Include="include\graphics\Model.h" />
     <ClInclude Include="include\graphics\Shader.h" />
+    <ClInclude Include="include\graphics\Text.h" />
     <ClInclude Include="include\graphics\Texture.h" />
     <ClInclude Include="include\graphics\TexturesBlocks.h" />
     <ClInclude Include="include\graphics\Tiles.h" />
@@ -175,6 +177,7 @@
     <ClCompile Include="src\graphics\Mesh.cpp" />
     <ClCompile Include="src\graphics\Model.cpp" />
     <ClCompile Include="src\graphics\Shader.cpp" />
+    <ClCompile Include="src\graphics\Text.cpp" />
     <ClCompile Include="src\graphics\Texture.cpp" />
     <ClCompile Include="src\graphics\Tiles.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -191,6 +194,8 @@
     <None Include="shaders\shader_debug.vs" />
     <None Include="shaders\shader_debug_ui.fs" />
     <None Include="shaders\shader_debug_ui.vs" />
+    <None Include="shaders\shader_text.fs" />
+    <None Include="shaders\shader_text.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

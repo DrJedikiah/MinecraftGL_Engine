@@ -2,9 +2,14 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include <iostream>
 #include <string>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "engine/Physics.h"
 #include "engine/Camera.h"
@@ -20,6 +25,8 @@
 #include "graphics/Light.h"
 #include "graphics/Texture.h"
 #include "graphics/Model.h"
+#include "graphics/Text.h"
+
 
 #include "util/Debug.h"
 #include "util/Time.h"
@@ -37,8 +44,8 @@ public:
 	void Start();
 
 private:
-	unsigned int m_scr_width;
-	unsigned int m_scr_height;
+	unsigned int m_width;
+	unsigned int m_height;
 	static GLFWwindow* m_window;
 
 	PlayerState m_playerState = PlayerState::survival;

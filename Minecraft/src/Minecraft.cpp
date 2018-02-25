@@ -2,10 +2,10 @@
 
 GLFWwindow* Minecraft::m_window = nullptr;
 
-Minecraft::Minecraft(std::string name, int width, int height)
+Minecraft::Minecraft(std::string name, int width, int height):
+	m_width(width),
+	m_height(height)
 {
-	m_scr_width = width;
-	m_scr_height = height;
 
 	// glfw: initialize and configure
 	glfwInit();
@@ -17,10 +17,10 @@ Minecraft::Minecraft(std::string name, int width, int height)
 	#endif
 
 	// glfw window creation
-	m_window = glfwCreateWindow(m_scr_width, m_scr_height, name.c_str(), NULL, NULL);
+	m_window = glfwCreateWindow(m_width, m_height, name.c_str(), NULL, NULL);
 	if (m_window == NULL)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return;
 	}
@@ -33,7 +33,7 @@ Minecraft::Minecraft(std::string name, int width, int height)
 	// glad: load all OpenGL function pointers
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
+		std::cerr << "Failed to initialize GLAD" << std::endl;
 		return;
 	}
 
@@ -41,6 +41,10 @@ Minecraft::Minecraft(std::string name, int width, int height)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glfwSwapInterval(0);
 }
 
 void Minecraft::Start()
@@ -49,10 +53,16 @@ void Minecraft::Start()
 	//Shader
 	Shader shader_debug("shaders/shader_debug.vs", "shaders/shader_debug.fs");
 	Shader shader_debug_ui("shaders/shader_debug_ui.vs", "shaders/shader_debug_ui.fs");
+	
 	Shader shader("shaders/shader.vs", "shaders/shader.fs");
 
+	Shader shaderText("shaders/shader_text.vs", "shaders/shader_text.fs");
+	glm::mat4 orthoProj = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
+	shaderText.setMat4("projection", orthoProj);
 
 	Texture texture("textures/grass.bmp");
+
+	Font font("fonts/arial.ttf", 48);
 
 	//Block Tiles and textures
 	Tiles::Initialize(4,4);
@@ -68,7 +78,7 @@ void Minecraft::Start()
 
 	World::GenerateChunks();
 	World::GeneratePhysics();
-	Camera camera(m_scr_width, m_scr_height, 1000);
+	Camera camera(m_width, m_height, 1000);
 	camera.Translate(glm::vec3(14, 16, 14 + 8) - camera.position());
 	camera.RotateUp(glm::radians(-15.f));
 
@@ -94,8 +104,13 @@ void Minecraft::Start()
 	shader_debug.setMat4("view", camera.viewMatrix());
 	shader_debug.setMat4("projection", camera.projectionMatrix());
 
-	float drawTimer = 0.f;
+	float drawTimer= 0.f;
 	float fixedUpdateTimer = 0.f;
+
+	
+	float fpsdelta = 0.5f;
+	float fpsTimer = fpsdelta;
+	float fps = 1.f/42.f;
 	
 	float time = Time::ElapsedSinceStartup();
 
@@ -137,11 +152,11 @@ void Minecraft::Start()
 		}
 
 		//Draws
+		fpsTimer += delta;
 		drawTimer += delta;
-		if (drawTimer >= Time::DeltaTime())
+		//if (drawTimer >= Time::DeltaTime())
 		{
 			drawTimer = 0.f;
-
 			//Clear
 			glClearColor(33.f / 255.f, 146.f / 255.f, 248.f/255.f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -163,6 +178,18 @@ void Minecraft::Start()
 			shader_debug.use();
 			shader_debug.setMat4("view", camera.viewMatrix());
 			Debug::Draw(shader_debug, shader_debug_ui);
+
+			//Text	float fpsTimer = 0.f;
+			if (fpsTimer > fpsdelta)
+			{
+				fpsTimer = 0.f;
+				fps = delta;
+			}
+
+
+			std::stringstream ss;
+			ss << (int) (1.f/ fps);
+			font.RenderText(shaderText, ss.str() , 0, m_height - 40);
 
 			glfwSwapBuffers(m_window);
 

@@ -34,7 +34,6 @@ Texture::Texture(std::string filename)
 void Texture::Use() const
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureId);
+	//glActiveTexture(textureId);
 }
 

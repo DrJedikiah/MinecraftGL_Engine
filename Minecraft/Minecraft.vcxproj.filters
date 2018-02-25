@@ -9,9 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{29de983d-6583-455f-9b05-ec21a34350e2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\dependencies">
       <UniqueIdentifier>{7b9b3f11-8ad6-44cf-91fd-0f035f15226c}</UniqueIdentifier>
     </Filter>
@@ -35,6 +32,9 @@
     </Filter>
     <Filter Include="Source Files\util">
       <UniqueIdentifier>{a68affba-425e-4f0b-b61a-393f73f54ec6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{29de983d-6583-455f-9b05-ec21a34350e2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +119,9 @@
     <ClInclude Include="include\util\Debug.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="include\graphics\Text.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -196,25 +199,34 @@
     <ClCompile Include="src\util\Debug.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphics\Text.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\shader.fs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="shaders\shader.vs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="shaders\shader_debug.fs">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="shaders\shader_debug.vs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="shaders\shader_debug_ui.fs">
-      <Filter>Shaders</Filter>
+      <Filter>Shader</Filter>
     </None>
     <None Include="shaders\shader_debug_ui.vs">
-      <Filter>Shaders</Filter>
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\shader.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\shader_debug.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\shader_debug_ui.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\shader.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\shader_text.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\shader_text.vs">
+      <Filter>Shader</Filter>
     </None>
   </ItemGroup>
 </Project>

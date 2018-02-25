@@ -5,7 +5,7 @@ PerlinNoise World::perlinGen(33);
 Chunck *** World::m_chuncks;
 
 World::World()
-{ 
+{
 
 	m_chuncks = new Chunck**[size];
 	for (int i = 0; i < size; ++i)
@@ -54,7 +54,7 @@ void World::GenerateChunks()
 {
 	const glm::vec3 sizeMap(size * Chunck::size, height * Chunck::size,  size * Chunck::size);
 	const float high = 0.95f * sizeMap.y;
-	const float low = 0.75*sizeMap.y;
+	const float low = 0.75f*sizeMap.y;
 
 	for (int x = 0; x < size * Chunck::size; ++x)
 		for (int y = 0; y < height * Chunck::size; ++y)
@@ -62,7 +62,7 @@ void World::GenerateChunks()
 			{
 				glm::vec3 pos((float)x, (float)y, (float)z);
 
-				float density = perlinGen.CustomPerlin(pos.x, pos.y, pos.z,100.f, 30.f, 10.f, 1.f, 0.5f, 0.25f);
+				float density = (float)perlinGen.CustomPerlin(pos.x, pos.y, pos.z,100., 30., 10., 1., 0.5, 0.25);
 
 				//Plateau
 				float scaleHeight;
@@ -130,9 +130,9 @@ void World::GenerateChunks()
 					cavesScale = 0.f;
 
 				float cavesFreqLow = 15;
-				float cavesLow = 0.5f *(1.f + perlinGen.noise(pos.x / cavesFreqLow, pos.y / cavesFreqLow, pos.z / cavesFreqLow));
+				float cavesLow = 0.5f *(1.f + (float)perlinGen.noise(pos.x / cavesFreqLow, pos.y / cavesFreqLow, pos.z / cavesFreqLow));
 				float cavesFreqHigh = cavesFreqLow / 3;
-				float cavesHigh = 0.5f *(1.f + perlinGen.noise(pos.x / cavesFreqHigh, pos.y / cavesFreqHigh, pos.z / cavesFreqHigh));
+				float cavesHigh = 0.5f *(1.f + (float)perlinGen.noise(pos.x / cavesFreqHigh, pos.y / cavesFreqHigh, pos.z / cavesFreqHigh));
 
 				//cavesDensity
 				float cavesDensity = 0.8f*cavesLow + 0.2f*cavesHigh + 0.6f * cavesScale;
