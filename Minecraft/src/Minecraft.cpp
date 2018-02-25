@@ -157,7 +157,7 @@ void Minecraft::Start()
 		//Draws
 		
 		drawTimer += delta;
-		if (drawTimer >= Time::DeltaTime())
+		//if (drawTimer >= Time::DeltaTime())
 		{
 			//Fps count
 			++frameCount;
@@ -165,7 +165,7 @@ void Minecraft::Start()
 			{
 				fps = frameCount / fpsDelta;
 				frameCount = 0;
-				fpsDelta -= 1.0 / updateRate;
+				fpsDelta -= 1.f / updateRate;
 			}
 
 			drawTimer = 0.f;
@@ -193,7 +193,7 @@ void Minecraft::Start()
 
 			std::stringstream ss;
 			ss << (int)fps;
-			font.RenderText(shaderText, ss.str() , 0, m_height - 40);
+			font.RenderText(shaderText, ss.str() , 0, (GLfloat) m_height - 40);
 
 			glfwSwapBuffers(m_window);
 
