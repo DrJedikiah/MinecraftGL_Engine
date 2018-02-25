@@ -108,9 +108,10 @@ void Minecraft::Start()
 	float fixedUpdateTimer = 0.f;
 
 	
-	float fpsdelta = 0.5f;
-	float fpsTimer = fpsdelta;
-	float fps = 1.f/42.f;
+	int frameCount = 0;
+	float fpsDelta = 0.f;
+	float fps= 0.f;
+	float updateRate = 4.f;
 	
 	float time = Time::ElapsedSinceStartup();
 
@@ -123,12 +124,12 @@ void Minecraft::Start()
 		float delta = Time::ElapsedSinceStartup() - time;
 		time += delta;
 
+		fpsDelta += delta;
+
 		//Fixed update
 		fixedUpdateTimer += delta;
 		if (fixedUpdateTimer >= Time::FixedDeltaTime())
 		{
-			fixedUpdateTimer = 0.f;
-
 			Input::Update();
 
 			//Toogle controllers
@@ -141,21 +142,32 @@ void Minecraft::Start()
 				glfwSetWindowShouldClose(m_window, true);
 				
 
-			PhysicsEngine::StepSimulation(Time::FixedDeltaTime());
+			PhysicsEngine::StepSimulation(fixedUpdateTimer);
 
-			freeCameraController.Update(Time::FixedDeltaTime());
-			playerController.Update(Time::FixedDeltaTime());
+			freeCameraController.Update(fixedUpdateTimer);
+			playerController.Update(fixedUpdateTimer);
 
-			player.Update(Time::FixedDeltaTime());
-			cube.Update(Time::FixedDeltaTime());
-			World::Update(Time::FixedDeltaTime());
+			player.Update(fixedUpdateTimer);
+			cube.Update(fixedUpdateTimer);
+			World::Update(fixedUpdateTimer);
+
+			fixedUpdateTimer = 0.f;
 		}
 
 		//Draws
-		fpsTimer += delta;
+		
 		drawTimer += delta;
-		//if (drawTimer >= Time::DeltaTime())
+		if (drawTimer >= Time::DeltaTime())
 		{
+			//Fps count
+			++frameCount;
+			if (fpsDelta > 1.0 / updateRate)
+			{
+				fps = frameCount / fpsDelta;
+				frameCount = 0;
+				fpsDelta -= 1.0 / updateRate;
+			}
+
 			drawTimer = 0.f;
 			//Clear
 			glClearColor(33.f / 255.f, 146.f / 255.f, 248.f/255.f, 1.0f);
@@ -179,16 +191,8 @@ void Minecraft::Start()
 			shader_debug.setMat4("view", camera.viewMatrix());
 			Debug::Draw(shader_debug, shader_debug_ui);
 
-			//Text	float fpsTimer = 0.f;
-			if (fpsTimer > fpsdelta)
-			{
-				fpsTimer = 0.f;
-				fps = delta;
-			}
-
-
 			std::stringstream ss;
-			ss << (int) (1.f/ fps);
+			ss << (int)fps;
 			font.RenderText(shaderText, ss.str() , 0, m_height - 40);
 
 			glfwSwapBuffers(m_window);

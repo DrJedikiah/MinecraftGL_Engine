@@ -69,7 +69,7 @@ public:
 	static glm::vec2 delta();
 
 	static void SetCursor(CursorState state );
-	static void CenterCursor( bool state);
+	static void LockCursor( bool state, glm::vec2  position = m_position);
 
 	static bool KeyDown(int GLFW_MOUSE_BUTTON);
 	static bool ButtonPressed(int GLFW_MOUSE_BUTTON);
@@ -79,7 +79,8 @@ private:
 	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 	static void Update(int count);
 
-	static bool m_centerCursor;
+	static bool m_lockCursor;
+	static glm::vec2 m_lockPosition;
 
 	static glm::vec2 m_oldPosition;
 	static glm::vec2 m_position;

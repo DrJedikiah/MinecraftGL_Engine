@@ -74,13 +74,13 @@ void PlayerController::MoveAvatar()
 			//Slow down if too fast
 			float maxSpeed = m_isRunning ? m_runSpeed : m_walkSpeed;
 			if (velocity.norm() > maxSpeed)
-			{
+			{ 
 				velocity = maxSpeed * velocity.normalized();
 				velocity.setY(m_avatar.rb().getLinearVelocity().getY());
 				m_avatar.rb().setLinearVelocity(velocity);
 			}
 		}  
-
+		 
 		//Increase speed 
 		if(m_isRunning)
 			m_avatar.rb().applyCentralForce(m_accelerationRun * direction);
@@ -89,10 +89,11 @@ void PlayerController::MoveAvatar()
 	}
 
 	//Jump
-	if (Keyboard::KeyPressed(GLFW_KEY_SPACE) && isHittingFloor())
+	if (Keyboard::KeyDown(GLFW_KEY_SPACE) && isHittingFloor())
 	{
 		m_isJumping = true;
-		m_avatar.rb().applyCentralImpulse(btVector3(0, m_jumpStrenght, 0));
+		btVector3 velocity = m_avatar.rb().getLinearVelocity();
+		m_avatar.rb().setLinearVelocity(btVector3(velocity.getX(), m_jumpStrenght, velocity.getZ()));
 	}
 }
 
@@ -135,10 +136,10 @@ bool PlayerController::isHittingFloor()
 {
 	//Raycast 4 corners near the player foot
 	btVector3 Direction = m_avatar.height *  btVector3(0, -1, 0);
-	btVector3 Start1 = m_avatar.rb().transform().getOrigin() + btVector3(m_avatar.radius, 0, m_avatar.radius);
-	btVector3 Start2 = m_avatar.rb().transform().getOrigin() + btVector3(m_avatar.radius, 0, -m_avatar.radius);
-	btVector3 Start3 = m_avatar.rb().transform().getOrigin() + btVector3(-m_avatar.radius, 0, m_avatar.radius);
-	btVector3 Start4 = m_avatar.rb().transform().getOrigin() + btVector3(-m_avatar.radius, 0, -m_avatar.radius);
+	btVector3 Start1 = m_avatar.rb().transform().getOrigin() + 0.5f*btVector3(m_avatar.radius, 0, m_avatar.radius);
+	btVector3 Start2 = m_avatar.rb().transform().getOrigin() + 0.5f*btVector3(m_avatar.radius, 0, -m_avatar.radius);
+	btVector3 Start3 = m_avatar.rb().transform().getOrigin() + 0.5f*btVector3(-m_avatar.radius, 0, m_avatar.radius);
+	btVector3 Start4 = m_avatar.rb().transform().getOrigin() + 0.5f*btVector3(-m_avatar.radius, 0, -m_avatar.radius);
 
 	if (PhysicsEngine::RayCast(Start1, Start1 + Direction).hasHit()) return true;
 	if (PhysicsEngine::RayCast(Start2, Start2 + Direction).hasHit()) return true;
@@ -170,7 +171,8 @@ void PlayerController::SetEnabled(bool state)
 		if (m_enabled)
 		{
 			Mouse::SetCursor(Mouse::CursorState::hidden);
-			Mouse::CenterCursor(true);
+			glm::ivec2 size = Input::GetWindowSize();
+			Mouse::LockCursor(true, 0.5f *glm::vec2(size.x, size.y));
 		}
 	}
 }

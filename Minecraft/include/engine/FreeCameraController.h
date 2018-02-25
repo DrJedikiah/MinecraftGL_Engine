@@ -19,6 +19,7 @@ private:
 	bool m_enabled;
 
 	float m_moveSpeed = 0.2f;
+	float m_boostMoveSpeed = 0.5f;
 	float m_mouseXspeed = 0.005f;
 	float m_mouseYspeed = 0.005f;
 };

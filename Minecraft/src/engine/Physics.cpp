@@ -10,7 +10,7 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
 
  void PhysicsEngine::StepSimulation(float timeStep)
  {
-	 dynamicsWorld->stepSimulation(timeStep, 10);
+	 dynamicsWorld->stepSimulation(timeStep, 1);
  }
 
  RigidBody* PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
