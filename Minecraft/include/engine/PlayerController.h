@@ -26,9 +26,6 @@ public:
 	void SetEnabled(bool state);
 	bool Enabled() const;
 
-	const float jumpStrength = 1000.f;
-	const float moveSpeed = 3;
-
 private:
 	void MoveAvatar();
 	void SetCamera();

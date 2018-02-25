@@ -66,18 +66,25 @@ glm::vec2 Mouse::position() { return m_position; }
 glm::vec2 Mouse::delta() { return m_delta; }
 std::array< unsigned, 11 > Mouse::m_buttonsPressed;
 std::array< unsigned, 11 > Mouse::m_buttonsReleased;
-
+glm::vec2 Mouse::m_lockPosition;
+bool Mouse::m_lockCursor = false;
+glm::vec2 Mouse::m_oldPosition;
+glm::vec2 Mouse::m_position;
+glm::vec2 Mouse::m_delta;
 
 void Mouse::SetCursor(CursorState state)
 {
-		glfwSetInputMode(Input::GetWindow(), GLFW_CURSOR, state);
+	glfwSetInputMode(Input::GetWindow(), GLFW_CURSOR, state);
 }
 
-void Mouse::CenterCursor(bool state)
+void Mouse::LockCursor(bool state, glm::vec2 position)
 {
-	m_centerCursor = state;
-	glm::ivec2 size = Input::GetWindowSize();
-	glfwSetCursorPos(Input::GetWindow(), size.x / 2, size.y / 2);
+	if (m_lockCursor != state)
+	{
+		m_lockPosition = position;
+		m_lockCursor = state;
+		glfwSetCursorPos(Input::GetWindow(), m_lockPosition.x, m_lockPosition.y);
+	}
 }
 
 bool Mouse::KeyDown(int  GLFW_MOUSE_BUTTON)
@@ -107,14 +114,14 @@ void Mouse::Update(int count)
 	double x, y;
 	glfwGetCursorPos( Input::GetWindow(), &x, &y);
 
-	if (m_centerCursor)
+	if (m_lockCursor)
 	{
 		GLFWwindow * window = Input::GetWindow();
 		glm::ivec2 size = Input::GetWindowSize();
-		glfwSetCursorPos(window, size.x / 2, size.y / 2);
+		glfwSetCursorPos(window, m_lockPosition.x, m_lockPosition.y);
 
 		m_position = glm::vec2(x, y);
-		m_delta = m_position - glm::vec2(size.x/2, size.y/2 );
+		m_delta = m_position - m_lockPosition;
 	}
 	else
 	{
@@ -123,8 +130,3 @@ void Mouse::Update(int count)
 		m_delta = m_position - m_oldPosition;
 	}
 }
-
-bool Mouse::m_centerCursor = false;
-glm::vec2 Mouse::m_oldPosition;
-glm::vec2 Mouse::m_position;
-glm::vec2 Mouse::m_delta;

@@ -5,7 +5,7 @@ PerlinNoise World::perlinGen(33);
 Chunck *** World::m_chuncks;
 
 World::World()
-{
+{ 
 
 	m_chuncks = new Chunck**[size];
 	for (int i = 0; i < size; ++i)

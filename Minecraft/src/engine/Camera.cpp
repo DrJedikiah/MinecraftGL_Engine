@@ -4,9 +4,9 @@ Camera::Camera(int width, int height, float far, float near, float fov) :
 
 
 	m_projectionMatrix(glm::perspective(glm::radians(fov), (float)width / (float)height, near, far)),
-	m_position(0,0,3),
+	m_position(0,0,0),
 	m_up(0,1,0),
-	m_forward(glm::vec3(0, 0, -1)),
+	m_forward(1, 0, 0),
 	m_right( glm::cross(m_forward, m_up)),
 	m_viewMatrix(glm::lookAt(m_position, m_position + m_forward,m_up))
 {	
