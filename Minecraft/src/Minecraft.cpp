@@ -157,7 +157,7 @@ void Minecraft::Start()
 		//Draws
 		
 		drawTimer += delta;
-		//if (drawTimer >= Time::DeltaTime())
+		if (drawTimer >= Time::DeltaTime())
 		{
 			//Fps count
 			++frameCount;
