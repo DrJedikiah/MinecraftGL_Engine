@@ -13,14 +13,14 @@ World::World()
 		for (int j = 0; j < height; ++j)
 			m_chuncks[i][j] = new Chunck[size];
 	}  
-
+	 
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
 				m_chuncks[x][y][z].Setup(this, glm::ivec3((float)x, (float)y, (float)z));
 } 
 
- 
+  
 Chunck & World::GetChunck(glm::ivec3 position) { return m_chuncks[position.x][position.y][position.z];}
 
 Block & World::GetBlock(glm::ivec3 position) {

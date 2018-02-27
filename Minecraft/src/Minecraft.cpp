@@ -9,9 +9,12 @@ Minecraft::Minecraft(std::string name, int width, int height):
 
 	// glfw: initialize and configure
 	glfwInit();
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
+
 	#ifdef __APPLE__
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 	#endif
@@ -42,6 +45,8 @@ Minecraft::Minecraft(std::string name, int width, int height):
 	glCullFace(GL_BACK);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_MULTISAMPLE);
+
 	//glfwSwapInterval(0);
 }
 
@@ -82,7 +87,7 @@ void Minecraft::Start()
 	//Lights
 	std::vector<Light> lights =
 	{
-		Light({ 100,100,100 }),
+		Light({ 500,100,500 }),
 	};
 	shader.use();
 	texture.Use();
@@ -173,6 +178,7 @@ void Minecraft::Start()
 		if (drawTimer >= Time::DeltaTime())
 		{
 			drawTimer = 0.f;
+
 			//Fps count
 			++frameCount;
 			if (fpsDelta > 1.0 / updateRate)
@@ -181,6 +187,7 @@ void Minecraft::Start()
 				frameCount = 0;
 				fpsDelta -= 1.f / updateRate;
 			}
+
 			postProcFbo.Use();
 
 			glEnable(GL_DEPTH_TEST);
@@ -204,16 +211,6 @@ void Minecraft::Start()
 			shader_debug.use();
 			shader_debug.setMat4("view", camera.viewMatrix());
 			Debug::Draw(shader_debug, shader_debug_ui);
-
-			//FPS 
-			std::stringstream ss;
-			ss << "fps: " << (int)fps;
-			font.RenderText(shaderText, ss.str(), 0, (GLfloat)m_height - 20);
-
-			//Triangles
-			std::stringstream ss2;
-			ss2 << "triangles : " << Statistics::GetTriangles() / 1000 << "k";
-			font.RenderText(shaderText, ss2.str(), 0, (GLfloat)(m_height - 40));
 			
 			//Draw skybox
 			glDepthFunc(GL_LEQUAL);
@@ -231,6 +228,16 @@ void Minecraft::Start()
 			glBindVertexArray(0);
 			glDepthFunc(GL_LESS);
 
+			//FPS 
+			std::stringstream ss;
+			ss << "fps: " << (int)fps;
+			font.RenderText(shaderText, ss.str(), 0, (GLfloat)m_height - 20);
+
+			//Triangles
+			std::stringstream ss2;
+			ss2 << "triangles : " << Statistics::GetTriangles() / 1000 << "k";
+			font.RenderText(shaderText, ss2.str(), 0, (GLfloat)(m_height - 40));
+
 			//PostProcessing
 			shader_postprocess.use();
 
@@ -240,7 +247,7 @@ void Minecraft::Start()
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glBindVertexArray(postProcVAO);
-			glBindTexture(GL_TEXTURE_2D, postProcFbo.texture);	// use the color attachment texture as the texture of the quad plane
+			glBindTexture(GL_TEXTURE_2D, postProcFbo.texture);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			
 			glfwSwapBuffers(m_window);
