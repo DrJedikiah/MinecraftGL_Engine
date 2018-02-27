@@ -5,7 +5,7 @@
 #include "graphics/Tiles.h"
 #include "graphics/Mesh.h"
 
-enum Tag { default, chunck, entity };
+enum Tag { def, chunck, entity };
 
 namespace glm
 {

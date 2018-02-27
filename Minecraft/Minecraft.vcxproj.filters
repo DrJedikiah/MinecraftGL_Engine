@@ -122,6 +122,15 @@
     <ClInclude Include="include\graphics\Text.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="include\util\Statistics.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\FrameBuffer.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\CubeMap.h">
+      <Filter>Header Files\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -202,6 +211,15 @@
     <ClCompile Include="src\graphics\Text.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\util\Statistics.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\FrameBuffer.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\CubeMap.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader_debug.vs">
@@ -226,6 +244,18 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="shaders\shader_text.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\postprocess.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\postprocess.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\skybox.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\skybox.vs">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

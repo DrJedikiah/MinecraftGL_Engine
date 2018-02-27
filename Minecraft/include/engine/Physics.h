@@ -35,6 +35,6 @@ private:
 
 	 //Callbacks for the physics collisions between rigidbodies
 	 static bool ContactDestroyed(void* userPersistentData);
-	 static bool PhysicsEngine::ContactAdded(btManifoldPoint& pt, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1);
+	 static bool ContactAdded(btManifoldPoint& pt, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1);
 };
 

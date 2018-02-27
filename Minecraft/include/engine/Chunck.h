@@ -10,11 +10,12 @@
 #include "engine/World.h"
 #include "util/Util.h"
 #include "util/Time.h"
+#include "util/Statistics.h"
 
 
 class World;
 
-class Chunck : public Drawable
+class Chunck : public Drawable, public Statistics
 {
 public:
 	friend class World;
@@ -24,8 +25,6 @@ public:
 	void Setup( World* world, glm::ivec3 position);
 
 	static const int size = 16;
-
-
 
 	void Update(float delta);
 	void Draw(const Shader & shader) const override;

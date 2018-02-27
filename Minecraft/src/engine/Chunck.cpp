@@ -28,7 +28,8 @@ void Chunck::Setup(World* world, glm::ivec3 position)
 
 void Chunck::Draw(const Shader & shader) const
 {
-	m_model->Draw(shader);
+	if( STATS_triangles > 0)
+		m_model->Draw(shader);
 }
 
 void Chunck::GenerateLater()
@@ -40,6 +41,7 @@ Block& Chunck::GetBlock(glm::ivec3 position)
 {
 	return m_blocks[position.x][position.y][position.z];
 }
+
 
 void Chunck::GenerateCollider()
 {
@@ -126,6 +128,7 @@ void Chunck::GenerateMesh()
 	m_model = new  Model(vertices);
 	m_model->Translate(Chunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
 
+	STATS_triangles = vertices.size() / 3;
 }
 
 Chunck::~Chunck()

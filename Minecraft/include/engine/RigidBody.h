@@ -12,7 +12,7 @@ class RigidBody : public btRigidBody
 public:
 	friend class PhysicsEngine;
 
-	RigidBody(const btRigidBodyConstructionInfo &constructionInfo, Tag tag = Tag::default);
+	RigidBody(const btRigidBodyConstructionInfo &constructionInfo, Tag tag = Tag::def);
 
 	Tag tag() const;
 	void SetTag(Tag tag);

@@ -5,34 +5,33 @@ PerlinNoise World::perlinGen(33);
 Chunck *** World::m_chuncks;
 
 World::World()
-{ 
-
+{  
 	m_chuncks = new Chunck**[size];
 	for (int i = 0; i < size; ++i)
 	{
 		m_chuncks[i] = new Chunck*[height];
 		for (int j = 0; j < height; ++j)
 			m_chuncks[i][j] = new Chunck[size];
-	} 
+	}  
 
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
 				m_chuncks[x][y][z].Setup(this, glm::ivec3((float)x, (float)y, (float)z));
-}
+} 
 
  
 Chunck & World::GetChunck(glm::ivec3 position) { return m_chuncks[position.x][position.y][position.z];}
 
 Block & World::GetBlock(glm::ivec3 position) {
 	return GetChunck(position / Chunck::size).GetBlock(position % Chunck::size);
-}
+} 
 
 bool World::BlockGenerated(glm::ivec3 position)
 {
 	if (position.x >= 0 && position.y >= 0 && position.z >= 0 && 
 		position.x < size*Chunck::size && position.y < height * Chunck::size && position.z < size*Chunck::size)
-		return true;
+		return true; 
 	else
 		return false;
 }
@@ -80,7 +79,7 @@ void World::GenerateChunks()
 				//Map density
 				density *= scaleHeight * scaleDist;
 
-				//Set blocks
+			 	//Set blocks
 				Block& block = GetBlock({ x, y, z });
 
 				if (density > 0.4 )
