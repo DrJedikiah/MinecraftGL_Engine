@@ -81,7 +81,7 @@ void Shader::Load()
 		glDeleteProgram(ID);
 
 	ID = glCreateProgram();
-	std::cout << ID << std::endl;
+
 	glAttachShader(ID, vertexShader);
 	glAttachShader(ID, fragmentShader);
 	glLinkProgram(ID);

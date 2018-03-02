@@ -35,17 +35,17 @@
 #include "util/Input.h" 
 #include "util/Statistics.h"
 
-//Design pattern singleton
+//Design pattern singleton   
 class Minecraft
-{ 
+{  
 public:
 	Minecraft(std::string name, int width, int height);
 	~Minecraft();
-
+	 
 	enum PlayerState{ spectator, survival };
 	
-	void Start();
-	 
+	void Start( ); 
+	   
 private:
 	void SetupPostProcess();
 	void SetupSkyBox();
@@ -56,6 +56,6 @@ private:
 
 	unsigned int postProcVAO, postProcVBO;
 	unsigned int skyboxVAO, skyboxVBO;
-
+	 
 	PlayerState m_playerState = PlayerState::survival;
-}; 
+};   

@@ -31,9 +31,9 @@ Texture::Texture(std::string filename)
 	stbi_image_free(data);
 }
 
-void Texture::Use() const
+void Texture::Use( TextureUnit textureUnit ) const
 {
+	glActiveTexture(textureUnit);
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	glActiveTexture(textureId);
 }
 

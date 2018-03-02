@@ -2,7 +2,7 @@
 
 World World::m_instance = World();
 PerlinNoise World::perlinGen(33);
-Chunck *** World::m_chuncks;
+Chunck *** World::m_chuncks; 
 
 World::World()
 {  

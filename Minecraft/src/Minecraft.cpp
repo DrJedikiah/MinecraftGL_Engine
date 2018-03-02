@@ -47,7 +47,7 @@ Minecraft::Minecraft(std::string name, int width, int height):
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_MULTISAMPLE);
 
-	//glfwSwapInterval(0);
+	glfwSwapInterval(0);
 }
 
 void Minecraft::Start()
@@ -63,6 +63,15 @@ void Minecraft::Start()
 	Shader shaderText("shaders/shader_text.vs", "shaders/shader_text.fs");
 	Shader shader_shadows("shaders/shadows.vs", "shaders/shadows.fs");
 	
+	FrameBuffer fboPostProc(m_width, m_height);
+
+	FrameBufferShadowMap fboShadow(4*2048, 4*2048);
+	FrameBufferShadowMap fboShadowLarge(4 * 2048, 4 * 2048);
+
+	Tiles::Initialize(4, 4);
+	TexturesBlocks::Initialize();
+	Texture texture("textures/grass.png");
+	Font font("fonts/arial.ttf", 20);
 	CubeMap cubeMap({
 		"textures/skybox/right.png",
 		"textures/skybox/left.png",
@@ -72,22 +81,13 @@ void Minecraft::Start()
 		"textures/skybox/back.png"
 		});
 	
-	Texture texture("textures/grass.png");
-	Font font("fonts/arial.ttf", 20);
-
-	
-
 	SetupPostProcess();
 	SetupSkyBox();
 	
-	//Block Tiles and textures
-	Tiles::Initialize(4,4);
-	TexturesBlocks::Initialize();
-	
-	Light sunLight{ glm::vec3(500,300,500) };
-	 
-	FrameBuffer postProcFbo(m_width, m_height);
-	
+	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
+	glm::mat4 lightProjection = glm::ortho(-20.f, 20.f, -20.f, 20.f, 0.1f, 1000.f);
+	glm::mat4 lightProjectionLarge = glm::ortho(-100.f, 100.f, -100.f, 100.f, 0.1f, 1000.f);
+
 	World::GenerateChunks();
 	World::GeneratePhysics();
 
@@ -104,6 +104,7 @@ void Minecraft::Start()
 	Cube cube;
 	cube.rb().translate(btVector3(4.5, 20, 4.5));
 	
+	Light sunLight{ glm::vec3(500,300,500) };
 	Model sunModel(Cube::CreateCubeMesh(10));
 	sunModel.Translate(sunLight.position);
 	
@@ -119,28 +120,6 @@ void Minecraft::Start()
 
 	float t2 = Time::ElapsedSinceStartup();
 	std::cout << 1000.f*(t2 - t1) << std::endl;
-
-	//////////////////////////////////////////////
-	unsigned int depthMapFBO;
-	glGenFramebuffers(1, &depthMapFBO);
-
-	const unsigned int SHADOW_WIDTH = 8*1024, SHADOW_HEIGHT = 8*1024;
-
-	unsigned int depthMap;
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-		SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//////////////////////////////////////////////
 	bool initShader = true;
@@ -160,17 +139,17 @@ void Minecraft::Start()
 		{
 			Input::Update();
 
+
+			//Exit app
+			if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE))
+				glfwSetWindowShouldClose(m_window, true);
+
 			//Toogle controllers
 			if (Keyboard::KeyPressed(GLFW_KEY_F1))
 			{
 				freeCameraController.SetEnabled( ! freeCameraController.Enabled() );
 				playerController.SetEnabled( ! playerController.Enabled() );
 			}
-
-			//Exit app
-			if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE))
-				glfwSetWindowShouldClose(m_window, true);
-			
 			//Set Shaders
 			if (Keyboard::KeyPressed(GLFW_KEY_F2) || initShader)
 			{
@@ -179,8 +158,7 @@ void Minecraft::Start()
 				initShader = false;
 
 				shaderText.Use();
-				glm::mat4 orthoProj = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
-				shaderText.setMat4("projection", orthoProj);
+				shaderText.setMat4("projection", textProjection);
 
 				shader.Use();
 				shader.setFloat("ambient", 0.2f);
@@ -224,60 +202,41 @@ void Minecraft::Start()
 				fpsDelta -= 1.f / updateRate;
 			}
 
-			/////////////////////////////////////////////////////////////////////
-			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-			glClear(GL_DEPTH_BUFFER_BIT);
-			///////
-			glm::mat4 lightView = 
+			////////////////////////////////BAKE SHADOWS////////////////////////////////
+			btVector3 posPlayer = player.rb().transform().getOrigin();
+			glm::mat4 lightView =
 				glm::lookAt(
-				sunLight.position,
-				camera.position(),
-				glm::vec3(0.0f, 1.0f, 0.0f));
-			float near_plane = 0.1f, far_plane = 1000;
-			glm::mat4 lightProjection = glm::ortho(-30.f, 30.f, -30.f, 30.f, near_plane, far_plane);
-
-			glEnable(GL_DEPTH_TEST);
-			glClearColor(33.f / 255.f, 146.f / 255.f, 248.f / 255.f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+					sunLight.position,
+					//camera.position(),
+					glm::vec3(posPlayer.getX(), posPlayer.getY(), posPlayer.getZ()),
+					glm::vec3(0.0f, 1.0f, 0.0f));
+			
 			shader_shadows.Use();
 			shader_shadows.setMat4("view", lightView);
+			//////
+			fboShadow.Use();
 			shader_shadows.setMat4("projection", lightProjection);
-
 			World::Draw(shader_shadows);
 
-			///////
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glViewport(0, 0, m_width, m_height);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glBindTexture(GL_TEXTURE_2D, depthMap);
-			/////////////////////////////////////////////////////////////////////
+			//////
+			fboShadowLarge.Use();
+			shader_shadows.setMat4("projection", lightProjectionLarge);
+			World::Draw(shader_shadows);
+			////////////////////////////////DRAWS SCENE////////////////////////////////
 
-			postProcFbo.Use();
+			fboPostProc.Use();
+			texture.Use(TextureUnit::Unit0);
+			fboShadow.UseTexture(TextureUnit::Unit1);
+			fboShadowLarge.UseTexture(TextureUnit::Unit2);
 
-			glEnable(GL_DEPTH_TEST);
-			glClearColor(33.f / 255.f, 146.f / 255.f, 248.f / 255.f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			//Draw world
 			shader.Use();
-			texture.Use();
-
-			/////////////////////////////////////////////////////////////////////
 			shader.setMat4("viewLight", lightView);
 			shader.setMat4("projectionLight", lightProjection);
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texture.textureId);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, depthMap);
+			shader.setMat4("projectionLightLarge", lightProjectionLarge);
 
 			shader.setInt("textureBlocks", 0);
 			shader.setInt("shadowMap", 1);
-
-			/////////////////////////////////////////////////////////////////////
-
+			shader.setInt("shadowMapLarge", 2);
 			shader.setMat4("view", camera.viewMatrix());
 			shader.setVec3("viewPos", camera.position());
 			shader.setVec3("lightPos", sunLight.position);
@@ -298,7 +257,6 @@ void Minecraft::Start()
 				Debug::Draw(shader_debug, shader_debug_ui);
 			}
 
-			
 			//Draw skybox
 			glDepthFunc(GL_LEQUAL);
 			shader_skybox.Use();
@@ -332,19 +290,21 @@ void Minecraft::Start()
 			//PostProcessing
 			shader_postprocess.Use();
 
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			FrameBuffer::UseDefault();
 			glDisable(GL_DEPTH_TEST);
 			glClearColor(33.f / 255.f, 146.f / 255.f, 248.f / 255.f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 			glBindVertexArray(postProcVAO);
-			glBindTexture(GL_TEXTURE_2D, postProcFbo.texture);
+
+			//glBindTexture(GL_TEXTURE_2D, fboPostProc.texture);
+			fboPostProc.UseTexture(TextureUnit::Unit0);
+
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
 			if (debugActivated)
 			{
 				glViewport(0, 0, 300, 300);
-				glBindTexture(GL_TEXTURE_2D, depthMap);
+				fboShadow.UseTexture(TextureUnit::Unit0);
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 			}
 			
