@@ -61,10 +61,8 @@ void Minecraft::Start()
 	Shader shader("shaders/shader.vs", "shaders/shader.fs");
 	Shader shader_skybox("shaders/skybox.vs", "shaders/skybox.fs");
 	Shader shaderText("shaders/shader_text.vs", "shaders/shader_text.fs");
+	Shader shader_shadows("shaders/shadows.vs", "shaders/shadows.fs");
 	
-	glm::mat4 orthoProj = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
-	shaderText.setMat4("projection", orthoProj);
-
 	CubeMap cubeMap({
 		"textures/skybox/right.png",
 		"textures/skybox/left.png",
@@ -73,33 +71,27 @@ void Minecraft::Start()
 		"textures/skybox/front.png",
 		"textures/skybox/back.png"
 		});
-
+	
 	Texture texture("textures/grass.png");
 	Font font("fonts/arial.ttf", 20);
 
+	
+
 	SetupPostProcess();
 	SetupSkyBox();
-
+	
 	//Block Tiles and textures
 	Tiles::Initialize(4,4);
 	TexturesBlocks::Initialize();
-
-	//Lights
-	std::vector<Light> lights =
-	{
-		Light({ 500,100,500 }),
-	};
-	shader.use();
-	texture.Use();
+	
+	Light sunLight{ glm::vec3(500,300,500) };
 	 
 	FrameBuffer postProcFbo(m_width, m_height);
-
+	
 	World::GenerateChunks();
 	World::GeneratePhysics();
 
 	Camera camera(m_width, m_height, 1000.f, 0.2f);
-	shader.setFloat("far", 1000.f);
-	shader.setFloat("near", 0.1f);
 
 	PlayerAvatar player;
 	player.rb().translate(btVector3(World::size * Chunck::size/2, World::height * Chunck::size, World::size * Chunck::size/2));
@@ -112,18 +104,11 @@ void Minecraft::Start()
 	Cube cube;
 	cube.rb().translate(btVector3(4.5, 20, 4.5));
 	
-	shader.setFloat("ambient", 0.2f);
-	shader.setMat4("view", camera.viewMatrix());
-	shader.setMat4("projection", camera.projectionMatrix());
-	shader.setInt("numLights", lights.size());
-
-	shader_debug.use();
-	shader_debug.setMat4("view", camera.viewMatrix());
-	shader_debug.setMat4("projection", camera.projectionMatrix());
-
+	Model sunModel(Cube::CreateCubeMesh(10));
+	sunModel.Translate(sunLight.position);
+	
 	float drawTimer= 0.f;
 	float fixedUpdateTimer = 0.f;
-
 	
 	int frameCount = 0;
 	float fpsDelta = 0.f;
@@ -134,8 +119,33 @@ void Minecraft::Start()
 
 	float t2 = Time::ElapsedSinceStartup();
 	std::cout << 1000.f*(t2 - t1) << std::endl;
-	
-	
+
+	//////////////////////////////////////////////
+	unsigned int depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+
+	const unsigned int SHADOW_WIDTH = 8*1024, SHADOW_HEIGHT = 8*1024;
+
+	unsigned int depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+		SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//////////////////////////////////////////////
+	bool initShader = true;
+	bool debugActivated = true;
+			
 	// render loop
 	while (!glfwWindowShouldClose(m_window))
 	{
@@ -156,10 +166,37 @@ void Minecraft::Start()
 				freeCameraController.SetEnabled( ! freeCameraController.Enabled() );
 				playerController.SetEnabled( ! playerController.Enabled() );
 			}
+
+			//Exit app
 			if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE))
 				glfwSetWindowShouldClose(m_window, true);
-				
+			
+			//Set Shaders
+			if (Keyboard::KeyPressed(GLFW_KEY_F2) || initShader)
+			{
+				if (!initShader)
+					Shader::ReloadAll();
+				initShader = false;
 
+				shaderText.Use();
+				glm::mat4 orthoProj = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
+				shaderText.setMat4("projection", orthoProj);
+
+				shader.Use();
+				shader.setFloat("ambient", 0.2f);
+				shader.setMat4("view", camera.viewMatrix());
+				shader.setMat4("projection", camera.projectionMatrix());
+				shader.setFloat("far", 1000.f);
+				shader.setFloat("near", 0.1f);
+				shader.setVec3("lightColor", glm::vec3(228.f / 256.f, 134 / 256.f, 0));
+
+				shader_debug.Use();
+				shader_debug.setMat4("view", camera.viewMatrix());
+				shader_debug.setMat4("projection", camera.projectionMatrix());
+			}
+			if (Keyboard::KeyPressed(GLFW_KEY_F3))
+				debugActivated = !debugActivated;
+				
 			PhysicsEngine::StepSimulation(fixedUpdateTimer);
 
 			freeCameraController.Update(fixedUpdateTimer);
@@ -173,7 +210,6 @@ void Minecraft::Start()
 		}
 
 		//Draws
-		
 		drawTimer += delta;
 		if (drawTimer >= Time::DeltaTime())
 		{
@@ -188,6 +224,36 @@ void Minecraft::Start()
 				fpsDelta -= 1.f / updateRate;
 			}
 
+			/////////////////////////////////////////////////////////////////////
+			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+			glClear(GL_DEPTH_BUFFER_BIT);
+			///////
+			glm::mat4 lightView = 
+				glm::lookAt(
+				sunLight.position,
+				camera.position(),
+				glm::vec3(0.0f, 1.0f, 0.0f));
+			float near_plane = 0.1f, far_plane = 1000;
+			glm::mat4 lightProjection = glm::ortho(-30.f, 30.f, -30.f, 30.f, near_plane, far_plane);
+
+			glEnable(GL_DEPTH_TEST);
+			glClearColor(33.f / 255.f, 146.f / 255.f, 248.f / 255.f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			shader_shadows.Use();
+			shader_shadows.setMat4("view", lightView);
+			shader_shadows.setMat4("projection", lightProjection);
+
+			World::Draw(shader_shadows);
+
+			///////
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glViewport(0, 0, m_width, m_height);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glBindTexture(GL_TEXTURE_2D, depthMap);
+			/////////////////////////////////////////////////////////////////////
+
 			postProcFbo.Use();
 
 			glEnable(GL_DEPTH_TEST);
@@ -195,26 +261,47 @@ void Minecraft::Start()
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//Draw world
-			shader.use();
+			shader.Use();
 			texture.Use();
+
+			/////////////////////////////////////////////////////////////////////
+			shader.setMat4("viewLight", lightView);
+			shader.setMat4("projectionLight", lightProjection);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture.textureId);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, depthMap);
+
+			shader.setInt("textureBlocks", 0);
+			shader.setInt("shadowMap", 1);
+
+			/////////////////////////////////////////////////////////////////////
+
 			shader.setMat4("view", camera.viewMatrix());
-			for (int i = 0; i < (int)lights.size(); ++i)
-				lights[i].SetLightUniform(shader, i);
 			shader.setVec3("viewPos", camera.position());
+			shader.setVec3("lightPos", sunLight.position);
+
 			player.UpdateModels();
 			player.Draw(shader);
 			cube.UpdateModels();
 			cube.Draw(shader);
+			if (debugActivated)
+				sunModel.Draw(shader);
 			World::Draw(shader);
 
-			//Debug
-			shader_debug.use();
-			shader_debug.setMat4("view", camera.viewMatrix());
-			Debug::Draw(shader_debug, shader_debug_ui);
+			if (debugActivated)
+			{
+				//Debug
+				shader_debug.Use();
+				shader_debug.setMat4("view", camera.viewMatrix());
+				Debug::Draw(shader_debug, shader_debug_ui);
+			}
+
 			
 			//Draw skybox
 			glDepthFunc(GL_LEQUAL);
-			shader_skybox.use();
+			shader_skybox.Use();
 			shader_skybox.setInt("skybox", 0);
 			glm::vec3 oldPos = camera.position();
 			camera.SetPosition({ 0,0,0 });
@@ -228,18 +315,22 @@ void Minecraft::Start()
 			glBindVertexArray(0);
 			glDepthFunc(GL_LESS);
 
-			//FPS 
-			std::stringstream ss;
-			ss << "fps: " << (int)fps;
-			font.RenderText(shaderText, ss.str(), 0, (GLfloat)m_height - 20);
+			if (debugActivated)
+			{
+				//FPS 
+				std::stringstream ss;
+				ss << "fps: " << (int)fps;
+				font.RenderText(shaderText, ss.str(), 0, (GLfloat)m_height - 20);
 
-			//Triangles
-			std::stringstream ss2;
-			ss2 << "triangles : " << Statistics::GetTriangles() / 1000 << "k";
-			font.RenderText(shaderText, ss2.str(), 0, (GLfloat)(m_height - 40));
+				//Triangles
+				std::stringstream ss2;
+				ss2 << "triangles : " << Statistics::GetTriangles() / 1000 << "k";
+				font.RenderText(shaderText, ss2.str(), 0, (GLfloat)(m_height - 40));
+			}
+			
 
 			//PostProcessing
-			shader_postprocess.use();
+			shader_postprocess.Use();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glDisable(GL_DEPTH_TEST);
@@ -249,6 +340,13 @@ void Minecraft::Start()
 			glBindVertexArray(postProcVAO);
 			glBindTexture(GL_TEXTURE_2D, postProcFbo.texture);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			if (debugActivated)
+			{
+				glViewport(0, 0, 300, 300);
+				glBindTexture(GL_TEXTURE_2D, depthMap);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+			}
 			
 			glfwSwapBuffers(m_window);
 

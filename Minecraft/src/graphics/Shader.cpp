@@ -1,8 +1,26 @@
 #include "graphics/Shader.h"
 
-Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
+Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) :
+	ID(-1),
+	m_vertexPath(vertexPath),
+	m_fragmentPath(fragmentPath)
 {
+	m_shaders.push_back(this);
+	Load();
+}
 
+
+std::vector<Shader *> Shader::m_shaders;
+void Shader::ReloadAll()
+{
+	std::cerr << "Reloading shaders" << std::endl;
+	for (Shader * shader : m_shaders)
+		shader->Load();
+}
+
+void Shader::Load()
+{
+	//Shader program
 	std::string vertexCode;
 	std::string fragmentCode;
 	std::ifstream vShaderFile;
@@ -13,8 +31,8 @@ Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
 	try
 	{
 		// open files
-		vShaderFile.open(vertexPath);
-		fShaderFile.open(fragmentPath);
+		vShaderFile.open(m_vertexPath);
+		fShaderFile.open(m_fragmentPath);
 		std::stringstream vShaderStream, fShaderStream;
 		// read file's buffer contents into streams
 		vShaderStream << vShaderFile.rdbuf();
@@ -59,8 +77,11 @@ Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
-	//Shader program
+	if (ID != -1)
+		glDeleteProgram(ID);
+
 	ID = glCreateProgram();
+	std::cout << ID << std::endl;
 	glAttachShader(ID, vertexShader);
 	glAttachShader(ID, fragmentShader);
 	glLinkProgram(ID);
@@ -71,16 +92,9 @@ Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
 	}
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-	glUseProgram(ID);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
 }
 
-void Shader::use() const
+void Shader::Use() const
 {
 	glUseProgram(ID);
 }

@@ -76,7 +76,9 @@ Font::Font(std::string filename, int size)
 
 void Font::RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
 {
-	shader.use();
+	shader.Use();
+	glActiveTexture(GL_TEXTURE0);
+
 	for (int i = 0; i < (int)text.size(); ++i)
 	{
 		Character ch = Characters[text[i]];

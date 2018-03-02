@@ -204,6 +204,8 @@
     <None Include="shaders\postprocess.vs" />
     <None Include="shaders\shader_text.fs" />
     <None Include="shaders\shader_text.vs" />
+    <None Include="shaders\shadows.fs" />
+    <None Include="shaders\shadows.vs" />
     <None Include="shaders\skybox.fs" />
     <None Include="shaders\skybox.vs" />
   </ItemGroup>

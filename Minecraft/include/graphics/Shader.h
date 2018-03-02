@@ -16,11 +16,10 @@ class Shader
 {
 public:
 
-	unsigned int ID;//program ID
-
 	Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
-
-	void use() const;
+	static void ReloadAll();
+	void Load();
+	void Use() const;
 
 	void setBool(const std::string &name, bool value) const;
 	void setInt(const std::string &name, int value) const;
@@ -35,4 +34,13 @@ public:
 	void setMat3(const std::string &name, const glm::mat3 &mat) const;
 	void setMat4(const std::string &name, const glm::mat4 &mat) const;
 	void setVec3Array(const std::string &name, std::vector<glm::vec3> array) const;
+
+private:
+	
+	int ID;
+	std::string m_vertexPath;
+	std::string m_fragmentPath;
+
+	static std::vector<Shader *> m_shaders;
+
 };

@@ -35,7 +35,7 @@ void Debug::Draw(const Shader& shader, const Shader& shaderUi)
 
 void Debug::DrawHud(const Shader& shader)
 {
-	shader.use();
+	shader.Use();
 
 	std::vector<Vertex> lines = {
 		{ {-0.01f,0.f,0.f },{1.f,1.f,1.f } },
@@ -73,7 +73,7 @@ void Debug::DrawHud(const Shader& shader)
 
 void Debug::DrawLines(const Shader& shader)
 {
-	shader.use();
+	shader.Use();
 
 	if (m_lines.size() > 0)
 	{
