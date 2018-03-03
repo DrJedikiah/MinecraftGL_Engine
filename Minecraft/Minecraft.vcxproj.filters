@@ -181,9 +181,6 @@
     <ClCompile Include="src\util\Time.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="src\TexturesBlocks.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\Entity.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
@@ -220,32 +217,11 @@
     <ClCompile Include="src\graphics\CubeMap.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphics\TexturesBlocks.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\shader_debug.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\shader_debug_ui.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\shader.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\shader_debug.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\shader_debug_ui.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\shader.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\shader_text.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\shader_text.vs">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="shaders\postprocess.fs">
       <Filter>Shader</Filter>
     </None>
@@ -262,6 +238,48 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="shaders\shadows.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\text.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\text.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\debug_ui.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\debug_ui.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\debug.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\debug.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\forward_map.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\forward_map.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_map.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_map.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_light.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_light.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\test.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\test.vs">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

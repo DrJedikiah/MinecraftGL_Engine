@@ -18,12 +18,11 @@ public:
 	void UseTexture(TextureUnit textureUnit)const;
 	static void UseDefault();
 
-
+	unsigned int fbo;
 private:
 	int m_width;
 	int m_height;
 
-	unsigned int fbo;
 	unsigned int rbo;
 	unsigned int texture;
 };
@@ -37,12 +36,29 @@ public:
 	void Use()const;
 	void UseTexture(TextureUnit textureUnit)const;
 
-
-
 private:
 	int m_width;
 	int m_height;
 
 	unsigned int depthMapFBO;
 	unsigned int depthMap;
+};
+
+class GBuffer
+{
+public:
+	GBuffer(int width, int height);
+	~GBuffer();
+
+	GLuint buffer;
+	GLuint gColor;
+	GLuint gNormal;
+	GLuint gPosition;
+	GLuint gDepth;
+
+private:
+	int m_width;
+	int m_height;
+
+
 };

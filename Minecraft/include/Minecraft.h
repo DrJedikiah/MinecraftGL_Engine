@@ -28,15 +28,15 @@
 #include "graphics/Text.h"
 #include "graphics/FrameBuffer.h"
 #include "graphics/CubeMap.h"
- 
-
+  
+   
 #include "util/Debug.h"
 #include "util/Time.h"
 #include "util/Input.h" 
-#include "util/Statistics.h"
-
+#include "util/Statistics.h" 
+    
 //Design pattern singleton   
-class Minecraft
+class Minecraft 
 {  
 public:
 	Minecraft(std::string name, int width, int height);

@@ -56,17 +56,21 @@ void Minecraft::Start()
 
 	//Shader
 	Shader shader_postprocess("shaders/postprocess.vs", "shaders/postprocess.fs");
-	Shader shader_debug("shaders/shader_debug.vs", "shaders/shader_debug.fs");
-	Shader shader_debug_ui("shaders/shader_debug_ui.vs", "shaders/shader_debug_ui.fs");
-	Shader shader("shaders/shader.vs", "shaders/shader.fs");
+	Shader shader_debug("shaders/debug.vs", "shaders/debug.fs");
+	Shader shader_debug_ui("shaders/debug_ui.vs", "shaders/debug_ui.fs");
+	Shader shader("shaders/forward_map.vs", "shaders/forward_map.fs");
 	Shader shader_skybox("shaders/skybox.vs", "shaders/skybox.fs");
-	Shader shaderText("shaders/shader_text.vs", "shaders/shader_text.fs");
+	Shader shaderText("shaders/text.vs", "shaders/text.fs");
 	Shader shader_shadows("shaders/shadows.vs", "shaders/shadows.fs");
-	
-	FrameBuffer fboPostProc(m_width, m_height);
+	Shader shader_deferred("shaders/deferred_map.vs", "shaders/deferred_map.fs");
+	Shader shader_deferred_light("shaders/deferred_light.vs", "shaders/deferred_light.fs");
+	Shader shader_test("shaders/test.vs", "shaders/test.fs");
 
+	FrameBuffer fboPostProc(m_width, m_height);
 	FrameBufferShadowMap fboShadow(4*2048, 4*2048);
 	FrameBufferShadowMap fboShadowLarge(4 * 2048, 4 * 2048);
+	GBuffer gBuffer(m_width, m_height);
+
 
 	Tiles::Initialize(4, 4);
 	TexturesBlocks::Initialize();
@@ -107,7 +111,7 @@ void Minecraft::Start()
 	Light sunLight{ glm::vec3(500,300,500) };
 	Model sunModel(Cube::CreateCubeMesh(10));
 	sunModel.Translate(sunLight.position);
-	
+
 	float drawTimer= 0.f;
 	float fixedUpdateTimer = 0.f;
 	
@@ -118,13 +122,12 @@ void Minecraft::Start()
 	
 	float time = Time::ElapsedSinceStartup();
 
-	float t2 = Time::ElapsedSinceStartup();
-	std::cout << 1000.f*(t2 - t1) << std::endl;
-
-	//////////////////////////////////////////////
 	bool initShader = true;
 	bool debugActivated = true;
-			
+
+	float t2 = Time::ElapsedSinceStartup();
+	std::cout << 1000.f*(t2 - t1) << std::endl;
+	
 	// render loop
 	while (!glfwWindowShouldClose(m_window))
 	{
@@ -164,8 +167,6 @@ void Minecraft::Start()
 				shader.setFloat("ambient", 0.2f);
 				shader.setMat4("view", camera.viewMatrix());
 				shader.setMat4("projection", camera.projectionMatrix());
-				shader.setFloat("far", 1000.f);
-				shader.setFloat("near", 0.1f);
 				shader.setVec3("lightColor", glm::vec3(228.f / 256.f, 134 / 256.f, 0));
 
 				shader_debug.Use();
@@ -202,15 +203,15 @@ void Minecraft::Start()
 				fpsDelta -= 1.f / updateRate;
 			}
 
-			////////////////////////////////BAKE SHADOWS////////////////////////////////
+			//////////////////////////////// BAKE SHADOWS ////////////////////////////////
 			btVector3 posPlayer = player.rb().transform().getOrigin();
 			glm::mat4 lightView =
-				glm::lookAt(
-					sunLight.position,
-					//camera.position(),
-					glm::vec3(posPlayer.getX(), posPlayer.getY(), posPlayer.getZ()),
-					glm::vec3(0.0f, 1.0f, 0.0f));
-			
+			glm::lookAt(
+			sunLight.position,
+			//camera.position(),
+			glm::vec3(posPlayer.getX(), posPlayer.getY(), posPlayer.getZ()),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+
 			shader_shadows.Use();
 			shader_shadows.setMat4("view", lightView);
 			//////
@@ -222,40 +223,70 @@ void Minecraft::Start()
 			fboShadowLarge.Use();
 			shader_shadows.setMat4("projection", lightProjectionLarge);
 			World::Draw(shader_shadows);
-			////////////////////////////////DRAWS SCENE////////////////////////////////
 
-			fboPostProc.Use();
+			//////////////////////////////// DEFERRED GEOMETRY ////////////////////////////////
+			shader_deferred.Use();
+
+			glBindFramebuffer(GL_FRAMEBUFFER, gBuffer.buffer);
+			glViewport(0, 0, m_width, m_height);
+			glEnable(GL_DEPTH_TEST);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 			texture.Use(TextureUnit::Unit0);
-			fboShadow.UseTexture(TextureUnit::Unit1);
-			fboShadowLarge.UseTexture(TextureUnit::Unit2);
-
-			shader.Use();
-			shader.setMat4("viewLight", lightView);
-			shader.setMat4("projectionLight", lightProjection);
-			shader.setMat4("projectionLightLarge", lightProjectionLarge);
-
-			shader.setInt("textureBlocks", 0);
-			shader.setInt("shadowMap", 1);
-			shader.setInt("shadowMapLarge", 2);
-			shader.setMat4("view", camera.viewMatrix());
-			shader.setVec3("viewPos", camera.position());
-			shader.setVec3("lightPos", sunLight.position);
-
+			shader_deferred.setInt("textureBlocks", 0);
+			shader_deferred.setMat4("view", camera.viewMatrix());
+			shader_deferred.setMat4("projection", camera.projectionMatrix());
+			
 			player.UpdateModels();
-			player.Draw(shader);
+			player.Draw(shader_deferred);
 			cube.UpdateModels();
-			cube.Draw(shader);
+			cube.Draw(shader_deferred);
 			if (debugActivated)
-				sunModel.Draw(shader);
-			World::Draw(shader);
+				sunModel.Draw(shader_deferred);
+			World::Draw(shader_deferred);
 
-			if (debugActivated)
-			{
-				//Debug
-				shader_debug.Use();
-				shader_debug.setMat4("view", camera.viewMatrix());
-				Debug::Draw(shader_debug, shader_debug_ui);
-			}
+			//////////////////////////////// DEFERRED LIGHT ////////////////////////////////
+			fboPostProc.Use();
+			//FrameBuffer::UseDefault();
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, gBuffer.gColor);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, gBuffer.gNormal);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, gBuffer.gPosition);
+			fboShadow.UseTexture(TextureUnit::Unit3);
+			fboShadowLarge.UseTexture(TextureUnit::Unit4);
+
+			shader_deferred_light.Use();
+			shader_deferred_light.setInt("gColor", 0);
+			shader_deferred_light.setInt("gNormal", 1);
+			shader_deferred_light.setInt("gPosition", 2);
+			shader_deferred_light.setInt("shadowMap", 3);
+			shader_deferred_light.setInt("shadowMapLarge", 4);
+			shader_deferred_light.setVec3("lightPos", sunLight.position);
+			shader_deferred_light.setVec3("viewPos", camera.position());
+			shader_deferred_light.setVec3("lightColor", glm::vec3(228.f / 256.f, 134 / 256.f, 0));
+			shader_deferred_light.setMat4("viewLight", lightView);
+			shader_deferred_light.setMat4("projectionLight", lightProjection);
+			shader_deferred_light.setMat4("projectionLightLarge", lightProjectionLarge);
+
+			glDisable(GL_DEPTH_TEST);
+			glClearColor(1,0,0, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glBindVertexArray(postProcVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			//Copy depth data
+			glEnable(GL_DEPTH_TEST);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer.buffer);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboPostProc.fbo);
+			glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+			//////////////////////////////// FORWARD RENDERING ////////////////////////////////
+			shader_test.Use();
+			shader_test.setMat4("view", camera.viewMatrix());
+			shader_test.setMat4("projection", camera.projectionMatrix());
 
 			//Draw skybox
 			glDepthFunc(GL_LEQUAL);
@@ -272,44 +303,46 @@ void Minecraft::Start()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
 			glDepthFunc(GL_LESS);
+			
+			//////////////////////////////// POSTPROCESSING ////////////////////////////////
+			shader_postprocess.Use();
+			FrameBuffer::UseDefault();
+
+			glDisable(GL_DEPTH_TEST);
+			//glClearColor(33.f / 255.f, 146.f / 255.f, 248.f / 255.f, 1.0f);
+			glClearColor(0, 1.0f, 1, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			fboPostProc.UseTexture(TextureUnit::Unit0);
+			shader_postprocess.setInt("screenTexture", 0);
+
+			glBindVertexArray(postProcVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glEnable(GL_DEPTH_TEST);
+
+			//////////////////////////////// UI ////////////////////////////////
 
 			if (debugActivated)
 			{
-				//FPS 
+				//FPS counter
 				std::stringstream ss;
 				ss << "fps: " << (int)fps;
 				font.RenderText(shaderText, ss.str(), 0, (GLfloat)m_height - 20);
 
-				//Triangles
+				//Triangles counter
 				std::stringstream ss2;
 				ss2 << "triangles : " << Statistics::GetTriangles() / 1000 << "k";
 				font.RenderText(shaderText, ss2.str(), 0, (GLfloat)(m_height - 40));
+
+				//ui
+				shader_debug.Use();
+				shader_debug.setMat4("view", camera.viewMatrix());
+				Debug::Draw(shader_debug, shader_debug_ui);
 			}
-			
 
-			//PostProcessing
-			shader_postprocess.Use();
+			//////////////////////////////// DRAW ////////////////////////////////
 
-			FrameBuffer::UseDefault();
-			glDisable(GL_DEPTH_TEST);
-			glClearColor(33.f / 255.f, 146.f / 255.f, 248.f / 255.f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glBindVertexArray(postProcVAO);
-
-			//glBindTexture(GL_TEXTURE_2D, fboPostProc.texture);
-			fboPostProc.UseTexture(TextureUnit::Unit0);
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-
-			if (debugActivated)
-			{
-				glViewport(0, 0, 300, 300);
-				fboShadow.UseTexture(TextureUnit::Unit0);
-				glDrawArrays(GL_TRIANGLES, 0, 6);
-			}
-			
 			glfwSwapBuffers(m_window);
-
 			Debug::Clear();
 		}
 	}

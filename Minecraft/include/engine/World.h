@@ -13,10 +13,10 @@ class World
 public:
 	//const static int size = 25;
 	//const static int height = 16;
-	const static int size = 16;
-	const static int height = 8;
-	//const static int size = 8;
-	//const static int height = 4;
+	//const static int size = 16;
+	//const static int height = 8;
+	const static int size = 8;
+	const static int height = 4;
 
 	static void Update(float delta);
 
