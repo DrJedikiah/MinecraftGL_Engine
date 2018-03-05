@@ -1,14 +1,15 @@
 #include "engine/Camera.h"
 
 Camera::Camera(int width, int height, float far, float near, float fov) :
-
-
 	m_projectionMatrix(glm::perspective(glm::radians(fov), (float)width / (float)height, near, far)),
 	m_position(0,0,0),
 	m_up(0,1,0),
 	m_forward(1, 0, 0),
 	m_right( glm::cross(m_forward, m_up)),
-	m_viewMatrix(glm::lookAt(m_position, m_position + m_forward,m_up))
+	m_viewMatrix(glm::lookAt(m_position, m_position + m_forward,m_up)),
+	m_near(near),
+	m_far(far)
+
 {	
 
 }
@@ -53,3 +54,6 @@ const glm::mat4 Camera::viewMatrix() const
 	}
 	return m_viewMatrix;
 }
+
+float Camera::Near() const{return m_near;}
+float Camera::Far() const { return m_far; }

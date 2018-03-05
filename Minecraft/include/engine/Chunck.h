@@ -8,6 +8,7 @@
 #include "engine/Block.h"
 #include "engine/Physics.h"
 #include "engine/World.h"
+#include "engine/Cube.h"
 #include "util/Util.h"
 #include "util/Time.h"
 #include "util/Statistics.h"

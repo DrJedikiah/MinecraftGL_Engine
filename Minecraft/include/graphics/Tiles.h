@@ -3,13 +3,7 @@
 #include <glm/glm.hpp>
 #include <map>
 
-struct fRect
-{
-	float x1 = 0;
-	float y1 = 0;
-	float x2 = 0;
-	float y2 = 0;
-};
+#include "util/Util.h"
 
 class Tiles
 {

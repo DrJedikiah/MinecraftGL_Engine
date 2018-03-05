@@ -83,42 +83,42 @@ void Chunck::GenerateMesh()
 					glm::ivec3 pos = m_position * size + glm::ivec3(x, y + 1, z);
 					if ( ! World::BlockGenerated(pos) || ! World::GetBlock(pos).solid)
 					{
-						std::vector<Mesh::Vertex> topFace = Util::cubeTopFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Top(block.type));
+						std::vector<Mesh::Vertex> topFace = Cube::cubeTopFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Top(block.type));
 						vertices.insert(vertices.end(), topFace.begin(), topFace.end());
 					}
 						
 					pos = m_position * size + glm::ivec3(x, y - 1, z);
 					if (!World::BlockGenerated(pos) || ! World::GetBlock(pos).solid)
 					{
-						std::vector<Mesh::Vertex> botFace = Util::cubeBotFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Bot(block.type));
+						std::vector<Mesh::Vertex> botFace = Cube::cubeBotFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Bot(block.type));
 						vertices.insert(vertices.end(), botFace.begin(), botFace.end());
 					}
 					
 					pos = m_position * size + glm::ivec3(x-1, y, z);
 					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
 					{
-						std::vector<Mesh::Vertex> leftFace = Util::cubeLeftFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Left(block.type));
+						std::vector<Mesh::Vertex> leftFace = Cube::cubeLeftFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Left(block.type));
 						vertices.insert(vertices.end(), leftFace.begin(), leftFace.end());
 					}
 
 					pos = m_position * size + glm::ivec3(x+1, y , z);
 					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
 					{
-						std::vector<Mesh::Vertex> rightFace = Util::cubeRightFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Right(block.type));
+						std::vector<Mesh::Vertex> rightFace = Cube::cubeRightFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Right(block.type));
 						vertices.insert(vertices.end(), rightFace.begin(), rightFace.end());
 					}
 
 					pos = m_position * size + glm::ivec3(x, y, z-1);
 					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
 					{
-						std::vector<Mesh::Vertex> backFace = Util::cubeBackFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Back(block.type));
+						std::vector<Mesh::Vertex> backFace = Cube::cubeBackFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Back(block.type));
 						vertices.insert(vertices.end(), backFace.begin(), backFace.end());
 					}
 
 					pos = m_position * size + glm::ivec3(x, y, z+1);
 					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
 					{
-						std::vector<Mesh::Vertex> frontFace = Util::cubeFrontFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Front(block.type));
+						std::vector<Mesh::Vertex> frontFace = Cube::cubeFrontFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Front(block.type));
 						vertices.insert(vertices.end(), frontFace.begin(), frontFace.end());
 					}
 				}

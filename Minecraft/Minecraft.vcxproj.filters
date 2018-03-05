@@ -258,18 +258,6 @@
     <None Include="shaders\debug.fs">
       <Filter>Shader</Filter>
     </None>
-    <None Include="shaders\forward_map.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\forward_map.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\deferred_map.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\deferred_map.vs">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="shaders\deferred_light.fs">
       <Filter>Shader</Filter>
     </None>
@@ -280,6 +268,24 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="shaders\test.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_geometry.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_geometry.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_ssao.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_ssao.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_borders.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\deferred_borders.vs">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

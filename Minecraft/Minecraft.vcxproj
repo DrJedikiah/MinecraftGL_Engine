@@ -194,18 +194,20 @@
     <ClCompile Include="src\util\Statistics.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\deferred_borders.fs" />
+    <None Include="shaders\deferred_borders.vs" />
     <None Include="shaders\deferred_light.fs" />
     <None Include="shaders\deferred_light.vs" />
-    <None Include="shaders\forward_map.fs" />
-    <None Include="shaders\forward_map.vs" />
     <None Include="shaders\debug.fs" />
     <None Include="shaders\debug.vs" />
     <None Include="shaders\debug_ui.fs" />
     <None Include="shaders\debug_ui.vs" />
+    <None Include="shaders\deferred_ssao.fs" />
+    <None Include="shaders\deferred_ssao.vs" />
     <None Include="shaders\postprocess.fs" />
     <None Include="shaders\postprocess.vs" />
-    <None Include="shaders\deferred_map.fs" />
-    <None Include="shaders\deferred_map.vs" />
+    <None Include="shaders\deferred_geometry.fs" />
+    <None Include="shaders\deferred_geometry.vs" />
     <None Include="shaders\test.fs" />
     <None Include="shaders\test.vs" />
     <None Include="shaders\text.fs" />

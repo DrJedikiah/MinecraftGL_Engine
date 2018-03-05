@@ -2,14 +2,17 @@
 
 #include <vector>
 
-#include "graphics/Tiles.h"
-#include "graphics/Mesh.h"
+#include "btBulletDynamicsCommon.h"
+#include <glm/glm.hpp>
+
+
 
 enum Tag { def, chunck, entity };
 
 namespace glm
 {
 	inline glm::vec3 toVec3(btVector3 vector) { return glm::vec3(vector.getX(), vector.getY(), vector.getZ());  };
+	inline float Lerp(float start, float end, float ratio) { return start + ratio * (end - start); }
 }
 
 namespace bt
@@ -27,72 +30,10 @@ namespace std
 	}
 }
 
-namespace Util
+struct fRect
 {
-
-	inline std::vector<Mesh::Vertex> cubeTopFace(float size, float x, float y, float z, fRect rect)
-	{
-		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
-		return {{ { X + s,  Y + s, Z - s },{ 0.f,1.f,0.f },{ rect.x2, rect.y2 } },
-				{ { X - s,  Y + s, Z - s },{ 0.f,1.f,0.f },{ rect.x1, rect.y2 } },
-				{ { X + s,  Y + s, Z + s },{ 0.f,1.f,0.f },{ rect.x2, rect.y1 } },
-				{ { X - s,  Y + s, Z + s },{ 0.f,1.f,0.f },{ rect.x1, rect.y1 } },
-				{ { X + s,  Y + s, Z + s },{ 0.f,1.f,0.f },{ rect.x2, rect.y1 } },
-				{ { X - s,  Y + s, Z - s },{ 0.f,1.f,0.f },{ rect.x1, rect.y2 } }};
-	}
-
-	inline std::vector<Mesh::Vertex> cubeBotFace(float size, float x, float y, float z, fRect rect)
-	{
-		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
-		return {{ { X - s, Y - s, Z - s },{ 0.f,-1.f,0.f },{ rect.x1, rect.y2 } },
-				{ { X + s, Y - s, Z - s },{ 0.f,-1.f,0.f },{ rect.x2, rect.y2 } },
-				{ { X + s, Y - s, Z + s },{ 0.f,-1.f,0.f },{ rect.x2, rect.y1 } },
-				{ { X + s, Y - s, Z + s },{ 0.f,-1.f,0.f },{ rect.x2, rect.y1 } },
-				{ { X - s, Y - s, Z + s },{ 0.f,-1.f,0.f },{ rect.x1, rect.y1 } },
-				{ { X - s, Y - s, Z - s },{ 0.f,-1.f,0.f },{ rect.x1, rect.y2 } }};
-	}
-
-	inline std::vector<Mesh::Vertex> cubeLeftFace(float size, float x, float y, float z, fRect rect)
-	{
-		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
-		return{ { { X - s, Y + s, Z + s },{ -1.f,0.f,0.f },{ rect.x1, rect.y2 } },
-				{ { X - s, Y + s, Z - s },{ -1.f,0.f,0.f },{ rect.x2, rect.y2 } },
-				{ { X - s, Y - s, Z - s },{ -1.f,0.f,0.f },{ rect.x2, rect.y1 } },
-				{ { X - s, Y - s, Z - s },{ -1.f,0.f,0.f },{ rect.x2, rect.y1 } },
-				{ { X - s, Y - s, Z + s },{ -1.f,0.f,0.f },{ rect.x1, rect.y1 } },
-				{ { X - s, Y + s, Z + s },{ -1.f,0.f,0.f },{ rect.x1, rect.y2 } }, };
-	}
-
-	inline std::vector<Mesh::Vertex> cubeRightFace(float size, float x, float y, float z, fRect rect)
-	{
-		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
-		return{ { { X + s, Y + s, Z + s },{ 1.f,0.f,0.f },{ rect.x1, rect.y2 } },//Top
-				{ { X + s, Y - s, Z - s },{ 1.f,0.f,0.f },{ rect.x2, rect.y1 } },
-				{ { X + s, Y + s, Z - s },{ 1.f,0.f,0.f },{ rect.x2, rect.y2 } },
-				{ { X + s, Y - s, Z - s },{ 1.f,0.f,0.f },{ rect.x2, rect.y1 } },//Bot
-				{ { X + s, Y + s, Z + s },{ 1.f,0.f,0.f },{ rect.x1, rect.y2 } },
-				{ { X + s, Y - s, Z + s },{ 1.f,0.f,0.f },{ rect.x1, rect.y1 } }, };
-	}
-
-	inline std::vector<Mesh::Vertex> cubeFrontFace(float size, float x, float y, float z, fRect rect)
-	{
-		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
-		return{ { { X - s, Y - s, Z + s },{ 0.f,0.f,1.f },{ rect.x1, rect.y1 } },//bot
-				{ { X + s,Y - s, Z + s },{ 0.f,0.f,1.f },{ rect.x2, rect.y1 } },
-				{ { X + s, Y + s,Z + s },{ 0.f,0.f,1.f },{ rect.x2, rect.y2 } },
-				{ { X + s, Y + s, Z + s },{ 0.f,0.f,1.f },{ rect.x2, rect.y2 } },//Top
-				{ { X - s, Y + s, Z + s },{ 0.f,0.f,1.f },{ rect.x1, rect.y2 } },
-				{ { X - s, Y - s,Z + s },{ 0.f,0.f,1.f },{ rect.x1, rect.y1 } }, };
-	}
-
-	inline std::vector<Mesh::Vertex> cubeBackFace(float size, float x, float y, float z, fRect rect)
-	{
-		const float s = size / 2, X = x * size, Y = y * size, Z = z * size;
-		return{ { { X - s, Y - s, Z - s },{ 0.f,0.f,-1.f },{ rect.x1, rect.y1 } },//bot
-				{ { X + s, Y + s, Z - s },{ 0.f,0.f,-1.f },{ rect.x2, rect.y2 } },
-				{ { X + s, Y - s, Z - s },{ 0.f,0.f,-1.f },{ rect.x2, rect.y1 } },
-				{ { X + s, Y + s, Z - s },{ 0.f,0.f,-1.f },{ rect.x2, rect.y2 } },//Top
-				{ { X - s, Y - s, Z - s },{ 0.f,0.f,-1.f },{ rect.x1, rect.y1 } },
-				{ { X - s, Y + s, Z - s },{ 0.f,0.f,-1.f },{ rect.x1, rect.y2 } }, };
-	}
-}
+	float x = 0;
+	float y = 0;
+	float width = 0;
+	float height = 0;
+};

@@ -1,11 +1,13 @@
 #pragma once
 
+#include <iostream>
+#include <vector>
+
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
-
-#include <iostream>
 
 enum TextureUnit;
 
@@ -13,13 +15,13 @@ class Texture
 {
 
 public:
-	
-
 	Texture(std::string filename);
+	Texture(int width, int height, std::vector<glm::vec3> texels);
+
 	void Use( TextureUnit textureUnit ) const;
 
-	unsigned int textureId;
 private:
+	unsigned int textureId;
 	int m_width, m_height, m_nrChannels;
 };
 

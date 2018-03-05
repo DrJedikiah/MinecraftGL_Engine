@@ -2,63 +2,82 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+#include <glm/glm.hpp> 
 
 #include <iostream>
 
-#include "Texture.h"
+#include "graphics/Texture.h"
 
-class FrameBuffer
+//////////////////////////////// FBO ////////////////////////////////
+class FBO 
 {
 public:
-	FrameBuffer(int width, int height);
-	~FrameBuffer();
+	FBO(int width, int height);
 
-	void Use()const;
-	void UseTexture(TextureUnit textureUnit)const;
 	static void UseDefault();
+	static void ClearDefault();
 
-	unsigned int fbo;
-private:
+	static void BlitDepth(FBO& origin, FBO& destination);
+
+	virtual void Use() const = 0;
+	virtual void Clear() const = 0;
+	GLuint m_fbo;
 	int m_width;
 	int m_height;
+protected:
 
-	unsigned int rbo;
+	
+};
+
+//////////////////////////////// PostProcessingFBO ////////////////////////////////
+class TextureDepthFBO : public FBO
+{
+public:
+	TextureDepthFBO(int width, int height);
+	~TextureDepthFBO();
+
+	void Use() const override;
+	void Clear() const override;
+	void UseTexture(TextureUnit textureUnit)const;
+	unsigned int depth;
+private:
+	
 	unsigned int texture;
 };
 
-class FrameBufferShadowMap
+//////////////////////////////// ShadowMapFBO ////////////////////////////////
+class ShadowMapFBO : public FBO
 {
 public:
-	FrameBufferShadowMap(int width, int height);
-	~FrameBufferShadowMap();
+	ShadowMapFBO(int width, int height);
+	~ShadowMapFBO();
 
-	void Use()const;
+	void Use() const override;
+	void Clear() const override;
 	void UseTexture(TextureUnit textureUnit)const;
 
 private:
-	int m_width;
-	int m_height;
-
-	unsigned int depthMapFBO;
 	unsigned int depthMap;
 };
 
-class GBuffer
+//////////////////////////////// DeferredFBO ////////////////////////////////
+class DeferredFBO : public FBO
 {
 public:
-	GBuffer(int width, int height);
-	~GBuffer();
+	DeferredFBO(int width, int height);
+	~DeferredFBO();
 
-	GLuint buffer;
+	void Use() const override;
+	void Clear() const override;
+	void UseColor(TextureUnit textureUnit) const;
+	void UseNormal(TextureUnit textureUnit) const;
+	void UsePosition(TextureUnit textureUnit) const;
+	void UseDepth(TextureUnit textureUnit) const;
+	GLuint gDepth;
+private:
 	GLuint gColor;
 	GLuint gNormal;
 	GLuint gPosition;
-	GLuint gDepth;
-
-private:
-	int m_width;
-	int m_height;
-
+	
 
 };

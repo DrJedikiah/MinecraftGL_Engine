@@ -24,6 +24,9 @@ public:
 	glm::vec3 forward() const;
 	glm::vec3 right() const;
 
+	float Near() const;
+	float Far() const;
+
 private:
 	glm::vec3 m_position;
 	glm::vec3 m_up;
@@ -34,4 +37,7 @@ private:
 
 	mutable glm::mat4 m_viewMatrix;
 	mutable bool viewMatrixChanged = false;
+
+	float m_near;
+	float m_far;
 };

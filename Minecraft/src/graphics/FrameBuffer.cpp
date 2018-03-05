@@ -1,12 +1,39 @@
 #include "graphics/FrameBuffer.h"
 
-FrameBuffer::FrameBuffer( int width, int height) :
+//////////////////////////////// FBO ////////////////////////////////
+
+FBO::FBO(int width, int height) :
 	m_width(width),
 	m_height(height)
 {
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
+}
+
+void FBO::UseDefault()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void FBO::ClearDefault()
+{
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void FBO::BlitDepth(FBO& origin, FBO& destination)
+{
+	glEnable(GL_DEPTH_TEST);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, origin.m_fbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destination.m_fbo);
+	glBlitFramebuffer(0, 0, origin.m_width, origin.m_height, 0, 0, origin.m_width, origin.m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+}
+
+//////////////////////////////// PostProcessingFBO ////////////////////////////////
+
+TextureDepthFBO::TextureDepthFBO( int width, int height) : FBO(width, height)
+{
+	glGenFramebuffers(1, &m_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 	
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -16,115 +43,129 @@ FrameBuffer::FrameBuffer( int width, int height) :
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 	
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+	glGenRenderbuffers(1, &depth);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cerr << "FrameBuffer generation error" << std::endl;
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
 }
 
-void FrameBuffer::Use()const
+void TextureDepthFBO::Use() const
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 	glViewport(0, 0, m_width, m_height);
 	glEnable(GL_DEPTH_TEST);
+}
+
+void TextureDepthFBO::Clear() const
+{
+	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void  FrameBuffer::UseTexture(TextureUnit textureUnit)const
+void  TextureDepthFBO::UseTexture(TextureUnit textureUnit)const
 {
 	glActiveTexture(textureUnit);
 	glBindTexture(GL_TEXTURE_2D, texture);
 }
 
-void FrameBuffer::UseDefault()
+TextureDepthFBO::~TextureDepthFBO()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &m_fbo);
 }
 
-FrameBuffer::~FrameBuffer()
-{
-	glDeleteFramebuffers(1, &fbo);
-}
+//////////////////////////////// ShadowMapFBO ////////////////////////////////
 
-//////////////////////////////////////////////////////
-
-FrameBufferShadowMap::FrameBufferShadowMap(int width, int height) : 
-	m_width(width),
-	m_height(height)
+ShadowMapFBO::ShadowMapFBO(int width, int height) : FBO(width, height)
 {
-	glGenFramebuffers(1, &depthMapFBO);
+	glGenFramebuffers(1, &m_fbo);
 
 	glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-		width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void FrameBufferShadowMap::UseTexture(TextureUnit textureUnit)const
+void ShadowMapFBO::UseTexture(TextureUnit textureUnit)const
 {
 	glActiveTexture(textureUnit);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 }
 
-void FrameBufferShadowMap::Use()const
+void ShadowMapFBO::Use() const
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 	glViewport(0, 0, m_width, m_height);
 	glEnable(GL_DEPTH_TEST);
+}
+
+void ShadowMapFBO::Clear() const
+{
+	glClearColor(0, 0, 0, 0);
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-FrameBufferShadowMap::~FrameBufferShadowMap()
+ShadowMapFBO::~ShadowMapFBO()
 {
-	glDeleteFramebuffers(1, &depthMapFBO);
+	glDeleteFramebuffers(1, &m_fbo);
 }
 
 
-/////////////////////////////////////////////////////////////////////
-GBuffer::GBuffer(int width, int height) :
-	m_width(width),
-	m_height(height)
+//////////////////////////////// DeferredFBO ////////////////////////////////
+
+DeferredFBO::DeferredFBO(int width, int height) : FBO(width, height)
 {
-	glGenFramebuffers(1, &buffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, buffer);
+	glGenFramebuffers(1, &m_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
 	glGenTextures(1, &gColor);
 	glBindTexture(GL_TEXTURE_2D, gColor);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	glGenTextures(1, &gNormal);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, m_width, m_height, 0, GL_RGB, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	glGenTextures(1, &gPosition);
 	glBindTexture(GL_TEXTURE_2D, gPosition);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, m_width, m_height, 0, GL_RGB, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	// The depth buffer
-	glGenRenderbuffers(1, &gDepth);
-	glBindRenderbuffer(GL_RENDERBUFFER, gDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, gDepth);
+	//depth buffer
+	glGenTextures(1, &gDepth);
+	glBindTexture(GL_TEXTURE_2D, gDepth);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepth, 0);
 
 	// Set "renderedTexture" as our colour attachement #0
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gColor, 0);
@@ -136,9 +177,45 @@ GBuffer::GBuffer(int width, int height) :
 	glDrawBuffers(3, DrawBuffers);
 }
 
-GBuffer::~GBuffer()
+void DeferredFBO::Use() const
 {
-	glDeleteFramebuffers(1, &buffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+	glViewport(0, 0, m_width, m_height);
+	glEnable(GL_DEPTH_TEST);
+}
+
+void DeferredFBO::Clear() const
+{
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 
+void DeferredFBO::UseColor(TextureUnit textureUnit) const
+{
+	glActiveTexture(textureUnit);
+	glBindTexture(GL_TEXTURE_2D, gColor);
+
+
+}
+void DeferredFBO::UseNormal(TextureUnit textureUnit) const
+{
+	glActiveTexture(textureUnit);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+}
+void DeferredFBO::UsePosition(TextureUnit textureUnit) const
+{
+	glActiveTexture(textureUnit);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+}
+
+void DeferredFBO::UseDepth(TextureUnit textureUnit) const
+{
+	glActiveTexture(textureUnit);
+	glBindTexture(GL_TEXTURE_2D, gDepth);
+}
+
+DeferredFBO::~DeferredFBO()
+{
+	glDeleteFramebuffers(1, &m_fbo);
+}

@@ -25,8 +25,8 @@ void Tiles::SetBlockTile(Tiles::ID block, int x, int y)
 	m_blockRectangles[block] = {
 		m_tileSize.x*x,//X
 		m_tileSize.y*y,//Y
-		m_tileSize.x*x + m_tileSize.x,//Width
-		m_tileSize.y*y + m_tileSize.y//Height
+		m_tileSize.x,//Width
+		m_tileSize.y//Height
 	};
 }
 
