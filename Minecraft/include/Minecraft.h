@@ -52,6 +52,8 @@ private:
 
 	unsigned int m_width;
 	unsigned int m_height;
+	unsigned int m_samples;
+
 	static GLFWwindow* m_window;
 
 	unsigned int postProcVAO, postProcVBO;

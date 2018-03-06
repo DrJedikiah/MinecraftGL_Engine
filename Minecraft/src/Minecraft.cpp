@@ -4,16 +4,16 @@ GLFWwindow* Minecraft::m_window = nullptr;
 
 Minecraft::Minecraft(std::string name, int width, int height) :
 	m_width(width),
-	m_height(height)
+	m_height(height),
+	m_samples(4)
 {
-
 	// glfw: initialize and configure
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_SAMPLES, m_samples);
 
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
@@ -68,13 +68,13 @@ void Minecraft::Start()
 
 	Shader shader_test("shaders/test.vs", "shaders/test.fs");
 
-	TextureDepthFBO fboPostProc(m_width, m_height);
+	
 	TextureDepthFBO fboSSAO(m_width, m_height);
 	TextureDepthFBO fboBorders(m_width, m_height);
 	ShadowMapFBO fboShadow(4 * 2048, 4 * 2048);
 	ShadowMapFBO fboShadowLarge(4 * 2048, 4 * 2048);
 	DeferredFBO gBuffer(m_width, m_height);
-
+	PostProcessingFBO fboPostProc(m_width, m_height);
 
 	Tiles::Initialize(4, 4);
 	TexturesBlocks::Initialize();
@@ -165,6 +165,7 @@ void Minecraft::Start()
 	Texture ssaoNoiseTex(4, 4, ssaoNoise);
 
 	//////////////////////////////////////////
+
 
 	// render loop
 	while (!glfwWindowShouldClose(m_window))
@@ -259,6 +260,7 @@ void Minecraft::Start()
 
 			//////////////////////////////// DEFERRED GEOMETRY ////////////////////////////////
 			shader_deferred_geometry.Use();
+
 			gBuffer.Use();
 			gBuffer.Clear();
 
@@ -271,8 +273,7 @@ void Minecraft::Start()
 			player.Draw(shader_deferred_geometry);
 			cube.UpdateModels();
 			cube.Draw(shader_deferred_geometry);
-			if (debugActivated)
-				sunModel.Draw(shader_deferred_geometry);
+
 			World::Draw(shader_deferred_geometry);
 
 			//////////////////////////////// SSAO ////////////////////////////////
@@ -315,9 +316,45 @@ void Minecraft::Start()
 			glEnable(GL_DEPTH_TEST);
 
 			//////////////////////////////// DEFERRED LIGHT ////////////////////////////////
-			
 			fboPostProc.Use();
 			fboPostProc.Clear();
+
+			gBuffer.UseColor(TextureUnit::Unit0);
+			gBuffer.UseNormal(TextureUnit::Unit1);
+			gBuffer.UsePosition(TextureUnit::Unit2);
+			fboShadow.UseTexture(TextureUnit::Unit3);
+			fboShadowLarge.UseTexture(TextureUnit::Unit4);
+
+			shader_deferred_light.Use();
+			shader_deferred_light.setInt("gColor", 0);
+			shader_deferred_light.setInt("gNormal", 1);
+			shader_deferred_light.setInt("gPosition", 2);
+			shader_deferred_light.setInt("shadowMap", 3);
+			shader_deferred_light.setInt("shadowMapLarge", 4);
+			shader_deferred_light.setVec3("lightPos", sunLight.position);
+			shader_deferred_light.setVec3("viewPos", camera.position());
+			shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 135.f, 134.f / 255.f, 255.f/255.f));
+			shader_deferred_light.setMat4("viewLight", lightView);
+			shader_deferred_light.setMat4("projectionLight", lightProjection);
+			shader_deferred_light.setMat4("projectionLightLarge", lightProjectionLarge);
+
+			glDisable(GL_DEPTH_TEST);
+			glBindVertexArray(postProcVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glEnable(GL_DEPTH_TEST);
+
+			FBO::BlitDepth(gBuffer, fboPostProc);
+
+			//////////////////////////////// FORWARD RENDERING ////////////////////////////////
+			fboPostProc.Use();
+
+			if (debugActivated)
+			{
+				shader_test.Use();
+				shader_test.setMat4("view", camera.viewMatrix());
+				shader_test.setMat4("projection", camera.projectionMatrix());
+				sunModel.Draw(shader_deferred_geometry);
+			}
 
 
 			//Draw skybox
@@ -335,57 +372,19 @@ void Minecraft::Start()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glDepthFunc(GL_LESS);
 
-			fboPostProc.Use();
-			gBuffer.UseColor(TextureUnit::Unit0);
-			gBuffer.UseNormal(TextureUnit::Unit1);
-			gBuffer.UsePosition(TextureUnit::Unit2);
-			fboShadow.UseTexture(TextureUnit::Unit3);
-			fboShadowLarge.UseTexture(TextureUnit::Unit4);
-
-			shader_deferred_light.Use();
-			shader_deferred_light.setInt("gColor", 0);
-			shader_deferred_light.setInt("gNormal", 1);
-			shader_deferred_light.setInt("gPosition", 2);
-			shader_deferred_light.setInt("shadowMap", 3);
-			shader_deferred_light.setInt("shadowMapLarge", 4);
-			shader_deferred_light.setVec3("lightPos", sunLight.position);
-			shader_deferred_light.setVec3("viewPos", camera.position());
-			shader_deferred_light.setVec3("lightColor", glm::vec3(228.f / 256.f, 134 / 256.f, 0));
-			shader_deferred_light.setMat4("viewLight", lightView);
-			shader_deferred_light.setMat4("projectionLight", lightProjection);
-			shader_deferred_light.setMat4("projectionLightLarge", lightProjectionLarge);
-
-			glDisable(GL_DEPTH_TEST);
-			glBindVertexArray(postProcVAO);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glEnable(GL_DEPTH_TEST);
-
-			//FBO::BlitDepth(gBuffer, fboPostProc);
-			//glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer.m_fbo);
-			//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboPostProc.m_fbo);
-			//glBlitFramebuffer(0, 0, gBuffer.m_width, gBuffer.m_height, 0, 0, gBuffer.m_width, gBuffer.m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-			//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-			//glBlitFramebuffer(0, 0, gBuffer.m_width, gBuffer.m_height, 0, 0, gBuffer.m_width, gBuffer.m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-
-			/*glEnable(GL_DEPTH_TEST);
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer.m_fbo);
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboPostProc.m_fbo);
-			glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);*/
-			
-			//////////////////////////////// FORWARD RENDERING ////////////////////////////////
-
-
 			//////////////////////////////// POSTPROCESSING ////////////////////////////////
 			shader_postprocess.Use();
 			FBO::UseDefault();
 			FBO::ClearDefault();
 
 			fboPostProc.UseTexture(TextureUnit::Unit0);
+
 			fboBorders.UseTexture(TextureUnit::Unit1);
 			fboSSAO.UseTexture(TextureUnit::Unit2);
 			shader_postprocess.setInt("screenTexture", 0);
 			shader_postprocess.setInt("bordersTexture", 1);
 			shader_postprocess.setInt("ambientOcclusion", 2);
+
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);

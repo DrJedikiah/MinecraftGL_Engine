@@ -3,8 +3,8 @@
 World World::m_instance = World();
 PerlinNoise World::perlinGen(33);
 Chunck *** World::m_chuncks; 
-
-World::World()
+ 
+World::World() 
 {  
 	m_chuncks = new Chunck**[size];
 	for (int i = 0; i < size; ++i)
@@ -12,7 +12,7 @@ World::World()
 		m_chuncks[i] = new Chunck*[height];
 		for (int j = 0; j < height; ++j)
 			m_chuncks[i][j] = new Chunck[size];
-	}  
+	}   
 	 
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)

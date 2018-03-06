@@ -21,15 +21,15 @@ public:
 
 	virtual void Use() const = 0;
 	virtual void Clear() const = 0;
+
+protected:
 	GLuint m_fbo;
 	int m_width;
 	int m_height;
-protected:
-
 	
 };
 
-//////////////////////////////// PostProcessingFBO ////////////////////////////////
+//////////////////////////////// TextureDepthFBO ////////////////////////////////
 class TextureDepthFBO : public FBO
 {
 public:
@@ -39,10 +39,25 @@ public:
 	void Use() const override;
 	void Clear() const override;
 	void UseTexture(TextureUnit textureUnit)const;
-	unsigned int depth;
-private:
 	
+private:
+	unsigned int depth;
 	unsigned int texture;
+};
+
+//////////////////////////////// PostProcessingFBO ////////////////////////////////
+class PostProcessingFBO : public FBO
+{
+public:
+	PostProcessingFBO(int width, int height);
+	~PostProcessingFBO();
+
+	void Use() const override;
+	void Clear() const override;
+	void UseTexture(TextureUnit textureUnit)const;
+private:
+	unsigned int m_texture;
+	unsigned int m_rbo;
 };
 
 //////////////////////////////// ShadowMapFBO ////////////////////////////////
@@ -73,8 +88,9 @@ public:
 	void UseNormal(TextureUnit textureUnit) const;
 	void UsePosition(TextureUnit textureUnit) const;
 	void UseDepth(TextureUnit textureUnit) const;
-	GLuint gDepth;
+	
 private:
+	GLuint gDepth;
 	GLuint gColor;
 	GLuint gNormal;
 	GLuint gPosition;

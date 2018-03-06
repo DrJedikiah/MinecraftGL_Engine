@@ -41,4 +41,5 @@ void main()
 	vec3 albedo = texture(screenTexture, TexCoords).xyz;
 
 	FragColor = vec4( occlusion*albedo *borders , 1);
+	//FragColor = vec4( albedo, 1);
 }  
