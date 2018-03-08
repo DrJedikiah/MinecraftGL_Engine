@@ -13,6 +13,10 @@ in vec3 normal;
 void main()
 {
 	gColor = texture(textureBlocks, texCoord);
+
+	if( gColor.a == 0)
+		discard;
+
 	gNormal = vec4(normalize(normal),1);
 	gPosition = vec4(fragPos,1);
 }

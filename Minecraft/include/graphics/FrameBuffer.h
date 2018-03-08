@@ -12,7 +12,7 @@
 class FBO 
 {
 public:
-	FBO(int width, int height);
+	FBO(int width, int height, int AASamples);
 
 	static void UseDefault();
 	static void ClearDefault();
@@ -22,10 +22,11 @@ public:
 	virtual void Use() const = 0;
 	virtual void Clear() const = 0;
 
-protected:
+//protected:
 	GLuint m_fbo;
 	int m_width;
 	int m_height;
+	int m_aaSamples;
 	
 };
 
@@ -33,7 +34,7 @@ protected:
 class TextureDepthFBO : public FBO
 {
 public:
-	TextureDepthFBO(int width, int height);
+	TextureDepthFBO(int width, int height, int AASamples);
 	~TextureDepthFBO();
 
 	void Use() const override;
@@ -49,13 +50,13 @@ private:
 class PostProcessingFBO : public FBO
 {
 public:
-	PostProcessingFBO(int width, int height);
+	PostProcessingFBO(int width, int height, int AASamples);
 	~PostProcessingFBO();
 
 	void Use() const override;
 	void Clear() const override;
 	void UseTexture(TextureUnit textureUnit)const;
-private:
+//private:
 	unsigned int m_texture;
 	unsigned int m_rbo;
 };
@@ -64,7 +65,7 @@ private:
 class ShadowMapFBO : public FBO
 {
 public:
-	ShadowMapFBO(int width, int height);
+	ShadowMapFBO(int width, int height, int AASamples);
 	~ShadowMapFBO();
 
 	void Use() const override;
@@ -79,7 +80,7 @@ private:
 class DeferredFBO : public FBO
 {
 public:
-	DeferredFBO(int width, int height);
+	DeferredFBO(int width, int height, int AASamples);
 	~DeferredFBO();
 
 	void Use() const override;

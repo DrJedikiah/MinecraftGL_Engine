@@ -5,7 +5,7 @@ GLFWwindow* Minecraft::m_window = nullptr;
 Minecraft::Minecraft(std::string name, int width, int height) :
 	m_width(width),
 	m_height(height),
-	m_samples(4)
+	m_samples(8)
 {
 	// glfw: initialize and configure
 	glfwInit();
@@ -46,6 +46,7 @@ Minecraft::Minecraft(std::string name, int width, int height) :
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_MULTISAMPLE);
+	glLineWidth(2);
 
 	glfwSwapInterval(0);
 }
@@ -65,16 +66,16 @@ void Minecraft::Start()
 	Shader shader_deferred_light("shaders/deferred_light.vs", "shaders/deferred_light.fs");
 	Shader shader_deferred_ssao("shaders/deferred_ssao.vs", "shaders/deferred_ssao.fs");
 	Shader shader_deferred_borders("shaders/deferred_borders.vs", "shaders/deferred_borders.fs");
-
+	Shader shader_draw_texture("shaders/drawTexture.vs", "shaders/drawTexture.fs");
 	Shader shader_test("shaders/test.vs", "shaders/test.fs");
 
-	
-	TextureDepthFBO fboSSAO(m_width, m_height);
-	TextureDepthFBO fboBorders(m_width, m_height);
-	ShadowMapFBO fboShadow(4 * 2048, 4 * 2048);
-	ShadowMapFBO fboShadowLarge(4 * 2048, 4 * 2048);
-	DeferredFBO gBuffer(m_width, m_height);
-	PostProcessingFBO fboPostProc(m_width, m_height);
+
+	TextureDepthFBO fboSSAO(m_width, m_height, m_samples);
+	TextureDepthFBO fboBorders(m_width, m_height, m_samples);
+	ShadowMapFBO fboShadow(2 * 2048, 2 * 2048, m_samples);
+	ShadowMapFBO fboShadowLarge(2 * 2048, 2 * 2048, m_samples);
+	DeferredFBO gBuffer(m_width, m_height, m_samples);
+	PostProcessingFBO fboPostProc(m_width, m_height, m_samples);
 
 	Tiles::Initialize(4, 4);
 	TexturesBlocks::Initialize();
@@ -93,16 +94,18 @@ void Minecraft::Start()
 	SetupSkyBox();
 
 	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
-	glm::mat4 lightProjection = glm::ortho(-20.f, 20.f, -20.f, 20.f, 0.1f, 1000.f);
+	glm::mat4 lightProjection = glm::ortho(-20.f, 20.f, -15.f, 15.f, 0.1f, 1000.f);
 	glm::mat4 lightProjectionLarge = glm::ortho(-100.f, 100.f, -100.f, 100.f, 0.1f, 1000.f);
+
 
 	World::GenerateChunks();
 	World::GeneratePhysics();
 
 	Camera camera(m_width, m_height, 1000.f, 0.2f);
-
+	 
 	PlayerAvatar player;
-	player.rb().translate(btVector3(World::size * Chunck::size / 2, World::height * Chunck::size, World::size * Chunck::size / 2));
+	player.rb().translate(btVector3(World::size * Chunck::size/2, World::height * Chunck::size, World::size * Chunck::size / 2));
+	//player.rb().translate(btVector3(World::size * Chunck::size / 2, World::height * Chunck::size / 16, World::size * Chunck::size / 2));
 
 	FreeCameraController freeCameraController(camera);
 	freeCameraController.SetEnabled(false);
@@ -112,7 +115,11 @@ void Minecraft::Start()
 	Cube cube;
 	cube.rb().translate(btVector3(4.5, 20, 4.5));
 
-	Light sunLight{ glm::vec3(500,300,500) };
+	Light sunLight
+	{ 
+		(float)Chunck::size * glm::vec3( (float)World::size/4.F, 2 * World::height ,World::size) 
+	};
+
 	Model sunModel(Cube::CreateCubeMesh(10));
 	sunModel.Translate(sunLight.position);
 
@@ -131,6 +138,8 @@ void Minecraft::Start()
 
 	float t2 = Time::ElapsedSinceStartup();
 	std::cout << 1000.f*(t2 - t1) << std::endl;
+
+	bool multisample = true;
 
 	//////////////////////////////////////////
 	std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between 0.0 - 1.0
@@ -164,6 +173,23 @@ void Minecraft::Start()
 
 	Texture ssaoNoiseTex(4, 4, ssaoNoise);
 
+	//////////////////////////////////////////
+	// configure second post-processing framebuffer
+	unsigned int intermediateFBO;
+	glGenFramebuffers(1, &intermediateFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, intermediateFBO);
+	// create a color attachment texture
+	unsigned int screenTexture;
+	glGenTextures(1, &screenTexture);
+	glBindTexture(GL_TEXTURE_2D, screenTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);	// we only need a color buffer
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Intermediate framebuffer is not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//////////////////////////////////////////
 
 
@@ -208,6 +234,14 @@ void Minecraft::Start()
 			}
 			if (Keyboard::KeyPressed(GLFW_KEY_F3))
 				debugActivated = !debugActivated;
+			if (Keyboard::KeyPressed(GLFW_KEY_F4))
+			{
+				multisample = !multisample;
+				if (multisample)
+					glEnable(GL_MULTISAMPLE);
+				else
+					glDisable(GL_MULTISAMPLE);
+			}
 
 			PhysicsEngine::StepSimulation(fixedUpdateTimer);
 
@@ -333,7 +367,7 @@ void Minecraft::Start()
 			shader_deferred_light.setInt("shadowMapLarge", 4);
 			shader_deferred_light.setVec3("lightPos", sunLight.position);
 			shader_deferred_light.setVec3("viewPos", camera.position());
-			shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 135.f, 134.f / 255.f, 255.f/255.f));
+			shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 255.f, 134.f / 255.f, 255.f / 255.f));
 			shader_deferred_light.setMat4("viewLight", lightView);
 			shader_deferred_light.setMat4("projectionLight", lightProjection);
 			shader_deferred_light.setMat4("projectionLightLarge", lightProjectionLarge);
@@ -346,16 +380,15 @@ void Minecraft::Start()
 			FBO::BlitDepth(gBuffer, fboPostProc);
 
 			//////////////////////////////// FORWARD RENDERING ////////////////////////////////
-			fboPostProc.Use();
 
-			if (debugActivated)
+
+			//if (debugActivated)
 			{
 				shader_test.Use();
 				shader_test.setMat4("view", camera.viewMatrix());
 				shader_test.setMat4("projection", camera.projectionMatrix());
-				sunModel.Draw(shader_deferred_geometry);
+				sunModel.Draw(shader_test);
 			}
-
 
 			//Draw skybox
 			glEnable(GL_DEPTH_TEST);
@@ -373,10 +406,17 @@ void Minecraft::Start()
 			glDepthFunc(GL_LESS);
 
 			//////////////////////////////// POSTPROCESSING ////////////////////////////////
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fboPostProc.m_fbo);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intermediateFBO);
+			glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
 			shader_postprocess.Use();
 			FBO::UseDefault();
 			FBO::ClearDefault();
 
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, screenTexture);
 			fboPostProc.UseTexture(TextureUnit::Unit0);
 
 			fboBorders.UseTexture(TextureUnit::Unit1);
@@ -413,7 +453,16 @@ void Minecraft::Start()
 			}
 
 			//////////////////////////////// DRAW ////////////////////////////////
-			
+
+
+			/*shader_draw_texture.Use();
+			fboShadow.UseTexture(TextureUnit::Unit0);
+			glViewport(0, 0, 500, 500);
+			glDisable(GL_DEPTH_TEST);
+			glBindVertexArray(postProcVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glEnable(GL_DEPTH_TEST);*/
+
 			glfwSwapBuffers(m_window);
 			Debug::Clear();
 		}

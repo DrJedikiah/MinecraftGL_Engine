@@ -1,8 +1,13 @@
 #include "engine/World.h"
 
+const int seed = 23;
+
+
 World World::m_instance = World();
-PerlinNoise World::perlinGen(33);
+PerlinNoise World::perlinGen(seed);
 Chunck *** World::m_chuncks; 
+
+TreeGen World::m_treeGen;
  
 World::World() 
 {  
@@ -49,11 +54,27 @@ void World::GeneratePhysics()
 				m_chuncks[x][y][z].GenerateCollider();
 }  
 
+
 void World::GenerateChunks() 
 {
+	/*for (int x = 0; x < size * Chunck::size; ++x)
+		for (int y = 0; y < height * Chunck::size; ++y)
+			for (int z = 0; z < size * Chunck::size; ++z)
+			{
+				Block& block = GetBlock({ x, y, z });
+				if (y == 0)
+					block.SetType(Block::Type::dirt);
+				else
+					block.SetType(Block::Type::air);
+				
+			}*/
+
 	const glm::vec3 sizeMap(size * Chunck::size, height * Chunck::size,  size * Chunck::size);
-	const float high = 0.95f * sizeMap.y;
-	const float low = 0.75f*sizeMap.y;
+	//const float high = 0.95f * sizeMap.y;
+	//const float low = 0.75f*sizeMap.y;
+	const float high = 0.8f * sizeMap.y;
+	const float low = 0.65f*sizeMap.y;
+
 
 	for (int x = 0; x < size * Chunck::size; ++x)
 		for (int y = 0; y < height * Chunck::size; ++y)
@@ -83,14 +104,16 @@ void World::GenerateChunks()
 				Block& block = GetBlock({ x, y, z });
 
 				if (density > 0.4 )
-					block.ToStone();
+					block.SetType(Block::Type::stone);
 				else
-					block.ToAir();
+					block.SetType( Block::Type::air);
 
 			}
 
 	//Set dirt
-	const float superLow = 0.5f*sizeMap.y;
+	//const float superLow = 0.5f*sizeMap.y;
+	const float superLow = 0.3f*sizeMap.y;
+
 	for (int x = 0; x < size * Chunck::size; ++x)
 		for (int y = 0; y < height * Chunck::size; ++y)
 			for (int z = 0; z < size * Chunck::size; ++z)
@@ -109,7 +132,7 @@ void World::GenerateChunks()
 				if (GetBlock({ x, y, z }).type == Block::Type::stone && ( ! BlockGenerated({ x, y+1, z }) || !GetBlock({ x, y + 1, z }).solid))
 				for( int i = 0; i < (int)nbDirt; ++i )
 					if(BlockGenerated({ x, y - i, z }) && GetBlock({ x, y - i, z }).type == Block::Type::stone)
-						GetBlock({ x, y-i, z }).ToDirt();	
+						GetBlock({ x, y-i, z }).SetType(Block::Type::dirt);
 			}
 
 	//Set caves
@@ -139,8 +162,13 @@ void World::GenerateChunks()
 				//Set blocks
 				Block& block = GetBlock({ x, y, z });
 				if (cavesDensity < 0.4)
-					block.ToAir();
+					block.SetType(Block::Type::air);
 			}
+
+
+	std::default_random_engine generator(seed);
+	std::uniform_real_distribution<float> distribution(0.f, 1.f);
+
 
 	//Set grass	
 	for (int y = 0; y < height * Chunck::size; ++y)
@@ -149,7 +177,13 @@ void World::GenerateChunks()
 			{
 				Block& block = GetBlock({ x, y, z });
 				if (block.type == Block::Type::dirt && (y + 1 >= height * Chunck::size || !GetBlock({ x, y + 1, z }).solid))
-					block.ToGrass();
+				{
+					block.SetType(Block::Type::grass);
+
+					float random = distribution(generator);
+					 if(random > 0.99)
+						GenerateTree({ x, y + 1, z }, 5.f + (float)height * distribution(generator));
+				}
 			}
 
 	//Mesh generation
@@ -166,58 +200,64 @@ void World::GenerateChunks()
 	}
 }
 
-bool World::IsVisible(glm::ivec3 position)
-{
-	if(position.x + 1 >= size * Chunck::size ||
-		position.x - 1 < 0 ||
-		position.y + 1 >= size * Chunck::size ||
-		position.y - 1 < 0 * Chunck::size ||
-		position.z + 1 >= size * Chunck::size || 
-		position.z - 1 < 0 * Chunck::size )
-	return true;
-
-	if (GetBlock({ position.x + 1, position.y, position.z }).solid &&
-		GetBlock({ position.x - 1,	position.y,	position.z }).solid &&
-		GetBlock({ position.x, position.y + 1, position.z }).solid &&
-		GetBlock({ position.x, position.y - 1,  position.z }).solid &&
-		GetBlock({ position.x, position.y, position.z + 1 }).solid &&
-		GetBlock({ position.x, position.y, position.z - 1 }).solid)
-		return false;
-
-	return true;
-}
-
 void World::RemoveBlock(glm::ivec3 position)
 {
 		Block& block = GetBlock(position);
 		if (block.solid)
 		{
-			block.ToAir();
+			block.SetType(Block::Type::air);
 			UpdateAround(position);
 		}
 }
  
-void World::AddBlock(glm::ivec3 position)
+
+void World::SetBlock(glm::ivec3 position, Block::Type blockType)
 {
 	if (BlockGenerated(position))
+		World::GetBlock(position).SetType(blockType);
+}
+ 
+void World::AddBlock(glm::ivec3 position)
+{
+	GenerateTree(position, 20.f);
+}
+
+void World::GenerateTree(glm::ivec3 position, float size)
+{
+	m_treeGen.GenerateTree(position, size);
+
+	std::stack<Node * > stack;
+	stack.push(m_treeGen.m_root);
+	while (!stack.empty())
 	{
-		Block& block = GetBlock(position);
-		if (!block.solid)
+		Node * node = stack.top();
+		stack.pop();
+
+
+		if (BlockGenerated(node->position))
 		{
-			block.ToDirt();
-			UpdateAround(position);
+			Block& block = GetBlock(node->position);
+			if (node->depth <= 2 && (block.type == Block::air || block.type == Block::leaf))
+				SetBlock(node->position, Block::Type::wood);
+			else if (block.type == Block::air)
+				SetBlock(node->position, Block::Type::leaf);
+
+			UpdateBlock(node->position);
 		}
+
+
+		for (Node * n : node->next)
+			stack.push(n);
 	}
+
+	m_treeGen.Clear();
 }
 
 
 void World::UpdateBlock(glm::ivec3 position)
 {
 	if (BlockGenerated(position))
-	{
-		GetBlock(position).enabled = IsVisible(position);
-		GetChunck(position / Chunck::size).GenerateLater();
-	}
+		GetChunck(position / Chunck::size).GenerateLater(); 
 }
 
 void World::Update(float delta)
@@ -240,6 +280,35 @@ void World::UpdateAround(glm::ivec3 position)
 
 void World::Draw(const Shader& shader)
 {
+	/*if (m_treeGen.m_root)
+	{
+		vec3 red(1, 0, 0);
+		vec3 green(0, 1, 0);
+
+		std::stack<Node * > stack;
+		stack.push(m_treeGen.m_root);
+		while (!stack.empty())
+		{
+			Node * node = stack.top();
+			stack.pop();
+
+			
+			if (node->parent)
+			{
+				if (node->depth < 3)
+				{
+					Debug::DrawLine(node->position, node->parent->position, red);
+					Debug::DrawCross(node->position, 0.1f, red);
+				}
+				else
+					Debug::DrawCross(node->position, 0.1f, green);
+			}
+
+			for (Node * n : node->next)
+				stack.push(n);
+		}
+	}*/
+
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)

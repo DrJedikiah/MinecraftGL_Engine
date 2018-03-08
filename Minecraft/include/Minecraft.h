@@ -19,9 +19,10 @@
 #include "engine/Cube.h"
 #include "engine/PlayerAvatar.h"
 
+
 #include "graphics/Shader.h"
 #include "graphics/TexturesBlocks.h" 
-#include "graphics/Mesh.h"
+#include "graphics/Mesh.h" 
 #include "graphics/Light.h"
 #include "graphics/Texture.h"
 #include "graphics/Model.h"
@@ -47,6 +48,9 @@ public:
 	void Start( ); 
 	   
 private:
+
+
+
 	void SetupPostProcess();
 	void SetupSkyBox();
 

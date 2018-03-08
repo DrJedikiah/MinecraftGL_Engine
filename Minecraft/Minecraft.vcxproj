@@ -141,6 +141,7 @@
     <ClInclude Include="include\engine\PlayerAvatar.h" />
     <ClInclude Include="include\engine\PlayerController.h" />
     <ClInclude Include="include\engine\RigidBody.h" />
+    <ClInclude Include="include\engine\TreeGen.h" />
     <ClInclude Include="include\engine\World.h" />
     <ClInclude Include="include\graphics\CubeMap.h" />
     <ClInclude Include="include\graphics\Drawable.h" />
@@ -174,6 +175,7 @@
     <ClCompile Include="src\engine\PlayerAvatar.cpp" />
     <ClCompile Include="src\engine\PlayerController.cpp" />
     <ClCompile Include="src\engine\RigidBody.cpp" />
+    <ClCompile Include="src\engine\TreeGen.cpp" />
     <ClCompile Include="src\engine\World.cpp" />
     <ClCompile Include="src\graphics\CubeMap.cpp" />
     <ClCompile Include="src\graphics\Drawable.cpp" />
@@ -204,6 +206,8 @@
     <None Include="shaders\debug_ui.vs" />
     <None Include="shaders\deferred_ssao.fs" />
     <None Include="shaders\deferred_ssao.vs" />
+    <None Include="shaders\drawTexture.fs" />
+    <None Include="shaders\drawTexture.vs" />
     <None Include="shaders\postprocess.fs" />
     <None Include="shaders\postprocess.vs" />
     <None Include="shaders\deferred_geometry.fs" />

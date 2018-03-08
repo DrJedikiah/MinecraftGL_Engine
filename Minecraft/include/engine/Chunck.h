@@ -45,8 +45,6 @@ private:
 	Model * m_model;
 	Block m_blocks[size][size][size];
 
-	std::vector<Mesh::Vertex> vertices;
-
 	//Collider
 	RigidBody * m_rb;
 	btTriangleMesh m_btMesh;

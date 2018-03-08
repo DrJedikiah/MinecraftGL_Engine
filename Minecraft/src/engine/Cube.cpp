@@ -31,7 +31,7 @@ void Cube::Draw(const Shader & shader) const
 	m_model.Draw(shader);
 }
 
-std::vector<Mesh::Vertex> Cube::CreateCubeMesh(float size, Block::Type type)
+std::vector<Mesh::Vertex> Cube::CreateCubeMesh(float size, Block::Type type, float x, float y, float z)
 {
 	fRect backRect =  TexturesBlocks::Back(type);
 	fRect frontRect = TexturesBlocks::Front(type);
@@ -43,52 +43,52 @@ std::vector<Mesh::Vertex> Cube::CreateCubeMesh(float size, Block::Type type)
 	return std::vector<Mesh::Vertex>
 	{
 		//Back
-		{ { -size/2.f, -size/2.f, -size/2.f},{ 0.f,0.f,-1.f },{ backRect.x, backRect.y } },//bot
-		{ { +size/2.f, +size/2.f, -size/2.f},{ 0.f,0.f,-1.f },{ backRect.x + leftRect.width, backRect.y + leftRect.height } },
-		{ { +size/2.f, -size/2.f, -size/2.f},{ 0.f,0.f,-1.f },{ backRect.x + leftRect.width, backRect.y } },
-		{ { +size/2.f, +size/2.f, -size/2.f},{ 0.f,0.f,-1.f },{ backRect.x + leftRect.width, backRect.y + leftRect.height } },//Top
-		{ { -size/2.f, -size/2.f, -size/2.f},{ 0.f,0.f,-1.f },{ backRect.x, backRect.y } },
-		{ { -size/2.f, +size/2.f, -size/2.f},{ 0.f,0.f,-1.f },{ backRect.x, backRect.y + leftRect.height } },
+		{ { x-size/2.f, y-size/2.f, z-size/2.f},{ 0.f,0.f,-1.f },{ backRect.x, backRect.y } },//bot
+		{ { x+size/2.f, y+size/2.f, z-size/2.f},{ 0.f,0.f,-1.f },{ backRect.x + leftRect.width, backRect.y + leftRect.height } },
+		{ { x+size/2.f, y-size/2.f, z-size/2.f},{ 0.f,0.f,-1.f },{ backRect.x + leftRect.width, backRect.y } },
+		{ { x+size/2.f, y+size/2.f, z-size/2.f},{ 0.f,0.f,-1.f },{ backRect.x + leftRect.width, backRect.y + leftRect.height } },//Top
+		{ { x-size/2.f, y-size/2.f, z-size/2.f},{ 0.f,0.f,-1.f },{ backRect.x, backRect.y } },
+		{ { x-size/2.f, y+size/2.f, z-size/2.f},{ 0.f,0.f,-1.f },{ backRect.x, backRect.y + leftRect.height } },
 
 		//Front
-		{ { -size/2.f, -size/2.f, +size/2.f},{ 0.f,0.f,1.f },{ frontRect.x, frontRect.y } },//bot
-		{ { +size/2.f,-size/2.f, +size/2.f},{ 0.f,0.f,1.f },{ frontRect.x + leftRect.width, frontRect.y } },
-		{ { +size/2.f, +size/2.f,+size/2.f},{ 0.f,0.f,1.f },{ frontRect.x + leftRect.width, frontRect.y + leftRect.height } },
-		{ { +size/2.f, +size/2.f, +size/2.f},{ 0.f,0.f,1.f },{ frontRect.x + leftRect.width, frontRect.y + leftRect.height } },//Top
-		{ { -size/2.f, +size/2.f, +size/2.f},{ 0.f,0.f,1.f },{ frontRect.x, frontRect.y + leftRect.height } },
-		{ { -size/2.f, -size/2.f,+size/2.f},{ 0.f,0.f,1.f },{ frontRect.x, frontRect.y } },
+		{ { x-size/2.f, y-size/2.f, z+size/2.f},{ 0.f,0.f,1.f },{ frontRect.x, frontRect.y } },//bot
+		{ { x+size/2.f, y-size/2.f, z+size/2.f},{ 0.f,0.f,1.f },{ frontRect.x + leftRect.width, frontRect.y } },
+		{ { x+size/2.f, y+size/2.f, z+size/2.f},{ 0.f,0.f,1.f },{ frontRect.x + leftRect.width, frontRect.y + leftRect.height } },
+		{ { x+size/2.f, y+size/2.f, z+size/2.f},{ 0.f,0.f,1.f },{ frontRect.x + leftRect.width, frontRect.y + leftRect.height } },//Top
+		{ { x-size/2.f, y+size/2.f, z+size/2.f},{ 0.f,0.f,1.f },{ frontRect.x, frontRect.y + leftRect.height } },
+		{ { x-size/2.f, y-size/2.f, z+size/2.f},{ 0.f,0.f,1.f },{ frontRect.x, frontRect.y } },
 
 		//Left
-		{ { -size/2.f, +size/2.f, +size/2.f},{ -1.f,0.f,0.f },{ leftRect.x, leftRect.y + leftRect.height } },//Top
-		{ { -size/2.f, +size/2.f, -size/2.f},{ -1.f,0.f,0.f },{ leftRect.x + leftRect.width, leftRect.y + leftRect.height } },
-		{ { -size/2.f, -size/2.f, -size/2.f},{ -1.f,0.f,0.f },{ leftRect.x + leftRect.width, leftRect.y } },
-		{ { -size/2.f, -size/2.f, -size/2.f},{ -1.f,0.f,0.f },{ leftRect.x + leftRect.width, leftRect.y } },//Bot
-		{ { -size/2.f, -size/2.f, +size/2.f},{ -1.f,0.f,0.f },{ leftRect.x, leftRect.y } },
-		{ { -size/2.f, +size/2.f, +size/2.f},{ -1.f,0.f,0.f },{ leftRect.x, leftRect.y + leftRect.height } },
+		{ { x-size/2.f, y+size/2.f, z+size/2.f},{ -1.f,0.f,0.f },{ leftRect.x, leftRect.y + leftRect.height } },//Top
+		{ { x-size/2.f, y+size/2.f, z-size/2.f},{ -1.f,0.f,0.f },{ leftRect.x + leftRect.width, leftRect.y + leftRect.height } },
+		{ { x-size/2.f, y-size/2.f, z-size/2.f},{ -1.f,0.f,0.f },{ leftRect.x + leftRect.width, leftRect.y } },
+		{ { x-size/2.f, y-size/2.f, z-size/2.f},{ -1.f,0.f,0.f },{ leftRect.x + leftRect.width, leftRect.y } },//Bot
+		{ { x-size/2.f, y-size/2.f, z+size/2.f},{ -1.f,0.f,0.f },{ leftRect.x, leftRect.y } },
+		{ { x-size/2.f, y+size/2.f, z+size/2.f},{ -1.f,0.f,0.f },{ leftRect.x, leftRect.y + leftRect.height } },
 
 		//Right
-		{ { +size/2.f, +size/2.f, +size/2.f},{ 1.f,0.f,0.f },{ rightRect.x, rightRect.y + rightRect.height } },//Top
-		{ { +size/2.f, -size/2.f, -size/2.f},{ 1.f,0.f,0.f },{ rightRect.x + rightRect.width, rightRect.y } },
-		{ { +size/2.f, +size/2.f, -size/2.f},{ 1.f,0.f,0.f },{ rightRect.x + rightRect.width, rightRect.y + rightRect.height } },
-		{ { +size/2.f, -size/2.f, -size/2.f},{ 1.f,0.f,0.f },{ rightRect.x + rightRect.width, rightRect.y } },//Bot
-		{ { +size/2.f, +size/2.f, +size/2.f},{ 1.f,0.f,0.f },{ rightRect.x, rightRect.y + rightRect.height } },
-		{ { +size/2.f, -size/2.f, +size/2.f},{ 1.f,0.f,0.f },{ rightRect.x, rightRect.y } },
+		{ { x+size/2.f, y+size/2.f, z+size/2.f},{ 1.f,0.f,0.f },{ rightRect.x, rightRect.y + rightRect.height } },//Top
+		{ { x+size/2.f, y-size/2.f, z-size/2.f},{ 1.f,0.f,0.f },{ rightRect.x + rightRect.width, rightRect.y } },
+		{ { x+size/2.f, y+size/2.f, z-size/2.f},{ 1.f,0.f,0.f },{ rightRect.x + rightRect.width, rightRect.y + rightRect.height } },
+		{ { x+size/2.f, y-size/2.f, z-size/2.f},{ 1.f,0.f,0.f },{ rightRect.x + rightRect.width, rightRect.y } },//Bot
+		{ { x+size/2.f, y+size/2.f, z+size/2.f},{ 1.f,0.f,0.f },{ rightRect.x, rightRect.y + rightRect.height } },
+		{ { x+size/2.f, y-size/2.f, z+size/2.f},{ 1.f,0.f,0.f },{ rightRect.x, rightRect.y } },
 
 		//Bot
-		{ { -size/2.f, -size/2.f, -size/2.f},{ 0.f,-1.f,0.f },{ botRect.x, botRect.y + botRect.height } },
-		{ { +size/2.f, -size/2.f, -size/2.f},{ 0.f,-1.f,0.f },{ botRect.x + botRect.width, botRect.y + botRect.height } },
-		{ { +size/2.f, -size/2.f, +size/2.f},{ 0.f,-1.f,0.f },{ botRect.x + botRect.width, botRect.y } },
-		{ { +size/2.f, -size/2.f, +size/2.f},{ 0.f,-1.f,0.f },{ botRect.x + botRect.width, botRect.y } },
-		{ { -size/2.f, -size/2.f, +size/2.f},{ 0.f,-1.f,0.f },{ botRect.x, botRect.y } },
-		{ { -size/2.f, -size/2.f, -size/2.f},{ 0.f,-1.f,0.f },{ botRect.x, botRect.y + botRect.height } },
+		{ { x-size/2.f, y-size/2.f, z-size/2.f},{ 0.f,-1.f,0.f },{ botRect.x, botRect.y + botRect.height } },
+		{ { x+size/2.f, y-size/2.f, z-size/2.f},{ 0.f,-1.f,0.f },{ botRect.x + botRect.width, botRect.y + botRect.height } },
+		{ { x+size/2.f, y-size/2.f, z+size/2.f},{ 0.f,-1.f,0.f },{ botRect.x + botRect.width, botRect.y } },
+		{ { x+size/2.f, y-size/2.f, z+size/2.f},{ 0.f,-1.f,0.f },{ botRect.x + botRect.width, botRect.y } },
+		{ { x-size/2.f, y-size/2.f, z+size/2.f},{ 0.f,-1.f,0.f },{ botRect.x, botRect.y } },
+		{ { x-size/2.f, y-size/2.f, z-size/2.f},{ 0.f,-1.f,0.f },{ botRect.x, botRect.y + botRect.height } },
 
 		//Top
-		{ { +size/2.f,  +size/2.f, -size/2.f},{ 0.f,1.f,0.f },{ topRect.x + topRect.width, topRect.y + topRect.height } },
-		{ { -size/2.f,  +size/2.f, -size/2.f},{ 0.f,1.f,0.f },{ topRect.x, topRect.y + topRect.height } },
-		{ { +size/2.f,  +size/2.f, +size/2.f},{ 0.f,1.f,0.f },{ topRect.x + topRect.width, topRect.y } },
-		{ { -size/2.f,  +size/2.f, +size/2.f},{ 0.f,1.f,0.f },{ topRect.x, topRect.y } },
-		{ { +size/2.f,  +size/2.f, +size/2.f},{ 0.f,1.f,0.f },{ topRect.x + topRect.width, topRect.y } },
-		{ { -size/2.f,  +size/2.f, -size/2.f},{ 0.f,1.f,0.f },{ topRect.x, topRect.y + topRect.height } }
+		{ { x+size/2.f,  y+size/2.f, z-size/2.f},{ 0.f,1.f,0.f },{ topRect.x + topRect.width, topRect.y + topRect.height } },
+		{ { x-size/2.f,  y+size/2.f, z-size/2.f},{ 0.f,1.f,0.f },{ topRect.x, topRect.y + topRect.height } },
+		{ { x+size/2.f,  y+size/2.f, z+size/2.f},{ 0.f,1.f,0.f },{ topRect.x + topRect.width, topRect.y } },
+		{ { x-size/2.f,  y+size/2.f, z+size/2.f},{ 0.f,1.f,0.f },{ topRect.x, topRect.y } },
+		{ { x+size/2.f,  y+size/2.f, z+size/2.f},{ 0.f,1.f,0.f },{ topRect.x + topRect.width, topRect.y } },
+		{ { x-size/2.f,  y+size/2.f, z-size/2.f},{ 0.f,1.f,0.f },{ topRect.x, topRect.y + topRect.height } }
 	};
 }
 

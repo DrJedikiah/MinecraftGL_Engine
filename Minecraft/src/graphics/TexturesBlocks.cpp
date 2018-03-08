@@ -11,6 +11,7 @@ void TexturesBlocks::Initialize()
 	fRect stoneRect = Tiles::GetRectangle(Tiles::stone);
 	fRect bedrockRect = Tiles::GetRectangle(Tiles::bedrock);
 	fRect woodRect = Tiles::GetRectangle(Tiles::wood);
+	fRect woodTopRect = Tiles::GetRectangle(Tiles::woodTop);
 	fRect leafRect = Tiles::GetRectangle(Tiles::leaf);
 
 	SetBlock(Block::dirt, dirtRect);
@@ -18,6 +19,6 @@ void TexturesBlocks::Initialize()
 	SetBlock(Block::invalid, invalidRect);
 	SetBlock(Block::stone, stoneRect);
 	SetBlock(Block::bedrock, bedrockRect);
-	SetBlock(Block::wood, woodRect);
+	SetBlock(Block::wood, woodTopRect, woodTopRect, woodRect, woodRect, woodRect, woodRect);
 	SetBlock(Block::leaf, leafRect);
 }

@@ -36,6 +36,12 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{29de983d-6583-455f-9b05-ec21a34350e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\engine\generators">
+      <UniqueIdentifier>{71269b74-3350-4fb6-83cb-68ca796faf00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\engine\generators">
+      <UniqueIdentifier>{629bd0d3-787e-49a7-ac41-fecb774f529a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Minecraft.h">
@@ -131,6 +137,9 @@
     <ClInclude Include="include\graphics\CubeMap.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="include\engine\TreeGen.h">
+      <Filter>Header Files\engine\generators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -220,6 +229,9 @@
     <ClCompile Include="src\graphics\TexturesBlocks.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine\TreeGen.cpp">
+      <Filter>Source Files\engine\generators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\postprocess.fs">
@@ -286,6 +298,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="shaders\deferred_borders.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\drawTexture.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\drawTexture.vs">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

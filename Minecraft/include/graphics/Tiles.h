@@ -17,6 +17,7 @@ public:
 		bedrock,
 		stone,
 		wood,
+		woodTop,
 		leaf,
 	};
 	

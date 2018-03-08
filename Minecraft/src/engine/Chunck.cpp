@@ -45,16 +45,67 @@ Block& Chunck::GetBlock(glm::ivec3 position)
 
 void Chunck::GenerateCollider()
 {
-	if( m_rb) PhysicsEngine::DeleteRigidBody(m_rb);
-
 	std::vector<btVector3> btVertices;
 	btVertices.reserve(size*size*size);
 
+	std::vector<Mesh::Vertex> vertices;
+	for (int y = 0; y < size; ++y)
+		for (int z = 0; z < size; ++z)
+			for (int x = 0; x < size; ++x)
+			{
+				Block& block = GetBlock({ x, y, z });
+				if (block.enabled && block.solid)
+				{
+					glm::ivec3 pos = m_position * size + glm::ivec3(x, y + 1, z);
+					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
+					{
+						std::vector<Mesh::Vertex> topFace = Cube::cubeTopFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Top(block.type));
+						vertices.insert(vertices.end(), topFace.begin(), topFace.end());
+					}
+
+					pos = m_position * size + glm::ivec3(x, y - 1, z);
+					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
+					{
+						std::vector<Mesh::Vertex> botFace = Cube::cubeBotFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Bot(block.type));
+						vertices.insert(vertices.end(), botFace.begin(), botFace.end());
+					}
+
+					pos = m_position * size + glm::ivec3(x - 1, y, z);
+					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
+					{
+						std::vector<Mesh::Vertex> leftFace = Cube::cubeLeftFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Left(block.type));
+						vertices.insert(vertices.end(), leftFace.begin(), leftFace.end());
+					}
+
+					pos = m_position * size + glm::ivec3(x + 1, y, z);
+					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
+					{
+						std::vector<Mesh::Vertex> rightFace = Cube::cubeRightFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Right(block.type));
+						vertices.insert(vertices.end(), rightFace.begin(), rightFace.end());
+					}
+
+					pos = m_position * size + glm::ivec3(x, y, z - 1);
+					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
+					{
+						std::vector<Mesh::Vertex> backFace = Cube::cubeBackFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Back(block.type));
+						vertices.insert(vertices.end(), backFace.begin(), backFace.end());
+					}
+
+					pos = m_position * size + glm::ivec3(x, y, z + 1);
+					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
+					{
+						std::vector<Mesh::Vertex> frontFace = Cube::cubeFrontFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Front(block.type));
+						vertices.insert(vertices.end(), frontFace.begin(), frontFace.end());
+					}
+				}
+			}
+
+	if( m_rb) PhysicsEngine::DeleteRigidBody(m_rb);
+
 	//Get vertices
-	btVertices.clear();
 	for (Mesh::Vertex vertex : vertices)
 		btVertices.push_back(btVector3((float)m_position .x, (float)m_position .y, (float)m_position .z)*(float)size*Block::size + btVector3(vertex.vertex.x, vertex.vertex.y, vertex.vertex.z));
-
+	
 	if (btVertices.size() >= 3)
 	{
 		m_btMesh = btTriangleMesh();
@@ -67,12 +118,12 @@ void Chunck::GenerateCollider()
 		m_rb = PhysicsEngine::CreateRigidBody(0, transform, m_shape);
 		m_rb->SetTag(Tag::chunck);
 	}
-
+	
 }
 
 void Chunck::GenerateMesh()
 {
-	vertices.clear();
+	std::vector<Mesh::Vertex> vertices;
 	for (int y = 0; y < size; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
@@ -80,47 +131,56 @@ void Chunck::GenerateMesh()
 				Block& block = GetBlock({ x, y, z });
 				if(block.enabled && block.solid)
 				{
-					glm::ivec3 pos = m_position * size + glm::ivec3(x, y + 1, z);
-					if ( ! World::BlockGenerated(pos) || ! World::GetBlock(pos).solid)
+					if (block.type == Block::Type::leaf)
 					{
-						std::vector<Mesh::Vertex> topFace = Cube::cubeTopFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Top(block.type));
-						vertices.insert(vertices.end(), topFace.begin(), topFace.end());
+						std::vector<Mesh::Vertex> cube = Cube::CreateCubeMesh( 14.f * Block::size / 16.f , Block::Type::leaf, (float)x, (float)y, (float)z);
+						vertices.insert(vertices.end(), cube.begin(), cube.end());
 					}
-						
-					pos = m_position * size + glm::ivec3(x, y - 1, z);
-					if (!World::BlockGenerated(pos) || ! World::GetBlock(pos).solid)
+					else//Regular block
 					{
-						std::vector<Mesh::Vertex> botFace = Cube::cubeBotFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Bot(block.type));
-						vertices.insert(vertices.end(), botFace.begin(), botFace.end());
-					}
-					
-					pos = m_position * size + glm::ivec3(x-1, y, z);
-					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
-					{
-						std::vector<Mesh::Vertex> leftFace = Cube::cubeLeftFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Left(block.type));
-						vertices.insert(vertices.end(), leftFace.begin(), leftFace.end());
+						glm::ivec3 pos = m_position * size + glm::ivec3(x, y + 1, z);
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						{
+							std::vector<Mesh::Vertex> topFace = Cube::cubeTopFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Top(block.type));
+							vertices.insert(vertices.end(), topFace.begin(), topFace.end());
+						}
+
+						pos = m_position * size + glm::ivec3(x, y - 1, z);
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						{
+							std::vector<Mesh::Vertex> botFace = Cube::cubeBotFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Bot(block.type));
+							vertices.insert(vertices.end(), botFace.begin(), botFace.end());
+						}
+
+						pos = m_position * size + glm::ivec3(x - 1, y, z);
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						{
+							std::vector<Mesh::Vertex> leftFace = Cube::cubeLeftFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Left(block.type));
+							vertices.insert(vertices.end(), leftFace.begin(), leftFace.end());
+						}
+
+						pos = m_position * size + glm::ivec3(x + 1, y, z);
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						{
+							std::vector<Mesh::Vertex> rightFace = Cube::cubeRightFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Right(block.type));
+							vertices.insert(vertices.end(), rightFace.begin(), rightFace.end());
+						}
+
+						pos = m_position * size + glm::ivec3(x, y, z - 1);
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						{
+							std::vector<Mesh::Vertex> backFace = Cube::cubeBackFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Back(block.type));
+							vertices.insert(vertices.end(), backFace.begin(), backFace.end());
+						}
+
+						pos = m_position * size + glm::ivec3(x, y, z + 1);
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						{
+							std::vector<Mesh::Vertex> frontFace = Cube::cubeFrontFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Front(block.type));
+							vertices.insert(vertices.end(), frontFace.begin(), frontFace.end());
+						}
 					}
 
-					pos = m_position * size + glm::ivec3(x+1, y , z);
-					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
-					{
-						std::vector<Mesh::Vertex> rightFace = Cube::cubeRightFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Right(block.type));
-						vertices.insert(vertices.end(), rightFace.begin(), rightFace.end());
-					}
-
-					pos = m_position * size + glm::ivec3(x, y, z-1);
-					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
-					{
-						std::vector<Mesh::Vertex> backFace = Cube::cubeBackFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Back(block.type));
-						vertices.insert(vertices.end(), backFace.begin(), backFace.end());
-					}
-
-					pos = m_position * size + glm::ivec3(x, y, z+1);
-					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
-					{
-						std::vector<Mesh::Vertex> frontFace = Cube::cubeFrontFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Front(block.type));
-						vertices.insert(vertices.end(), frontFace.begin(), frontFace.end());
-					}
 				}
 	}
 	if (m_model) delete(m_model);

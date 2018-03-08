@@ -2,9 +2,10 @@
 
 //////////////////////////////// FBO ////////////////////////////////
 
-FBO::FBO(int width, int height) :
+FBO::FBO(int width, int height, int AASamples) :
 	m_width(width),
-	m_height(height)
+	m_height(height),
+	m_aaSamples(AASamples)
 {
 
 }
@@ -30,7 +31,7 @@ void FBO::BlitDepth(FBO& origin, FBO& destination)
 
 //////////////////////////////// TextureDepthFBO ////////////////////////////////
 
-TextureDepthFBO::TextureDepthFBO(int width, int height) : FBO(width, height)
+TextureDepthFBO::TextureDepthFBO(int width, int height, int AASamples) : FBO(width, height, AASamples)
 {
 	glGenFramebuffers(1, &m_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
@@ -82,15 +83,13 @@ TextureDepthFBO::~TextureDepthFBO()
 
 //////////////////////////////// PostProcessingFBO ////////////////////////////////
 
-PostProcessingFBO::PostProcessingFBO( int width, int height) : FBO(width, height)
+PostProcessingFBO::PostProcessingFBO( int width, int height, int AASamples) : FBO(width, height, AASamples)
 {
-
 	glGenFramebuffers(1, &m_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
 	// generate texture
-
-	glGenTextures(1, &m_texture);
+	/*glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -109,15 +108,15 @@ PostProcessingFBO::PostProcessingFBO( int width, int height) : FBO(width, height
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
 
-	/*	glGenFramebuffers(1, &m_fbo);
+	glGenFramebuffers(1, &m_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
 	// generate texture
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_texture);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, width, height, GL_TRUE);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, AASamples, GL_RGB, width, height, GL_TRUE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
@@ -128,13 +127,13 @@ PostProcessingFBO::PostProcessingFBO( int width, int height) : FBO(width, height
 
 	glGenRenderbuffers(1, &m_rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, width, height);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, AASamples, GL_DEPTH24_STENCIL8, width, height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void PostProcessingFBO::Use() const
@@ -163,7 +162,7 @@ PostProcessingFBO::~PostProcessingFBO()
 
 //////////////////////////////// ShadowMapFBO ////////////////////////////////
 
-ShadowMapFBO::ShadowMapFBO(int width, int height) : FBO(width, height)
+ShadowMapFBO::ShadowMapFBO(int width, int height, int AASamples) : FBO(width, height, AASamples)
 {
 	glGenFramebuffers(1, &m_fbo);
 
@@ -209,7 +208,7 @@ ShadowMapFBO::~ShadowMapFBO()
 
 //////////////////////////////// DeferredFBO ////////////////////////////////
 
-DeferredFBO::DeferredFBO(int width, int height) : FBO(width, height)
+DeferredFBO::DeferredFBO(int width, int height, int AASamples) : FBO(width, height, AASamples)
 {
 	glGenFramebuffers(1, &m_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);

@@ -16,8 +16,6 @@ public:
 		bedrock, 
 		wood, 
 		leaf, 
-
-
 	};
 
 	const static float size;
@@ -25,13 +23,41 @@ public:
 	bool enabled = true;
 	bool solid = true;
 	bool destructible = true;
+	bool transparent = false;
 
-	void ToAir()		{ type = air;		enabled = false; solid = false; destructible = false;	}
-	void ToDirt()		{ type = dirt;		enabled = true;  solid = true;  destructible = true;	}
-	void ToGrass()		{ type = grass;		enabled = true;  solid = true;  destructible = true;	}
-	void ToStone()		{ type = stone;		enabled = true;  solid = true;  destructible = true;	}
-	void ToBedrock()	{ type = bedrock;	enabled = true;  solid = true;  destructible = false;	}
-	void ToWood()		{ type = wood;		enabled = true;  solid = true;  destructible = true;	}
-	void ToLeaf()		{ type = leaf;		enabled = true;  solid = false; destructible = true;	}
-	void ToWater()		{ type = water;		enabled = true;  solid = false; destructible = false;	}
+	void SetType(Type newType)
+	{
+		switch (newType)
+		{
+		case Block::invalid: 
+			type = air;		enabled = false; solid = false; destructible = false; transparent = false;
+			break;
+		case Block::air:
+			type = air;		enabled = false; solid = false; destructible = false; transparent = false;
+			break;
+		case Block::dirt:
+			type = dirt;	enabled = true;  solid = true;  destructible = true; transparent = false;
+			break;
+		case Block::grass:
+			type = grass;	enabled = true;  solid = true;  destructible = true; transparent = false;
+			break;
+		case Block::water:
+			type = water;	enabled = true;  solid = false; destructible = false; transparent = true;
+			break;
+		case Block::stone:
+			type = stone;	enabled = true;  solid = true;  destructible = true; transparent = false;
+			break;
+		case Block::bedrock:
+			type = bedrock;	enabled = true;  solid = true;  destructible = false; transparent = false;
+			break;
+		case Block::wood:
+			type = wood;	enabled = true;  solid = true;  destructible = true; transparent = false;
+			break;
+		case Block::leaf:
+			type = leaf;	enabled = true;  solid = true; destructible = true; transparent = true;
+			break;
+		default:
+			break;
+		}
+	}
 };

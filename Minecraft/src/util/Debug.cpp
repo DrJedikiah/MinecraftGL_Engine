@@ -13,17 +13,17 @@ void Debug::Clear()
 	m_lines.clear();
 }
 
-void Debug::DrawLine(btVector3 start, btVector3 end, btVector3 color)
+void Debug::DrawLine(glm::vec3  start, glm::vec3  end, glm::vec3  color)
 {
 	m_lines.push_back({ start, color });
 	m_lines.push_back({ end,   color });
 }
 
-void Debug::DrawCross(btVector3 position, float size, btVector3 color)
+void Debug::DrawCross(glm::vec3  position, float size, glm::vec3  color)
 {
-	Debug::DrawLine(position + btVector3(0, size, 0), position + btVector3(0, -size, 0), color);
-	Debug::DrawLine(position + btVector3(size, 0, 0), position + btVector3(-size, 0, 0), color);
-	Debug::DrawLine(position + btVector3(0, 0, size), position + btVector3(0, 0, -size), color);
+	Debug::DrawLine(position + glm::vec3(0, size, 0), position + glm::vec3(0, -size, 0), color);
+	Debug::DrawLine(position + glm::vec3(size, 0, 0), position + glm::vec3(-size, 0, 0), color);
+	Debug::DrawLine(position + glm::vec3(0, 0, size), position + glm::vec3(0, 0, -size), color);
 }
 
 

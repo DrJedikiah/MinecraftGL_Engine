@@ -40,9 +40,9 @@ void main()
 	vec4 fragPosLightSpaceLarge = projectionLightLarge * viewLight * vec4(fragPos,1);
 
 	if( fragPosLightSpace.x <= 1.f && fragPosLightSpace.x >= -1.f && fragPosLightSpace.y <= 1.f && fragPosLightSpace.y >= -1.f)
-		shadow = ShadowCalculation(fragPosLightSpace, shadowMap, 0.00002f);  
+		shadow = ShadowCalculation(fragPosLightSpace, shadowMap, 0.00015f);  
 	else if (fragPosLightSpaceLarge.x <= 1.f && fragPosLightSpaceLarge.x >= -1.f && fragPosLightSpaceLarge.y <= 1.f && fragPosLightSpaceLarge.y >= -1.f)
-		shadow = ShadowCalculation(fragPosLightSpaceLarge, shadowMapLarge, 0.00013f); 
+		shadow = ShadowCalculation(fragPosLightSpaceLarge, shadowMapLarge, 0.0002f); 
 
 	FragColor =  vec4( (ambient + shadow * (diffuse+spec)) * color.xyz  * lightColor , color.w  );
 }  
