@@ -54,6 +54,7 @@ private:
 	~World();
 
 	static TreeGen m_treeGen;
+	static Node * m_lastTree;
 
 	static PerlinNoise perlinGen;
 	static Chunck ***m_chuncks;

@@ -8,6 +8,7 @@ PerlinNoise World::perlinGen(seed);
 Chunck *** World::m_chuncks; 
 
 TreeGen World::m_treeGen;
+Node * World::m_lastTree = nullptr;
  
 World::World() 
 {  
@@ -219,20 +220,24 @@ void World::SetBlock(glm::ivec3 position, Block::Type blockType)
  
 void World::AddBlock(glm::ivec3 position)
 {
-	GenerateTree(position, 20.f);
+	GenerateTree(position, 10.f);
 }
 
 void World::GenerateTree(glm::ivec3 position, float size)
 {
-	m_treeGen.GenerateTree(position, size);
+	//m_treeGen.Clear();
+
+	delete(m_lastTree);
+	m_lastTree = nullptr;
+
+	m_lastTree = m_treeGen.GenerateTree(position, size);
 
 	std::stack<Node * > stack;
-	stack.push(m_treeGen.m_root);
+	stack.push(m_lastTree);
 	while (!stack.empty())
 	{
 		Node * node = stack.top();
 		stack.pop();
-
 
 		if (BlockGenerated(node->position))
 		{
@@ -249,8 +254,6 @@ void World::GenerateTree(glm::ivec3 position, float size)
 		for (Node * n : node->next)
 			stack.push(n);
 	}
-
-	m_treeGen.Clear();
 }
 
 
@@ -280,13 +283,13 @@ void World::UpdateAround(glm::ivec3 position)
 
 void World::Draw(const Shader& shader)
 {
-	/*if (m_treeGen.m_root)
+	if (m_lastTree)
 	{
-		vec3 red(1, 0, 0);
-		vec3 green(0, 1, 0);
+		glm::vec3 red(1, 0, 0);
+		glm::vec3 green(0, 1, 0);
 
 		std::stack<Node * > stack;
-		stack.push(m_treeGen.m_root);
+		stack.push(m_lastTree);
 		while (!stack.empty())
 		{
 			Node * node = stack.top();
@@ -307,7 +310,7 @@ void World::Draw(const Shader& shader)
 			for (Node * n : node->next)
 				stack.push(n);
 		}
-	}*/
+	}
 
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)

@@ -456,8 +456,8 @@ void Minecraft::Start()
 
 
 			/*shader_draw_texture.Use();
-			fboShadow.UseTexture(TextureUnit::Unit0);
-			glViewport(0, 0, 500, 500);
+			fboShadowLarge.UseTexture(TextureUnit::Unit0);
+			glViewport(0, 0, 1000, 1000);
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);

@@ -26,7 +26,7 @@ vec3 normal = texture(gNormal, TexCoords).xyz;
 vec3 lightDir = normalize(lightPos - fragPos);  
 vec3 viewDir = normalize(viewPos - fragPos);
 
-float ShadowCalculation(vec4 frag, sampler2D map, float threshold);
+float ShadowCalculation(vec3 frag, sampler2D map, float threshold);
 
 void main()
 {
@@ -40,14 +40,14 @@ void main()
 	vec4 fragPosLightSpaceLarge = projectionLightLarge * viewLight * vec4(fragPos,1);
 
 	if( fragPosLightSpace.x <= 1.f && fragPosLightSpace.x >= -1.f && fragPosLightSpace.y <= 1.f && fragPosLightSpace.y >= -1.f)
-		shadow = ShadowCalculation(fragPosLightSpace, shadowMap, 0.00015f);  
-	else if (fragPosLightSpaceLarge.x <= 1.f && fragPosLightSpaceLarge.x >= -1.f && fragPosLightSpaceLarge.y <= 1.f && fragPosLightSpaceLarge.y >= -1.f)
-		shadow = ShadowCalculation(fragPosLightSpaceLarge, shadowMapLarge, 0.0002f); 
+		shadow = ShadowCalculation(fragPosLightSpace.xyz, shadowMap, 0.00015f);  
+	/*else if (fragPosLightSpaceLarge.x <= 1.f && fragPosLightSpaceLarge.x >= -1.f && fragPosLightSpaceLarge.y <= 1.f && fragPosLightSpaceLarge.y >= -1.f)
+		shadow = ShadowCalculation(fragPosLightSpaceLarge.xyz, shadowMapLarge, 0.0002f); */
 
 	FragColor =  vec4( (ambient + shadow * (diffuse+spec)) * color.xyz  * lightColor , color.w  );
 }  
 
-float ShadowCalculation(vec4 frag, sampler2D map, float threshold)
+float ShadowCalculation(vec3 frag, sampler2D map, float threshold)
 {
     frag = frag * 0.5 + 0.5;
 	vec2 texelSize = 1.0 / textureSize(map, 0);

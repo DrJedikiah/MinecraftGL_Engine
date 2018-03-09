@@ -25,23 +25,20 @@ Node::~Node()
 }
 
 TreeGen::TreeGen() :
-	m_root(nullptr),
 	distribution(0.f, 1.f)
 {
 	 
 }
 
-void TreeGen::GenerateTree(glm::vec3 position, float size)
+Node * TreeGen::GenerateTree(glm::vec3 position, float maxLenght)
 {
 	//Random gen
 	generator.seed( Input::FrameCount() );
-	
-	maxLenght = size;
 
 	//Init
-	m_root = new Node(position, nullptr, 0);
+	Node * root = new Node(position, nullptr, 0);
 	std::stack<Node * > stack;
-	stack.push(m_root);
+	stack.push(root);
 
 	//Build
 	while (!stack.empty())
@@ -156,11 +153,8 @@ void TreeGen::GenerateTree(glm::vec3 position, float size)
 
 		}
 	}
-}
 
-void TreeGen::Clear()
-{
-	delete(m_root);
+	return root;
 }
 
 Node * TreeGen::NewNode(Node* parent, int depth)
