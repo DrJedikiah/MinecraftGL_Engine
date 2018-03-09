@@ -249,7 +249,7 @@ void World::GenerateTree(glm::ivec3 position, float size)
 
 			UpdateBlock(node->position);
 		}
-
+		  
 
 		for (Node * n : node->next)
 			stack.push(n);

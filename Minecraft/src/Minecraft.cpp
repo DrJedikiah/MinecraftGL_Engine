@@ -68,10 +68,12 @@ void Minecraft::Start()
 	Shader shader_deferred_borders("shaders/deferred_borders.vs", "shaders/deferred_borders.fs");
 	Shader shader_draw_texture("shaders/drawTexture.vs", "shaders/drawTexture.fs");
 	Shader shader_test("shaders/test.vs", "shaders/test.fs");
+	Shader shader_FXAA("shaders/FXAA.vs", "shaders/FXAA.fs");
 
 
 	TextureDepthFBO fboSSAO(m_width, m_height, m_samples);
 	TextureDepthFBO fboBorders(m_width, m_height, m_samples);
+	TextureDepthFBO fboFXAA(m_width, m_height, m_samples);
 	ShadowMapFBO fboShadow(2 * 2048, 2 * 2048, m_samples);
 	ShadowMapFBO fboShadowLarge(2 * 2048, 2 * 2048, m_samples);
 	DeferredFBO gBuffer(m_width, m_height, m_samples);
@@ -380,9 +382,7 @@ void Minecraft::Start()
 			FBO::BlitDepth(gBuffer, fboPostProc);
 
 			//////////////////////////////// FORWARD RENDERING ////////////////////////////////
-
-
-			//if (debugActivated)
+			if (debugActivated)
 			{
 				shader_test.Use();
 				shader_test.setMat4("view", camera.viewMatrix());
@@ -411,14 +411,16 @@ void Minecraft::Start()
 			glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 			shader_postprocess.Use();
-			FBO::UseDefault();
-			FBO::ClearDefault();
+
+			fboFXAA.Use();
+			fboFXAA.Clear();
+			//FBO::UseDefault();
+			//FBO::ClearDefault();
 
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, screenTexture);
 			fboPostProc.UseTexture(TextureUnit::Unit0);
-
 			fboBorders.UseTexture(TextureUnit::Unit1);
 			fboSSAO.UseTexture(TextureUnit::Unit2);
 			shader_postprocess.setInt("screenTexture", 0);
@@ -430,6 +432,36 @@ void Minecraft::Start()
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glEnable(GL_DEPTH_TEST);
 
+
+			FBO::UseDefault();
+			FBO::ClearDefault();
+			shader_FXAA.Use();
+			fboFXAA.UseTexture(TextureUnit::Unit0);
+
+			shader_FXAA.setInt("colorTexture", 0);
+			shader_FXAA.setFloat("FXAASpan", 8.0f);
+			shader_FXAA.setFloat("FXAAReduceMul", 1.0f / 8.0f);
+			shader_FXAA.setFloat("FXAAReduceMin", 1.0f / 128.0f);
+			shader_FXAA.setBool("activated", multisample);
+			
+			glDisable(GL_DEPTH_TEST);
+			glBindVertexArray(postProcVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glEnable(GL_DEPTH_TEST);
+
+			/*FBO::UseDefault();
+			FBO::ClearDefault();*/
+			
+			/*shader_FXAA.Use();
+			fboPostProc.UseTexture(TextureUnit::Unit0);
+			shader_FXAA.setInt("colorTexture", 0);
+			shader_FXAA.setFloat("FXAASpan", 0);
+			shader_FXAA.setFloat("FXAAReduceMul", 0);
+			shader_FXAA.setFloat("FXAAReduceMin", 0);
+			glDisable(GL_DEPTH_TEST);
+			glBindVertexArray(postProcVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glEnable(GL_DEPTH_TEST);*/
 			//////////////////////////////// UI ////////////////////////////////
 
 			if (debugActivated)
