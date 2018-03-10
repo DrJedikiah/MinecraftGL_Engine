@@ -9,10 +9,10 @@
 #include "graphics/Texture.h"
 
 //////////////////////////////// FBO ////////////////////////////////
-class FBO 
+class FBO  
 {
 public:
-	FBO(int width, int height, int AASamples);
+	FBO(int width, int height);
 
 	static void UseDefault();
 	static void ClearDefault();
@@ -34,7 +34,7 @@ public:
 class TextureDepthFBO : public FBO
 {
 public:
-	TextureDepthFBO(int width, int height, int AASamples);
+	TextureDepthFBO(int width, int height);
 	~TextureDepthFBO();
 
 	void Use() const override;
@@ -46,11 +46,25 @@ private:
 	unsigned int texture;
 };
 
+//////////////////////////////// GrayFBO ////////////////////////////////
+class GrayFBO : public FBO
+{
+public:
+	GrayFBO(int width, int height);
+	~GrayFBO();
+
+	void Use() const override;
+	void Clear() const override;
+	void UseTexture(TextureUnit textureUnit)const;
+
+private:
+	unsigned int texture;
+};
 //////////////////////////////// PostProcessingFBO ////////////////////////////////
 class PostProcessingFBO : public FBO
 {
 public:
-	PostProcessingFBO(int width, int height, int AASamples);
+	PostProcessingFBO(int width, int height);
 	~PostProcessingFBO();
 
 	void Use() const override;
@@ -65,7 +79,7 @@ public:
 class ShadowMapFBO : public FBO
 {
 public:
-	ShadowMapFBO(int width, int height, int AASamples);
+	ShadowMapFBO(int width, int height);
 	~ShadowMapFBO();
 
 	void Use() const override;
@@ -80,7 +94,7 @@ private:
 class DeferredFBO : public FBO
 {
 public:
-	DeferredFBO(int width, int height, int AASamples);
+	DeferredFBO(int width, int height);
 	~DeferredFBO();
 
 	void Use() const override;
@@ -90,7 +104,7 @@ public:
 	void UsePosition(TextureUnit textureUnit) const;
 	void UseDepth(TextureUnit textureUnit) const;
 	
-private:
+//private:
 	GLuint gDepth;
 	GLuint gColor;
 	GLuint gNormal;

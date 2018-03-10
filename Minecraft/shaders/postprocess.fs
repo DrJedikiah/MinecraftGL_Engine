@@ -6,40 +6,37 @@ in vec2 TexCoords;
 uniform sampler2D screenTexture;
 uniform sampler2D bordersTexture;
 uniform sampler2D ambientOcclusion;
+uniform sampler2D depth;
 
 vec2 texelSize = 1.f / textureSize(ambientOcclusion, 0);
-const int size = 3;
 
+
+const int size = 5;
 float kernel[size*size] = 
 {
-    1.0 , 2.0 , 1.0 , 
-    2.0 , 4.0 , 2.0 ,
-    1.0 , 2.0 , 1.0 , 
+    0.5 , 1.0 , 2.0 , 1.0 , 0.5, 
+    1.0 , 2.0 , 2.0 , 2.0 , 1.0 , 
+    2.0 , 2.0 , 2.0 , 2.0 , 2.0 , 
+	1.0 , 2.0 , 2.0 , 2.0 , 1.0 ,
+    0.5 , 1.0 , 2.0 , 1.0 , 0.5 
 };
+
 
 void main()
 {
-
-	float occlusion = 0;
+	float occlusion = 1;
 	for( int x = 0; x < size; ++x )
 		for( int y = 0; y < size; ++y )
 		{
-			vec2 pos = vec2(TexCoords.x + (x - size/2)*texelSize.x, TexCoords.y + (y- size/2)*texelSize.y);
+			vec2 pos = TexCoords +  vec2(x - size/2,y- size/2) * texelSize ;
 			occlusion += kernel[x + y * size] * texture(ambientOcclusion, pos).x ;
 		}
-		occlusion /= 16;
+	occlusion /= 26+10;
 
-	float borders = 0;
-	for( int x = 0; x < size; ++x )
-		for( int y = 0; y < size; ++y )
-		{
-			vec2 pos = vec2(TexCoords.x + (x - size/2)*texelSize.x, TexCoords.y + (y- size/2)*texelSize.y);
-			borders += kernel[x + y * size] * texture(bordersTexture, pos).x ;
-		}
-		borders /= 16;
+	//zob
 
+	float borders  = texture(bordersTexture, TexCoords).x;
 	vec3 albedo = texture(screenTexture, TexCoords).xyz;
 
-	FragColor = vec4( occlusion*albedo *borders , 1);
-	//FragColor = vec4( vec3(occlusion*borders), 1);
+	FragColor = vec4( occlusion * borders * albedo, 1);
 }  

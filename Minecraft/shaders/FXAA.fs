@@ -83,6 +83,7 @@ uniform float     FXAASpan;
 uniform float     FXAAReduceMul;
 uniform float     FXAAReduceMin;
 
+
 uniform bool activated;
 
 void main()

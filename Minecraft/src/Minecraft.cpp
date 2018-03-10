@@ -71,13 +71,13 @@ void Minecraft::Start()
 	Shader shader_FXAA("shaders/FXAA.vs", "shaders/FXAA.fs");
 
 
-	TextureDepthFBO fboSSAO(m_width, m_height, m_samples);
-	TextureDepthFBO fboBorders(m_width, m_height, m_samples);
-	TextureDepthFBO fboFXAA(m_width, m_height, m_samples);
-	ShadowMapFBO fboShadow(2 * 2048, 2 * 2048, m_samples);
-	ShadowMapFBO fboShadowLarge(2 * 2048, 2 * 2048, m_samples);
-	DeferredFBO gBuffer(m_width, m_height, m_samples);
-	PostProcessingFBO fboPostProc(m_width, m_height, m_samples);
+	GrayFBO fboSSAO(m_width/5, m_height/5);
+	GrayFBO fboBorders(m_width, m_height);
+	TextureDepthFBO fboFXAA(m_width, m_height);
+	ShadowMapFBO fboShadow(2 * 2048, 2 * 2048);
+	ShadowMapFBO fboShadowLarge(2 * 2048, 2 * 2048);
+	DeferredFBO gBuffer(m_width, m_height);
+	PostProcessingFBO fboPostProc(m_width, m_height);
 
 	Tiles::Initialize(4, 4);
 	TexturesBlocks::Initialize();
@@ -104,9 +104,9 @@ void Minecraft::Start()
 	World::GeneratePhysics();
 
 	Camera camera(m_width, m_height, 1000.f, 0.2f);
-	 
+
 	PlayerAvatar player;
-	player.rb().translate(btVector3(World::size * Chunck::size/2, World::height * Chunck::size, World::size * Chunck::size / 2));
+	player.rb().translate(btVector3(World::size * Chunck::size / 2, World::height * Chunck::size, World::size * Chunck::size / 2));
 	//player.rb().translate(btVector3(World::size * Chunck::size / 2, World::height * Chunck::size / 16, World::size * Chunck::size / 2));
 
 	FreeCameraController freeCameraController(camera);
@@ -118,8 +118,8 @@ void Minecraft::Start()
 	cube.rb().translate(btVector3(4.5, 20, 4.5));
 
 	Light sunLight
-	{ 
-		(float)Chunck::size * glm::vec3( (float)World::size/4.F, 2 * World::height ,World::size) 
+	{
+		(float)Chunck::size * glm::vec3((float)World::size / 4.F, 2 * World::height ,World::size)
 	};
 
 	Model sunModel(Cube::CreateCubeMesh(10));
@@ -175,26 +175,6 @@ void Minecraft::Start()
 
 	Texture ssaoNoiseTex(4, 4, ssaoNoise);
 
-	//////////////////////////////////////////
-	// configure second post-processing framebuffer
-	unsigned int intermediateFBO;
-	glGenFramebuffers(1, &intermediateFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, intermediateFBO);
-	// create a color attachment texture
-	unsigned int screenTexture;
-	glGenTextures(1, &screenTexture);
-	glBindTexture(GL_TEXTURE_2D, screenTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);	// we only need a color buffer
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Intermediate framebuffer is not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//////////////////////////////////////////
-
-
 	// render loop
 	while (!glfwWindowShouldClose(m_window))
 	{
@@ -208,7 +188,6 @@ void Minecraft::Start()
 		if (fixedUpdateTimer >= Time::FixedDeltaTime())
 		{
 			Input::Update();
-
 
 			//Exit app
 			if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE))
@@ -259,7 +238,7 @@ void Minecraft::Start()
 
 		//Draws
 		drawTimer += delta;
-		if (drawTimer >= Time::DeltaTime())
+		//if (drawTimer >= Time::DeltaTime())
 		{
 			drawTimer = 0.f;
 
@@ -277,7 +256,6 @@ void Minecraft::Start()
 			glm::mat4 lightView =
 				glm::lookAt(
 					sunLight.position,
-					//camera.position(),
 					glm::vec3(posPlayer.getX(), posPlayer.getY(), posPlayer.getZ()),
 					glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -317,20 +295,15 @@ void Minecraft::Start()
 			fboSSAO.Clear();
 			shader_deferred_ssao.Use();
 
-			gBuffer.UseColor(TextureUnit::Unit0);
 			gBuffer.UseNormal(TextureUnit::Unit1);
 			gBuffer.UsePosition(TextureUnit::Unit2);
 			gBuffer.UseDepth(TextureUnit::Unit3);
 			ssaoNoiseTex.Use(TextureUnit::Unit4);
-			shader_deferred_ssao.setInt("gColor", 0);
 			shader_deferred_ssao.setInt("gNormal", 1);
 			shader_deferred_ssao.setInt("gPosition", 2);
 			shader_deferred_ssao.setInt("gDepth", 3);
 			shader_deferred_ssao.setInt("texNoise", 4);
-			shader_deferred_ssao.setFloat("near", camera.Near());
-			shader_deferred_ssao.setFloat("far", camera.Far());
-			shader_deferred_ssao.setMat4("view", camera.viewMatrix());
-			shader_deferred_ssao.setMat4("projection", camera.projectionMatrix());
+			shader_deferred_ssao.setMat4("projView", camera.projectionMatrix() * camera.viewMatrix());
 			shader_deferred_ssao.setVec3Array("samples[0]", ssaoKernel);
 
 			glDisable(GL_DEPTH_TEST);
@@ -406,27 +379,20 @@ void Minecraft::Start()
 			glDepthFunc(GL_LESS);
 
 			//////////////////////////////// POSTPROCESSING ////////////////////////////////
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, fboPostProc.m_fbo);
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intermediateFBO);
-			glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 			shader_postprocess.Use();
 
 			fboFXAA.Use();
 			fboFXAA.Clear();
-			//FBO::UseDefault();
-			//FBO::ClearDefault();
 
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, screenTexture);
 			fboPostProc.UseTexture(TextureUnit::Unit0);
 			fboBorders.UseTexture(TextureUnit::Unit1);
 			fboSSAO.UseTexture(TextureUnit::Unit2);
+			gBuffer.UseDepth(TextureUnit::Unit3);
 			shader_postprocess.setInt("screenTexture", 0);
 			shader_postprocess.setInt("bordersTexture", 1);
 			shader_postprocess.setInt("ambientOcclusion", 2);
-
+			shader_postprocess.setInt("depth", 3);
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -443,25 +409,12 @@ void Minecraft::Start()
 			shader_FXAA.setFloat("FXAAReduceMul", 1.0f / 8.0f);
 			shader_FXAA.setFloat("FXAAReduceMin", 1.0f / 128.0f);
 			shader_FXAA.setBool("activated", multisample);
-			
+
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glEnable(GL_DEPTH_TEST);
 
-			/*FBO::UseDefault();
-			FBO::ClearDefault();*/
-			
-			/*shader_FXAA.Use();
-			fboPostProc.UseTexture(TextureUnit::Unit0);
-			shader_FXAA.setInt("colorTexture", 0);
-			shader_FXAA.setFloat("FXAASpan", 0);
-			shader_FXAA.setFloat("FXAAReduceMul", 0);
-			shader_FXAA.setFloat("FXAAReduceMin", 0);
-			glDisable(GL_DEPTH_TEST);
-			glBindVertexArray(postProcVAO);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glEnable(GL_DEPTH_TEST);*/
 			//////////////////////////////// UI ////////////////////////////////
 
 			if (debugActivated)
