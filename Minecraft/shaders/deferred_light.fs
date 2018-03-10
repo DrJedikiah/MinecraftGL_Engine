@@ -15,9 +15,8 @@ uniform vec3 viewPos;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
 
-uniform mat4 viewLight;
-uniform mat4 projectionLight;
-uniform mat4 projectionLightLarge;
+uniform mat4 projectionViewLight;
+uniform mat4 projectionViewLightLarge;
 
 vec4 color = texture(gColor, TexCoords);
 vec3 fragPos = texture(gPosition, TexCoords).xyz;
@@ -36,8 +35,8 @@ void main()
 
 	float shadow = 1;
 
-	vec4 fragPosLightSpace = projectionLight * viewLight * vec4(fragPos,1);
-	vec4 fragPosLightSpaceLarge = projectionLightLarge * viewLight * vec4(fragPos,1);
+	vec4 fragPosLightSpace = projectionViewLight * vec4(fragPos,1);
+	vec4 fragPosLightSpaceLarge = projectionViewLightLarge * vec4(fragPos,1);
 
 	if( fragPosLightSpace.x <= 1.f && fragPosLightSpace.x >= -1.f && fragPosLightSpace.y <= 1.f && fragPosLightSpace.y >= -1.f)
 		shadow = ShadowCalculation(fragPosLightSpace.xyz, shadowMap, 0.00015f);  

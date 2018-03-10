@@ -32,11 +32,11 @@ void main()
 			occlusion += kernel[x + y * size] * texture(ambientOcclusion, pos).x ;
 		}
 	occlusion /= 26+10;
-
-	//zob
+	//occlusion = texture(ambientOcclusion, TexCoords).x ;
 
 	float borders  = texture(bordersTexture, TexCoords).x;
 	vec3 albedo = texture(screenTexture, TexCoords).xyz;
 
 	FragColor = vec4( occlusion * borders * albedo, 1);
+	//FragColor = vec4(  vec3( occlusion), 1);
 }  

@@ -4,8 +4,6 @@ in vec2 TexCoords;
 out vec4 FragColor;
 
 uniform sampler2D gDepth;
-
-
 vec2 texelSize = 1.f / textureSize(gDepth, 0);
 
 const int size = 3;
@@ -19,7 +17,6 @@ float kernel[size*size] =
 void main()
 {
 	float average = 0;
-
 	for( int x = 0; x < size; ++x )
 		for( int y = 0; y < size; ++y )
 		{

@@ -64,7 +64,7 @@ void Minecraft::Start()
 	Shader shader_shadows("shaders/shadows.vs", "shaders/shadows.fs");
 	Shader shader_deferred_geometry("shaders/deferred_geometry.vs", "shaders/deferred_geometry.fs");
 	Shader shader_deferred_light("shaders/deferred_light.vs", "shaders/deferred_light.fs");
-	Shader shader_deferred_ssao("shaders/deferred_ssao.vs", "shaders/deferred_ssao.fs");
+	Shader shader_deferred_SSAO("shaders/deferred_ssao.vs", "shaders/deferred_ssao.fs");
 	Shader shader_deferred_borders("shaders/deferred_borders.vs", "shaders/deferred_borders.fs");
 	Shader shader_draw_texture("shaders/drawTexture.vs", "shaders/drawTexture.fs");
 	Shader shader_test("shaders/test.vs", "shaders/test.fs");
@@ -260,16 +260,15 @@ void Minecraft::Start()
 					glm::vec3(0.0f, 1.0f, 0.0f));
 
 			shader_shadows.Use();
-			shader_shadows.setMat4("view", lightView);
 			//////
 			fboShadow.Use();
 			fboShadow.Clear();
-			shader_shadows.setMat4("projection", lightProjection);
+			shader_shadows.setMat4("projview", lightProjection*lightView);
 			World::Draw(shader_shadows);
 			//////
 			fboShadowLarge.Use();
 			fboShadowLarge.Clear();
-			shader_shadows.setMat4("projection", lightProjectionLarge);
+			shader_shadows.setMat4("projview", lightProjectionLarge*lightView);
 			World::Draw(shader_shadows);
 
 			//////////////////////////////// DEFERRED GEOMETRY ////////////////////////////////
@@ -280,8 +279,7 @@ void Minecraft::Start()
 
 			texture.Use(TextureUnit::Unit0);
 			shader_deferred_geometry.setInt("textureBlocks", 0);
-			shader_deferred_geometry.setMat4("view", camera.viewMatrix());
-			shader_deferred_geometry.setMat4("projection", camera.projectionMatrix());
+			shader_deferred_geometry.setMat4("projview", camera.projectionMatrix() * camera.viewMatrix());
 
 			player.UpdateModels();
 			player.Draw(shader_deferred_geometry);
@@ -293,18 +291,19 @@ void Minecraft::Start()
 			//////////////////////////////// SSAO ////////////////////////////////
 			fboSSAO.Use();
 			fboSSAO.Clear();
-			shader_deferred_ssao.Use();
+			shader_deferred_SSAO.Use();
 
 			gBuffer.UseNormal(TextureUnit::Unit1);
 			gBuffer.UsePosition(TextureUnit::Unit2);
 			gBuffer.UseDepth(TextureUnit::Unit3);
 			ssaoNoiseTex.Use(TextureUnit::Unit4);
-			shader_deferred_ssao.setInt("gNormal", 1);
-			shader_deferred_ssao.setInt("gPosition", 2);
-			shader_deferred_ssao.setInt("gDepth", 3);
-			shader_deferred_ssao.setInt("texNoise", 4);
-			shader_deferred_ssao.setMat4("projView", camera.projectionMatrix() * camera.viewMatrix());
-			shader_deferred_ssao.setVec3Array("samples[0]", ssaoKernel);
+			shader_deferred_SSAO.setInt("gNormal", 1);
+			shader_deferred_SSAO.setInt("gPosition", 2);
+			shader_deferred_SSAO.setInt("gDepth", 3);
+			shader_deferred_SSAO.setInt("texNoise", 4);
+			shader_deferred_SSAO.setMat4("projView", camera.projectionMatrix() * camera.viewMatrix());
+			shader_deferred_SSAO.setVec3Array("samples[0]", ssaoKernel);
+			shader_deferred_SSAO.setVec2("windowSize", glm::vec2(m_width, m_height));
 
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
@@ -343,9 +342,8 @@ void Minecraft::Start()
 			shader_deferred_light.setVec3("lightPos", sunLight.position);
 			shader_deferred_light.setVec3("viewPos", camera.position());
 			shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 255.f, 134.f / 255.f, 255.f / 255.f));
-			shader_deferred_light.setMat4("viewLight", lightView);
-			shader_deferred_light.setMat4("projectionLight", lightProjection);
-			shader_deferred_light.setMat4("projectionLightLarge", lightProjectionLarge);
+			shader_deferred_light.setMat4("projectionViewLight", lightProjection*lightView);
+			shader_deferred_light.setMat4("projectionViewLightLarge", lightProjectionLarge*lightView);
 
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
@@ -370,8 +368,7 @@ void Minecraft::Start()
 			shader_skybox.setInt("skybox", 0);
 			glm::vec3 oldPos = camera.position();
 			camera.SetPosition({ 0,0,0 });
-			shader_skybox.setMat4("view", camera.viewMatrix());
-			shader_skybox.setMat4("projection", camera.projectionMatrix());
+			shader_skybox.setMat4("projView", camera.projectionMatrix()*camera.viewMatrix());
 			camera.SetPosition(oldPos);
 			cubeMap.UseTexture(TextureUnit::Unit0);
 			glBindVertexArray(skyboxVAO);
@@ -379,7 +376,6 @@ void Minecraft::Start()
 			glDepthFunc(GL_LESS);
 
 			//////////////////////////////// POSTPROCESSING ////////////////////////////////
-
 			shader_postprocess.Use();
 
 			fboFXAA.Use();
@@ -438,15 +434,6 @@ void Minecraft::Start()
 			}
 
 			//////////////////////////////// DRAW ////////////////////////////////
-
-
-			/*shader_draw_texture.Use();
-			fboShadowLarge.UseTexture(TextureUnit::Unit0);
-			glViewport(0, 0, 1000, 1000);
-			glDisable(GL_DEPTH_TEST);
-			glBindVertexArray(postProcVAO);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glEnable(GL_DEPTH_TEST);*/
 
 			glfwSwapBuffers(m_window);
 			Debug::Clear();

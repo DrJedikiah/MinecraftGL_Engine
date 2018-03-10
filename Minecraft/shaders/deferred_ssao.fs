@@ -7,10 +7,11 @@ uniform sampler2D gNormal;
 uniform sampler2D gPosition;
 uniform sampler2D gDepth;
 uniform sampler2D texNoise;
-uniform vec3 samples[64];
 uniform mat4 projView;
+uniform vec3 samples[64];
+uniform vec2 windowSize;
 
-const vec2 noiseScale = vec2(1500/4.0, 900/4.0);
+const vec2 noiseScale = windowSize/4.f;
 
 void main()
 {
