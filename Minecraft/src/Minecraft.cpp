@@ -7,21 +7,22 @@ Minecraft::Minecraft(std::string name, int width, int height) :
 	m_height(height),
 	m_samples(8)
 {
-	// glfw: initialize and configure
-	glfwInit();
+	// Setup window
+	glfwSetErrorCallback(error_callback);
+
+	if (!glfwInit())
+		return;
+
+	#ifdef __APPLE__
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+	#endif
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, m_samples);
 
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
-#endif
-
-														 // glfw window creation
 	m_window = glfwCreateWindow(m_width, m_height, name.c_str(), NULL, NULL);
-	if (m_window == NULL)
+	if (!m_window)
 	{
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -29,23 +30,17 @@ Minecraft::Minecraft(std::string name, int width, int height) :
 	}
 
 	glfwMakeContextCurrent(m_window);
-	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		return ;
 
 	Input::Setup(m_window);
+	ImGuiManager::Init(m_window);
 
-	// glad: load all OpenGL function pointers
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cerr << "Failed to initialize GLAD" << std::endl;
-		return;
-	}
-
-	//Setup openGL
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_MULTISAMPLE);
 	glLineWidth(2);
 
 	glfwSwapInterval(0);
@@ -110,9 +105,9 @@ void Minecraft::Start()
 	//player.rb().translate(btVector3(World::size * Chunck::size / 2, World::height * Chunck::size / 16, World::size * Chunck::size / 2));
 
 	FreeCameraController freeCameraController(camera);
-	freeCameraController.SetEnabled(false);
+	freeCameraController.SetEnabled(true);
 	PlayerController playerController(camera, player);
-	playerController.SetEnabled(true);
+	playerController.SetEnabled(false);
 
 	Cube cube;
 	cube.rb().translate(btVector3(4.5, 20, 4.5));
@@ -174,6 +169,10 @@ void Minecraft::Start()
 	}
 
 	Texture ssaoNoiseTex(4, 4, ssaoNoise);
+
+	bool show_another_window = false;
+	ImVec4 clear_color = ImColor(114, 144, 154);
+	char text[64] = "";
 
 	// render loop
 	while (!glfwWindowShouldClose(m_window))
@@ -434,11 +433,39 @@ void Minecraft::Start()
 			}
 
 			//////////////////////////////// DRAW ////////////////////////////////
+			ImGuiManager::NewFrame();
+
+			// 1. Show a simple window
+			// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+			{
+				static float f = 0.0f;
+				ImGui::Text("Hello, world!");
+				ImGui::InputText("input text", text, 64, ImGuiInputTextFlags_AutoSelectAll);
+				ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+				ImGui::ColorEdit3("clear color", (float*)&clear_color);
+				if (ImGui::Button("Another Window")) show_another_window ^= 1;
+				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			}
+
+			// 2. Show another simple window, this time using an explicit Begin/End pair
+			if (show_another_window)
+			{
+				ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+				ImGui::Begin("Another Window", &show_another_window);
+				ImGui::Text("Hello");
+				ImGui::End();
+			}
+
+			// Rendering
+
+			ImGui::Render();
 
 			glfwSwapBuffers(m_window);
 			Debug::Clear();
 		}
 	}
+
+	ImGuiManager::Shutdown();
 	glfwTerminate();
 }
 

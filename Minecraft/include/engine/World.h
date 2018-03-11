@@ -27,8 +27,6 @@ public:
 	static void GenerateChunks();
 	static void GeneratePhysics();
 
-
-
 	static Chunck & GetChunck(glm::ivec3 position);
 	static Block & GetBlock(glm::ivec3 position);
 

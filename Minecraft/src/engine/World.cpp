@@ -71,8 +71,6 @@ void World::GenerateChunks()
 			}*/
 
 	const glm::vec3 sizeMap(size * Chunck::size, height * Chunck::size,  size * Chunck::size);
-	//const float high = 0.95f * sizeMap.y;
-	//const float low = 0.75f*sizeMap.y;
 	const float high = 0.8f * sizeMap.y;
 	const float low = 0.65f*sizeMap.y;
 
@@ -112,7 +110,6 @@ void World::GenerateChunks()
 			}
 
 	//Set dirt
-	//const float superLow = 0.5f*sizeMap.y;
 	const float superLow = 0.3f*sizeMap.y;
 
 	for (int x = 0; x < size * Chunck::size; ++x)
@@ -225,11 +222,7 @@ void World::AddBlock(glm::ivec3 position)
 
 void World::GenerateTree(glm::ivec3 position, float size)
 {
-	//m_treeGen.Clear();
-
 	delete(m_lastTree);
-	m_lastTree = nullptr;
-
 	m_lastTree = m_treeGen.GenerateTree(position, size);
 
 	std::stack<Node * > stack;

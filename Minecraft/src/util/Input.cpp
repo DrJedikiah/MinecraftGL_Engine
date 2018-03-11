@@ -16,7 +16,10 @@ void Input::Setup(GLFWwindow * window)
 	glfwSetCursorPosCallback(m_window, Mouse::mouse_callback);
 	glfwSetKeyCallback(m_window, Keyboard::key_callback);
 	glfwSetMouseButtonCallback(m_window, Mouse::mouse_button_callback);
+	glfwSetScrollCallback(window, ImGuiManager::ScrollCallback);
+	glfwSetCharCallback(window, ImGuiManager::CharCallback);
 }
+
 
 void Input::window_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -54,6 +57,8 @@ bool Keyboard::KeyPressed(int GLFW_KEY) { return m_keysPressed[GLFW_KEY] == Inpu
 bool Keyboard::KeyReleased(int GLFW_KEY) { return m_keysReleased[GLFW_KEY] == Input::FrameCount(); }
 void Keyboard::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	ImGuiManager::KeyCallback(window, key, scancode, action, mods);
+
 	if (action == GLFW_PRESS)
 		m_keysPressed[key] = Input::FrameCount();
 	else if (action == GLFW_RELEASE)
@@ -102,6 +107,8 @@ void Mouse::mouse_callback(GLFWwindow* window, double x, double y)
 
 void Mouse::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+	ImGuiManager::MouseButtonCallback(window, button, action, mods);
+
 	if (action == GLFW_PRESS)
 		m_buttonsPressed[button] = Input::FrameCount();
 	else if (action == GLFW_RELEASE)

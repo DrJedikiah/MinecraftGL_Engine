@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include <util/ImGuiManager.h>
+
 #include <iostream>
 #include <array>
 
@@ -27,7 +29,6 @@ private:
 
 	static unsigned m_count;
 };
-
 
 class Keyboard
 {

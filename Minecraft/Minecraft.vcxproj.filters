@@ -42,6 +42,9 @@
     <Filter Include="Source Files\engine\generators">
       <UniqueIdentifier>{629bd0d3-787e-49a7-ac41-fecb774f529a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\dependencies\imgui">
+      <UniqueIdentifier>{47ad7f1b-79b8-46bd-8d2e-6944f253289c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Minecraft.h">
@@ -140,6 +143,15 @@
     <ClInclude Include="include\engine\TreeGen.h">
       <Filter>Header Files\engine\generators</Filter>
     </ClInclude>
+    <ClInclude Include="include\util\ImGuiManager.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dependencies\imgui\imgui.h">
+      <Filter>Header Files\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dependencies\imgui\imgui_glfw.h">
+      <Filter>Header Files\dependencies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -231,6 +243,18 @@
     </ClCompile>
     <ClCompile Include="src\engine\TreeGen.cpp">
       <Filter>Source Files\engine\generators</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\ImGuiManager.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\imgui\imgui.cpp">
+      <Filter>Source Files\dependencies\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\imgui\imgui_draw.cpp">
+      <Filter>Source Files\dependencies\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\imgui\imgui_glfw.cpp">
+      <Filter>Source Files\dependencies\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

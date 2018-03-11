@@ -68,7 +68,7 @@ Node * TreeGen::GenerateTree(glm::vec3 position, float maxLenght)
 					Node * newNode = new Node(node->position + dir, node, 1);
 
 					//shorten the branch
-					newNode->length += maxLenght * (0.3 * distribution(generator));
+					newNode->length += maxLenght * (0.3f * distribution(generator));
 
 					node->next.push_back(newNode);
 					stack.push(newNode);
@@ -99,7 +99,7 @@ Node * TreeGen::GenerateTree(glm::vec3 position, float maxLenght)
 					dir = dir * rot;
 					Node * newNode = new Node(node->position + dir, node, 2);
 
-					newNode->length -= maxLenght * (0.5 * distribution(generator));
+					newNode->length -= maxLenght * (0.5f * distribution(generator));
 
 					node->next.push_back(newNode);
 					stack.push(newNode);
@@ -110,7 +110,7 @@ Node * TreeGen::GenerateTree(glm::vec3 position, float maxLenght)
 			{
 				//Continue Small branch
 				Node * newNode = new Node(node->position + node->direction, node, 2);
-				newNode->length += maxLenght * (0.1 * distribution(generator));
+				newNode->length += maxLenght * (0.1f * distribution(generator));
 				node->next.push_back(newNode);
 				stack.push(newNode);
 			}

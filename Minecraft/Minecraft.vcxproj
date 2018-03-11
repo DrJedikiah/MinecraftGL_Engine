@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>include;include/dependencies/Bullet;include/dependencies </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;include/dependencies/Bullet;include/dependencies;include/dependencies/imgui</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -104,7 +104,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>include;include/dependencies/Bullet;include/dependencies</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;include/dependencies/Bullet;include/dependencies;include/dependencies/imgui</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -130,6 +130,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\dependencies\imgui\imgui.h" />
+    <ClInclude Include="include\dependencies\imgui\imgui_glfw.h" />
     <ClInclude Include="include\dependencies\stb_image.h" />
     <ClInclude Include="include\engine\Block.h" />
     <ClInclude Include="include\engine\Camera.h" />
@@ -156,6 +158,7 @@
     <ClInclude Include="include\graphics\Tiles.h" />
     <ClInclude Include="include\Minecraft.h" />
     <ClInclude Include="include\util\Debug.h" />
+    <ClInclude Include="include\util\ImGuiManager.h" />
     <ClInclude Include="include\util\Input.h" />
     <ClInclude Include="include\util\Perlin.h" />
     <ClInclude Include="include\util\Signal.h" />
@@ -165,6 +168,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dependencies\glad.c" />
+    <ClCompile Include="src\dependencies\imgui\imgui.cpp" />
+    <ClCompile Include="src\dependencies\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\dependencies\imgui\imgui_glfw.cpp" />
     <ClCompile Include="src\engine\Block.cpp" />
     <ClCompile Include="src\engine\Camera.cpp" />
     <ClCompile Include="src\engine\Chunck.cpp" />
@@ -191,6 +197,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Minecraft.cpp" />
     <ClCompile Include="src\util\Debug.cpp" />
+    <ClCompile Include="src\util\ImGuiManager.cpp" />
     <ClCompile Include="src\util\Input.cpp" />
     <ClCompile Include="src\util\Time.cpp" />
     <ClCompile Include="src\util\Statistics.cpp" />

@@ -1,9 +1,10 @@
 #pragma once
 
+#include <imgui.h>
+//#include "imgui_impl_glfw_gl3.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
- 
+
 #include <iostream>
 #include <string>
  
@@ -11,6 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "util/ImGuiManager.h"
 #include "engine/Physics.h"
 #include "engine/Camera.h"
 #include "engine/PlayerController.h"
@@ -48,7 +50,10 @@ public:
 	void Start( ); 
 	   
 private:
-
+	static void error_callback(int error, const char* description)
+	{
+		fprintf(stderr, "Error %d: %s\n", error, description);
+	}
 
 
 	void SetupPostProcess();
