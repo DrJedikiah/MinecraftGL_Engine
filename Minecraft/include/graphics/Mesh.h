@@ -22,8 +22,10 @@ public:
 
 	Texture * texture;
 	Mesh(std::vector<Vertex> vertices);
-	Mesh();
 	~Mesh();
+
+	bool Empty() const;
+
 	void Draw(const Shader& shader) const override;
 
 private:

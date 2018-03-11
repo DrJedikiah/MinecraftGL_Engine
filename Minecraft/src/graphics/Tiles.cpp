@@ -19,6 +19,7 @@ void Tiles::Initialize(int width, int height)
 	Tiles::SetBlockTile(Tiles::wood, 3, 0);
 	Tiles::SetBlockTile(Tiles::woodTop, 3, 2);
 	Tiles::SetBlockTile(Tiles::leaf, 3, 1);
+	Tiles::SetBlockTile(Tiles::glassRed, 2, 2);
 }
 
 void Tiles::SetBlockTile(Tiles::ID block, int x, int y)

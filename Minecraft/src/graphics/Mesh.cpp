@@ -1,10 +1,5 @@
 #include "graphics/Mesh.h"
 
-Mesh::Mesh()
-{
-	m_empty = true;
-}
-
 Mesh::Mesh(std::vector<Vertex> verticesData)
 {
 	if (verticesData.size() > 0)
@@ -34,6 +29,11 @@ Mesh::Mesh(std::vector<Vertex> verticesData)
 	else
 		m_empty = true;
 	
+}
+
+bool Mesh::Empty() const
+{
+	return m_empty;
 }
 
 void Mesh::Draw(const Shader& shader) const

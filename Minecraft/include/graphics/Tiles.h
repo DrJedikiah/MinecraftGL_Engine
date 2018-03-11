@@ -19,6 +19,7 @@ public:
 		wood,
 		woodTop,
 		leaf,
+		glassRed
 	};
 	
 	static void Initialize(int width, int height);

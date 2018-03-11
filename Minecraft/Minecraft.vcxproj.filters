@@ -45,6 +45,18 @@
     <Filter Include="Source Files\dependencies\imgui">
       <UniqueIdentifier>{47ad7f1b-79b8-46bd-8d2e-6944f253289c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\2D">
+      <UniqueIdentifier>{147b3f27-1271-4cd0-99ad-92641f94c070}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\deferred">
+      <UniqueIdentifier>{ff060c62-2a0f-44da-8950-0bf205f80b97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\forward">
+      <UniqueIdentifier>{62d4e252-c653-40f0-96de-21795e3b0fa7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\postprocess">
+      <UniqueIdentifier>{103cec72-7f91-45a9-b99d-236995e7f301}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Minecraft.h">
@@ -258,83 +270,89 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\postprocess.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\postprocess.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\skybox.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\skybox.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\shadows.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\shadows.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\text.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\text.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\debug_ui.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\debug_ui.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\debug.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\debug.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\deferred_light.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shaders\deferred_light.vs">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="shaders\test.fs">
       <Filter>Shader</Filter>
     </None>
     <None Include="shaders\test.vs">
       <Filter>Shader</Filter>
     </None>
-    <None Include="shaders\deferred_geometry.fs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\2D\drawTexture.fs">
+      <Filter>Shader\2D</Filter>
     </None>
-    <None Include="shaders\deferred_geometry.vs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\2D\drawTexture.vs">
+      <Filter>Shader\2D</Filter>
     </None>
-    <None Include="shaders\deferred_ssao.fs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\2D\text.fs">
+      <Filter>Shader\2D</Filter>
     </None>
-    <None Include="shaders\deferred_ssao.vs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\2D\text.vs">
+      <Filter>Shader\2D</Filter>
     </None>
-    <None Include="shaders\deferred_borders.fs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\2D\debug_ui.fs">
+      <Filter>Shader\2D</Filter>
     </None>
-    <None Include="shaders\deferred_borders.vs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\2D\debug_ui.vs">
+      <Filter>Shader\2D</Filter>
     </None>
-    <None Include="shaders\drawTexture.fs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\forward\shadows.vs">
+      <Filter>Shader\forward</Filter>
     </None>
-    <None Include="shaders\drawTexture.vs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\forward\skybox.fs">
+      <Filter>Shader\forward</Filter>
     </None>
-    <None Include="shaders\FXAA.fs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\forward\skybox.vs">
+      <Filter>Shader\forward</Filter>
     </None>
-    <None Include="shaders\FXAA.vs">
-      <Filter>Shader</Filter>
+    <None Include="shaders\forward\debug.fs">
+      <Filter>Shader\forward</Filter>
+    </None>
+    <None Include="shaders\forward\debug.vs">
+      <Filter>Shader\forward</Filter>
+    </None>
+    <None Include="shaders\forward\shadows.fs">
+      <Filter>Shader\forward</Filter>
+    </None>
+    <None Include="shaders\postprocess\postprocess.fs">
+      <Filter>Shader\postprocess</Filter>
+    </None>
+    <None Include="shaders\postprocess\postprocess.vs">
+      <Filter>Shader\postprocess</Filter>
+    </None>
+    <None Include="shaders\postprocess\FXAA.fs">
+      <Filter>Shader\postprocess</Filter>
+    </None>
+    <None Include="shaders\postprocess\FXAA.vs">
+      <Filter>Shader\postprocess</Filter>
+    </None>
+    <None Include="shaders\forward\transparent.fs">
+      <Filter>Shader\forward</Filter>
+    </None>
+    <None Include="shaders\forward\transparent.vs">
+      <Filter>Shader\forward</Filter>
+    </None>
+    <None Include="shaders\deferred\geometry.fs">
+      <Filter>Shader\deferred</Filter>
+    </None>
+    <None Include="shaders\deferred\geometry.vs">
+      <Filter>Shader\deferred</Filter>
+    </None>
+    <None Include="shaders\deferred\light.fs">
+      <Filter>Shader\deferred</Filter>
+    </None>
+    <None Include="shaders\deferred\light.vs">
+      <Filter>Shader\deferred</Filter>
+    </None>
+    <None Include="shaders\deferred\ssao.fs">
+      <Filter>Shader\deferred</Filter>
+    </None>
+    <None Include="shaders\deferred\ssao.vs">
+      <Filter>Shader\deferred</Filter>
+    </None>
+    <None Include="shaders\deferred\borders.fs">
+      <Filter>Shader\deferred</Filter>
+    </None>
+    <None Include="shaders\deferred\borders.vs">
+      <Filter>Shader\deferred</Filter>
     </None>
   </ItemGroup>
 </Project>

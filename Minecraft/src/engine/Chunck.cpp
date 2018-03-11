@@ -2,7 +2,8 @@
 
 
 Chunck::Chunck() : 
-	m_model(nullptr),
+	m_modelOpaque(nullptr),
+	m_modelTransparent(nullptr),
 	m_shape(nullptr),
 	m_rb(nullptr)
 {
@@ -26,11 +27,15 @@ void Chunck::Setup(World* world, glm::ivec3 position)
 	m_position = position;
 }
 
-void Chunck::Draw(const Shader & shader) const
+void Chunck::DrawTransparent(const Shader & shader) const
 {
-	if( STATS_triangles > 0)
-		m_model->Draw(shader);
+	m_modelTransparent->Draw(shader);
 }
+void Chunck::DrawOpaque(const Shader & shader) const
+{
+	m_modelOpaque->Draw(shader);
+}
+
 
 void Chunck::GenerateLater()
 {
@@ -54,7 +59,7 @@ void Chunck::GenerateCollider()
 			for (int x = 0; x < size; ++x)
 			{
 				Block& block = GetBlock({ x, y, z });
-				if (block.enabled && block.solid)
+				if (block.solid)
 				{
 					glm::ivec3 pos = m_position * size + glm::ivec3(x, y + 1, z);
 					if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid)
@@ -123,77 +128,99 @@ void Chunck::GenerateCollider()
 
 void Chunck::GenerateMesh()
 {
-	std::vector<Mesh::Vertex> vertices;
+	std::vector<Mesh::Vertex> verticesOpaque;
+	std::vector<Mesh::Vertex> verticesTransparent;
+	std::vector<Mesh::Vertex>* targetVertices = nullptr;
+
+
 	for (int y = 0; y < size; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
 			{
 				Block& block = GetBlock({ x, y, z });
-				if(block.enabled && block.solid)
+
+				//Set target
+				if (block.transparent)
+					targetVertices = &verticesTransparent;
+				else
+					targetVertices = &verticesOpaque;
+
+				//Create vertices
+				if(block.solid)
 				{
 					if (block.type == Block::Type::leaf)
 					{
 						std::vector<Mesh::Vertex> cube = Cube::CreateCubeMesh( 14.f * Block::size / 16.f , Block::Type::leaf, (float)x, (float)y, (float)z);
-						vertices.insert(vertices.end(), cube.begin(), cube.end());
+						targetVertices->insert(targetVertices->end(), cube.begin(), cube.end());
 					}
 					else//Regular block
 					{
 						glm::ivec3 pos = m_position * size + glm::ivec3(x, y + 1, z);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
 						{
 							std::vector<Mesh::Vertex> topFace = Cube::cubeTopFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Top(block.type));
-							vertices.insert(vertices.end(), topFace.begin(), topFace.end());
+							targetVertices->insert(targetVertices->end(), topFace.begin(), topFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x, y - 1, z);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
 						{
 							std::vector<Mesh::Vertex> botFace = Cube::cubeBotFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Bot(block.type));
-							vertices.insert(vertices.end(), botFace.begin(), botFace.end());
+							targetVertices->insert(targetVertices->end(), botFace.begin(), botFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x - 1, y, z);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
 						{
 							std::vector<Mesh::Vertex> leftFace = Cube::cubeLeftFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Left(block.type));
-							vertices.insert(vertices.end(), leftFace.begin(), leftFace.end());
+							targetVertices->insert(targetVertices->end(), leftFace.begin(), leftFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x + 1, y, z);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
 						{
 							std::vector<Mesh::Vertex> rightFace = Cube::cubeRightFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Right(block.type));
-							vertices.insert(vertices.end(), rightFace.begin(), rightFace.end());
+							targetVertices->insert(targetVertices->end(), rightFace.begin(), rightFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x, y, z - 1);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
 						{
 							std::vector<Mesh::Vertex> backFace = Cube::cubeBackFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Back(block.type));
-							vertices.insert(vertices.end(), backFace.begin(), backFace.end());
+							targetVertices->insert(targetVertices->end(), backFace.begin(), backFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x, y, z + 1);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).transparent)
+						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
 						{
 							std::vector<Mesh::Vertex> frontFace = Cube::cubeFrontFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Front(block.type));
-							vertices.insert(vertices.end(), frontFace.begin(), frontFace.end());
+							targetVertices->insert(targetVertices->end(), frontFace.begin(), frontFace.end());
 						}
 					}
 
 				}
 	}
-	if (m_model) delete(m_model);
 
-	m_model = new  Model(vertices);
-	m_model->Translate(Chunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
+	//Delete previous model
+	if (m_modelOpaque) delete(m_modelOpaque);
+	if (m_modelTransparent) delete(m_modelTransparent);
 
-	STATS_triangles = vertices.size() / 3;
+
+	//Set new models
+	m_modelOpaque = new Model(verticesOpaque);
+	m_modelOpaque->Translate(Chunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
+	m_modelTransparent = new Model(verticesTransparent);
+	m_modelTransparent->Translate(Chunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
+
+	//stats
+	STATS_triangles = verticesOpaque.size() / 3 + verticesTransparent.size() / 3;
 }
 
 Chunck::~Chunck()
 {
-	if (m_model) delete(m_model);
+	if (m_modelOpaque) delete(m_modelOpaque);
+	if (m_modelTransparent) delete(m_modelTransparent);
+
 	if (m_shape) delete(m_shape);
 }
 

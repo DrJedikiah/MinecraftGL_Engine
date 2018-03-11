@@ -217,7 +217,9 @@ void World::SetBlock(glm::ivec3 position, Block::Type blockType)
  
 void World::AddBlock(glm::ivec3 position)
 {
-	GenerateTree(position, 10.f);
+	SetBlock(position, Block::Type::glassRed);
+	UpdateAround(position);
+	//GenerateTree(position, 10.f);
 }
 
 void World::GenerateTree(glm::ivec3 position, float size)
@@ -236,11 +238,15 @@ void World::GenerateTree(glm::ivec3 position, float size)
 		{
 			Block& block = GetBlock(node->position);
 			if (node->depth <= 2 && (block.type == Block::air || block.type == Block::leaf))
+			{
 				SetBlock(node->position, Block::Type::wood);
+				UpdateBlock(node->position);
+			}
 			else if (block.type == Block::air)
+			{
 				SetBlock(node->position, Block::Type::leaf);
-
-			UpdateBlock(node->position);
+				UpdateBlock(node->position);
+			}
 		}
 		  
 
@@ -274,7 +280,16 @@ void World::UpdateAround(glm::ivec3 position)
 	UpdateBlock(position + glm::ivec3(0, 0, -1));
 }
 
-void World::Draw(const Shader& shader)
+void World::DrawTransparent(const Shader & shader)
+{
+	for (int y = 0; y < height; ++y)
+		for (int z = 0; z < size; ++z)
+			for (int x = 0; x < size; ++x)
+				m_chuncks[x][y][z].DrawTransparent(shader);
+}
+
+
+void World::DrawOpaque(const Shader & shader)
 {
 	if (m_lastTree)
 	{
@@ -288,7 +303,7 @@ void World::Draw(const Shader& shader)
 			Node * node = stack.top();
 			stack.pop();
 
-			
+
 			if (node->parent)
 			{
 				if (node->depth < 3)
@@ -304,11 +319,10 @@ void World::Draw(const Shader& shader)
 				stack.push(n);
 		}
 	}
-
 	for (int y = 0; y < height; ++y)
 		for (int z = 0; z < size; ++z)
 			for (int x = 0; x < size; ++x)
-				m_chuncks[x][y][z].Draw(shader);
+				m_chuncks[x][y][z].DrawOpaque(shader);
 }
 
 World::~World()

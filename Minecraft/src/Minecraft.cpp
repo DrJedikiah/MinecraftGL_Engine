@@ -50,21 +50,29 @@ void Minecraft::Start()
 {
 	float t1 = Time::ElapsedSinceStartup();
 
-	//Shader
-	Shader shader_postprocess("shaders/postprocess.vs", "shaders/postprocess.fs");
-	Shader shader_debug("shaders/debug.vs", "shaders/debug.fs");
-	Shader shader_debug_ui("shaders/debug_ui.vs", "shaders/debug_ui.fs");
-	Shader shader_skybox("shaders/skybox.vs", "shaders/skybox.fs");
-	Shader shader_Text("shaders/text.vs", "shaders/text.fs");
-	Shader shader_shadows("shaders/shadows.vs", "shaders/shadows.fs");
-	Shader shader_deferred_geometry("shaders/deferred_geometry.vs", "shaders/deferred_geometry.fs");
-	Shader shader_deferred_light("shaders/deferred_light.vs", "shaders/deferred_light.fs");
-	Shader shader_deferred_SSAO("shaders/deferred_ssao.vs", "shaders/deferred_ssao.fs");
-	Shader shader_deferred_borders("shaders/deferred_borders.vs", "shaders/deferred_borders.fs");
-	Shader shader_draw_texture("shaders/drawTexture.vs", "shaders/drawTexture.fs");
+	//Shaders 2D
+	Shader shader_debug_ui("shaders/2D/debug_ui.vs", "shaders/2D/debug_ui.fs");
+	Shader shader_Text("shaders/2D/text.vs", "shaders/2D/text.fs");
+	Shader shader_draw_texture("shaders/2D/drawTexture.vs", "shaders/2D/drawTexture.fs");
+	
+	//Shaders deferred
+	Shader shader_deferred_borders("shaders/deferred/borders.vs", "shaders/deferred/borders.fs");
+	Shader shader_deferred_geometry("shaders/deferred/geometry.vs", "shaders/deferred/geometry.fs");
+	Shader shader_deferred_light("shaders/deferred/light.vs", "shaders/deferred/light.fs");
+	Shader shader_deferred_SSAO("shaders/deferred/ssao.vs", "shaders/deferred/ssao.fs");
+	
+	//Shaders forward
+	Shader shader_debug("shaders/forward/debug.vs", "shaders/forward/debug.fs");
+	Shader shader_shadows("shaders/forward/shadows.vs", "shaders/forward/shadows.fs");
+	Shader shader_skybox("shaders/forward/skybox.vs", "shaders/forward/skybox.fs");
+	Shader shader_transparent("shaders/forward/transparent.vs", "shaders/forward/transparent.fs");
+	
+	//Shaders postprocess
+	Shader shader_postprocess("shaders/postprocess/postprocess.vs", "shaders/postprocess/postprocess.fs");
+	Shader shader_FXAA("shaders/postprocess/FXAA.vs", "shaders/postprocess/FXAA.fs");
+	
+	//Shaders test
 	Shader shader_test("shaders/test.vs", "shaders/test.fs");
-	Shader shader_FXAA("shaders/FXAA.vs", "shaders/FXAA.fs");
-
 
 	GrayFBO fboSSAO(m_width/5, m_height/5);
 	GrayFBO fboBorders(m_width, m_height);
@@ -76,7 +84,7 @@ void Minecraft::Start()
 
 	Tiles::Initialize(4, 4);
 	TexturesBlocks::Initialize();
-	Texture texture("textures/grass.png");
+	Texture textureBlocks("textures/blocks.png");
 	Font font("fonts/arial.ttf", 20);
 	CubeMap cubeMap({
 		"textures/skybox/right.png",
@@ -105,9 +113,9 @@ void Minecraft::Start()
 	//player.rb().translate(btVector3(World::size * Chunck::size / 2, World::height * Chunck::size / 16, World::size * Chunck::size / 2));
 
 	FreeCameraController freeCameraController(camera);
-	freeCameraController.SetEnabled(true);
+	freeCameraController.SetEnabled(false);
 	PlayerController playerController(camera, player);
-	playerController.SetEnabled(false);
+	playerController.SetEnabled(true);
 
 	Cube cube;
 	cube.rb().translate(btVector3(4.5, 20, 4.5));
@@ -263,12 +271,12 @@ void Minecraft::Start()
 			fboShadow.Use();
 			fboShadow.Clear();
 			shader_shadows.setMat4("projview", lightProjection*lightView);
-			World::Draw(shader_shadows);
+			World::DrawOpaque(shader_shadows);
 			//////
 			fboShadowLarge.Use();
 			fboShadowLarge.Clear();
 			shader_shadows.setMat4("projview", lightProjectionLarge*lightView);
-			World::Draw(shader_shadows);
+			World::DrawOpaque(shader_shadows);
 
 			//////////////////////////////// DEFERRED GEOMETRY ////////////////////////////////
 			shader_deferred_geometry.Use();
@@ -276,7 +284,7 @@ void Minecraft::Start()
 			gBuffer.Use();
 			gBuffer.Clear();
 
-			texture.Use(TextureUnit::Unit0);
+			textureBlocks.Use(TextureUnit::Unit0);
 			shader_deferred_geometry.setInt("textureBlocks", 0);
 			shader_deferred_geometry.setMat4("projview", camera.projectionMatrix() * camera.viewMatrix());
 
@@ -285,7 +293,7 @@ void Minecraft::Start()
 			cube.UpdateModels();
 			cube.Draw(shader_deferred_geometry);
 
-			World::Draw(shader_deferred_geometry);
+			World::DrawOpaque(shader_deferred_geometry);
 
 			//////////////////////////////// SSAO ////////////////////////////////
 			fboSSAO.Use();
@@ -374,12 +382,21 @@ void Minecraft::Start()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glDepthFunc(GL_LESS);
 
+			//Transparent objects
+			shader_transparent.Use();
+			textureBlocks.Use(TextureUnit::Unit0);
+			shader_transparent.setInt("textureBlocks", 0);
+			shader_transparent.setMat4("projView", camera.projectionMatrix() * camera.viewMatrix());
+			
+			World::DrawTransparent(shader_transparent);
+
 			//////////////////////////////// POSTPROCESSING ////////////////////////////////
 			shader_postprocess.Use();
 
 			fboFXAA.Use();
 			fboFXAA.Clear();
 
+			//Effects
 			fboPostProc.UseTexture(TextureUnit::Unit0);
 			fboBorders.UseTexture(TextureUnit::Unit1);
 			fboSSAO.UseTexture(TextureUnit::Unit2);
@@ -394,6 +411,7 @@ void Minecraft::Start()
 			glEnable(GL_DEPTH_TEST);
 
 
+			//FXAA
 			FBO::UseDefault();
 			FBO::ClearDefault();
 			shader_FXAA.Use();
@@ -415,51 +433,22 @@ void Minecraft::Start()
 			if (debugActivated)
 			{
 				glDisable(GL_DEPTH_TEST);
-				//FPS counter
-				std::stringstream ss;
-				ss << "fps: " << (int)fps;
-				font.RenderText(shader_Text, ss.str(), 0, (GLfloat)m_height - 20);
-
-				//Triangles counter
-				std::stringstream ss2;
-				ss2 << "triangles : " << Statistics::GetTriangles() / 1000 << "k";
-				font.RenderText(shader_Text, ss2.str(), 0, (GLfloat)(m_height - 40));
-
-				//ui
 				shader_debug.Use();
 				shader_debug.setMat4("view", camera.viewMatrix());
 				Debug::Draw(shader_debug, shader_debug_ui);
 				glEnable(GL_DEPTH_TEST);
 			}
 
-			//////////////////////////////// DRAW ////////////////////////////////
+			//////////////////////////////// IMGUI ////////////////////////////////
 			ImGuiManager::NewFrame();
 
-			// 1. Show a simple window
-			// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-			{
-				static float f = 0.0f;
-				ImGui::Text("Hello, world!");
-				ImGui::InputText("input text", text, 64, ImGuiInputTextFlags_AutoSelectAll);
-				ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-				ImGui::ColorEdit3("clear color", (float*)&clear_color);
-				if (ImGui::Button("Another Window")) show_another_window ^= 1;
-				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			}
-
-			// 2. Show another simple window, this time using an explicit Begin/End pair
-			if (show_another_window)
-			{
-				ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
-				ImGui::Begin("Another Window", &show_another_window);
-				ImGui::Text("Hello");
-				ImGui::End();
-			}
-
-			// Rendering
-
+			ImGui::Begin("Performance");
+			ImGui::BulletText(" %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::BulletText(" %.1ik triangles", Statistics::GetTriangles() / 1000);
+			ImGui::End();
 			ImGui::Render();
 
+			/////////////////////////////// DRAW ////////////////////////////////
 			glfwSwapBuffers(m_window);
 			Debug::Clear();
 		}

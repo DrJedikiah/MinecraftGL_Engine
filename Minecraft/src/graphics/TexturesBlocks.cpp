@@ -13,6 +13,7 @@ void TexturesBlocks::Initialize()
 	fRect woodRect = Tiles::GetRectangle(Tiles::wood);
 	fRect woodTopRect = Tiles::GetRectangle(Tiles::woodTop);
 	fRect leafRect = Tiles::GetRectangle(Tiles::leaf);
+	fRect glassRedRect = Tiles::GetRectangle(Tiles::glassRed);
 
 	SetBlock(Block::dirt, dirtRect);
 	SetBlock(Block::grass, grassTopRect, dirtRect, grassSideRect, grassSideRect, grassSideRect, grassSideRect);
@@ -21,4 +22,5 @@ void TexturesBlocks::Initialize()
 	SetBlock(Block::bedrock, bedrockRect);
 	SetBlock(Block::wood, woodTopRect, woodTopRect, woodRect, woodRect, woodRect, woodRect);
 	SetBlock(Block::leaf, leafRect);
+	SetBlock(Block::glassRed, glassRedRect);
 }

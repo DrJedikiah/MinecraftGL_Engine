@@ -11,7 +11,6 @@ class Model : public Drawable
 {
 public:
 	Model(std::vector<Mesh::Vertex> vertices);
-	Model();
 	~Model();
 	const glm::mat4 ModelMatrix() const;
 

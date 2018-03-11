@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <iostream>
 
 class Block
 {
@@ -16,13 +17,14 @@ public:
 		bedrock, 
 		wood, 
 		leaf, 
+		glassRed
 	};
 
 	const static float size;
 	Type type = dirt;
-	bool enabled = true;
 	bool solid = true;
 	bool destructible = true;
+	bool seeThrough = false;
 	bool transparent = false;
 
 	void SetType(Type newType)
@@ -30,33 +32,37 @@ public:
 		switch (newType)
 		{
 		case Block::invalid: 
-			type = air;		enabled = false; solid = false; destructible = false; transparent = false;
+			type = air;			solid = false; destructible = false; seeThrough = false, transparent = false;
 			break;
 		case Block::air:
-			type = air;		enabled = false; solid = false; destructible = false; transparent = false;
+			type = air;			solid = false; destructible = false; seeThrough = false, transparent = false;
 			break;
 		case Block::dirt:
-			type = dirt;	enabled = true;  solid = true;  destructible = true; transparent = false;
+			type = dirt;		solid = true;  destructible = true; seeThrough = false, transparent = false;
 			break;
 		case Block::grass:
-			type = grass;	enabled = true;  solid = true;  destructible = true; transparent = false;
+			type = grass;		solid = true;  destructible = true; seeThrough = false, transparent = false;
 			break;
 		case Block::water:
-			type = water;	enabled = true;  solid = false; destructible = false; transparent = true;
+			type = water;		solid = false; destructible = false; seeThrough = true, transparent = false;
 			break;
 		case Block::stone:
-			type = stone;	enabled = true;  solid = true;  destructible = true; transparent = false;
+			type = stone;		solid = true;  destructible = true; seeThrough = false, transparent = false;
 			break;
 		case Block::bedrock:
-			type = bedrock;	enabled = true;  solid = true;  destructible = false; transparent = false;
+			type = bedrock;		solid = true;  destructible = false; seeThrough = false, transparent = false;
 			break;
 		case Block::wood:
-			type = wood;	enabled = true;  solid = true;  destructible = true; transparent = false;
+			type = wood;		solid = true;  destructible = true; seeThrough = false, transparent = false;
 			break;
 		case Block::leaf:
-			type = leaf;	enabled = true;  solid = true; destructible = true; transparent = true;
+			type = leaf;		solid = true; destructible = true; seeThrough = true, transparent = false;
+			break;
+		case Block::glassRed:
+			type = glassRed;	solid = true; destructible = true; seeThrough = true, transparent = true;
 			break;
 		default:
+			std::cerr << "Block::SetType : block not found " << newType << std::endl;
 			break;
 		}
 	}

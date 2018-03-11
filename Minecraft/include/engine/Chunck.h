@@ -16,7 +16,7 @@
 
 class World;
 
-class Chunck : public Drawable, public Statistics
+class Chunck : public Statistics
 {
 public:
 	friend class World;
@@ -28,7 +28,9 @@ public:
 	static const int size = 16;
 
 	void Update(float delta);
-	void Draw(const Shader & shader) const override;
+
+	void DrawTransparent(const Shader & shader) const;
+	void DrawOpaque(const Shader & shader) const;
 
 	Block& GetBlock(glm::ivec3 position);
 
@@ -42,7 +44,9 @@ private:
 	World* m_world;
 	glm::ivec3 m_position;
 
-	Model * m_model;
+	Model * m_modelOpaque;
+	Model * m_modelTransparent;
+
 	Block m_blocks[size][size][size];
 
 	//Collider

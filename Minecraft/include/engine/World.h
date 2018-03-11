@@ -23,14 +23,15 @@ public:
 	 
 	static void Update(float delta);
 
-	static void Draw(const Shader& shader);
+	static void DrawTransparent(const Shader & shader);
+	static void DrawOpaque(const Shader & shader);
+
+
 	static void GenerateChunks();
 	static void GeneratePhysics();
 
 	static Chunck & GetChunck(glm::ivec3 position);
 	static Block & GetBlock(glm::ivec3 position);
-
-
 
 	static void RemoveBlock(glm::ivec3 position);
 	static void AddBlock(glm::ivec3 position);

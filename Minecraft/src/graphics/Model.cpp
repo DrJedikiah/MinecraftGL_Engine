@@ -11,11 +11,6 @@ Model::Model(std::vector<Mesh::Vertex> vertices) :
 
 }
 
-Model::Model()
-{
-
-}
-
 void Model::SetPosition(glm::vec3 vector)
 {
 	m_position = vector;
