@@ -70,9 +70,12 @@ public:
 	void Use() const override;
 	void Clear() const override;
 	void UseTexture(TextureUnit textureUnit)const;
+	void UseDepth(TextureUnit textureUnit)const;
 //private:
 	unsigned int m_texture;
+	unsigned int m_depth;
 	unsigned int m_rbo;
+
 };
 
 //////////////////////////////// ShadowMapFBO ////////////////////////////////

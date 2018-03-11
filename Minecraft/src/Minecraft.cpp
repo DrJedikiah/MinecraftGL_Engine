@@ -56,7 +56,6 @@ void Minecraft::Start()
 	Shader shader_draw_texture("shaders/2D/drawTexture.vs", "shaders/2D/drawTexture.fs");
 	
 	//Shaders deferred
-	Shader shader_deferred_borders("shaders/deferred/borders.vs", "shaders/deferred/borders.fs");
 	Shader shader_deferred_geometry("shaders/deferred/geometry.vs", "shaders/deferred/geometry.fs");
 	Shader shader_deferred_light("shaders/deferred/light.vs", "shaders/deferred/light.fs");
 	Shader shader_deferred_SSAO("shaders/deferred/ssao.vs", "shaders/deferred/ssao.fs");
@@ -70,6 +69,7 @@ void Minecraft::Start()
 	//Shaders postprocess
 	Shader shader_postprocess("shaders/postprocess/postprocess.vs", "shaders/postprocess/postprocess.fs");
 	Shader shader_FXAA("shaders/postprocess/FXAA.vs", "shaders/postprocess/FXAA.fs");
+	Shader shader_borders("shaders/postprocess/borders.vs", "shaders/postprocess/borders.fs");
 	
 	//Shaders test
 	Shader shader_test("shaders/test.vs", "shaders/test.fs");
@@ -267,12 +267,12 @@ void Minecraft::Start()
 					glm::vec3(0.0f, 1.0f, 0.0f));
 
 			shader_shadows.Use();
-			//////
+			//////Close shadow
 			fboShadow.Use();
 			fboShadow.Clear();
 			shader_shadows.setMat4("projview", lightProjection*lightView);
 			World::DrawOpaque(shader_shadows);
-			//////
+			//////Far shadow
 			fboShadowLarge.Use();
 			fboShadowLarge.Clear();
 			shader_shadows.setMat4("projview", lightProjectionLarge*lightView);
@@ -317,19 +317,6 @@ void Minecraft::Start()
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glEnable(GL_DEPTH_TEST);
 
-			//////////////////////////////// BLACK BORDERS ////////////////////////////////
-			fboBorders.Use();
-			fboBorders.Clear();
-			shader_deferred_borders.Use();
-
-			gBuffer.UseDepth(TextureUnit::Unit0);
-			shader_deferred_borders.setInt("gDepth", 0);
-
-			glDisable(GL_DEPTH_TEST);
-			glBindVertexArray(postProcVAO);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glEnable(GL_DEPTH_TEST);
-
 			//////////////////////////////// DEFERRED LIGHT ////////////////////////////////
 			fboPostProc.Use();
 			fboPostProc.Clear();
@@ -339,6 +326,7 @@ void Minecraft::Start()
 			gBuffer.UsePosition(TextureUnit::Unit2);
 			fboShadow.UseTexture(TextureUnit::Unit3);
 			fboShadowLarge.UseTexture(TextureUnit::Unit4);
+			fboSSAO.UseTexture(TextureUnit::Unit5);
 
 			shader_deferred_light.Use();
 			shader_deferred_light.setInt("gColor", 0);
@@ -346,6 +334,7 @@ void Minecraft::Start()
 			shader_deferred_light.setInt("gPosition", 2);
 			shader_deferred_light.setInt("shadowMap", 3);
 			shader_deferred_light.setInt("shadowMapLarge", 4);
+			shader_deferred_light.setInt("ambientOcclusion", 5);
 			shader_deferred_light.setVec3("lightPos", sunLight.position);
 			shader_deferred_light.setVec3("viewPos", camera.position());
 			shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 255.f, 134.f / 255.f, 255.f / 255.f));
@@ -383,6 +372,8 @@ void Minecraft::Start()
 			glDepthFunc(GL_LESS);
 
 			//Transparent objects
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			shader_transparent.Use();
 			textureBlocks.Use(TextureUnit::Unit0);
 			shader_transparent.setInt("textureBlocks", 0);
@@ -390,28 +381,37 @@ void Minecraft::Start()
 			
 			World::DrawTransparent(shader_transparent);
 
+			//////////////////////////////// BLACK BORDERS ////////////////////////////////
+			fboBorders.Use();
+			fboBorders.Clear();
+			shader_borders.Use();
+
+			fboPostProc.UseDepth(TextureUnit::Unit0);
+			shader_borders.setInt("depthTexture", 0);
+
+			glDisable(GL_DEPTH_TEST);
+			glBindVertexArray(postProcVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glEnable(GL_DEPTH_TEST);
+
 			//////////////////////////////// POSTPROCESSING ////////////////////////////////
 			shader_postprocess.Use();
 
 			fboFXAA.Use();
 			fboFXAA.Clear();
 
-			//Effects
+			//effects
 			fboPostProc.UseTexture(TextureUnit::Unit0);
 			fboBorders.UseTexture(TextureUnit::Unit1);
-			fboSSAO.UseTexture(TextureUnit::Unit2);
-			gBuffer.UseDepth(TextureUnit::Unit3);
 			shader_postprocess.setInt("screenTexture", 0);
 			shader_postprocess.setInt("bordersTexture", 1);
-			shader_postprocess.setInt("ambientOcclusion", 2);
-			shader_postprocess.setInt("depth", 3);
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glEnable(GL_DEPTH_TEST);
 
 
-			//FXAA
+			//fxaa
 			FBO::UseDefault();
 			FBO::ClearDefault();
 			shader_FXAA.Use();
@@ -428,7 +428,7 @@ void Minecraft::Start()
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glEnable(GL_DEPTH_TEST);
 
-			//////////////////////////////// UI ////////////////////////////////
+			//////////////////////////////// DEBUG ////////////////////////////////
 
 			if (debugActivated)
 			{

@@ -141,11 +141,21 @@ PostProcessingFBO::PostProcessingFBO( int width, int height) : FBO(width, height
 	// attach it to currently bound framebuffer object
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture, 0);
 
+	/*INITIAL
 	glGenRenderbuffers(1, &m_rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);*/
+
+	//Depth texture
+	glGenTextures(1, &m_depth);
+	glBindTexture(GL_TEXTURE_2D, m_depth);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth, 0);
+
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
@@ -169,6 +179,12 @@ void  PostProcessingFBO::UseTexture(TextureUnit textureUnit)const
 {
 	glActiveTexture(textureUnit);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+}
+
+void  PostProcessingFBO::UseDepth(TextureUnit textureUnit)const
+{
+	glActiveTexture(textureUnit);
+	glBindTexture(GL_TEXTURE_2D, m_depth);
 }
 
 PostProcessingFBO::~PostProcessingFBO()

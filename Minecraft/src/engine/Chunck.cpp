@@ -156,42 +156,48 @@ void Chunck::GenerateMesh()
 					else//Regular block
 					{
 						glm::ivec3 pos = m_position * size + glm::ivec3(x, y + 1, z);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
+						Block& otherBlock = World::GetBlock(pos);
+						if (!World::BlockGenerated(pos) || !otherBlock.solid || (otherBlock.seeThrough && !(otherBlock.transparent&&block.transparent)) )
 						{
 							std::vector<Mesh::Vertex> topFace = Cube::cubeTopFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Top(block.type));
 							targetVertices->insert(targetVertices->end(), topFace.begin(), topFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x, y - 1, z);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
+						Block& otherBlock2 = World::GetBlock(pos);
+						if (!World::BlockGenerated(pos) || !otherBlock2.solid || (otherBlock2.seeThrough && !(otherBlock2.transparent&&block.transparent)))
 						{
 							std::vector<Mesh::Vertex> botFace = Cube::cubeBotFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Bot(block.type));
 							targetVertices->insert(targetVertices->end(), botFace.begin(), botFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x - 1, y, z);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
+						Block& otherBlock3 = World::GetBlock(pos);
+						if (!World::BlockGenerated(pos) || !otherBlock3.solid || (otherBlock3.seeThrough && !(otherBlock3.transparent&&block.transparent)))
 						{
 							std::vector<Mesh::Vertex> leftFace = Cube::cubeLeftFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Left(block.type));
 							targetVertices->insert(targetVertices->end(), leftFace.begin(), leftFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x + 1, y, z);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
+						Block& otherBlock4 = World::GetBlock(pos);
+						if (!World::BlockGenerated(pos) || !otherBlock4.solid || (otherBlock4.seeThrough && !(otherBlock4.transparent&&block.transparent)))
 						{
 							std::vector<Mesh::Vertex> rightFace = Cube::cubeRightFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Right(block.type));
 							targetVertices->insert(targetVertices->end(), rightFace.begin(), rightFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x, y, z - 1);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
+						Block& otherBlock5 = World::GetBlock(pos);
+						if (!World::BlockGenerated(pos) || !otherBlock5.solid || (otherBlock5.seeThrough && !(otherBlock5.transparent&&block.transparent)))
 						{
 							std::vector<Mesh::Vertex> backFace = Cube::cubeBackFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Back(block.type));
 							targetVertices->insert(targetVertices->end(), backFace.begin(), backFace.end());
 						}
 
 						pos = m_position * size + glm::ivec3(x, y, z + 1);
-						if (!World::BlockGenerated(pos) || !World::GetBlock(pos).solid || World::GetBlock(pos).seeThrough)
+						Block& otherBlock6 = World::GetBlock(pos);
+						if (!World::BlockGenerated(pos) || !otherBlock6.solid || (otherBlock6.seeThrough && !(otherBlock6.transparent&&block.transparent)))
 						{
 							std::vector<Mesh::Vertex> frontFace = Cube::cubeFrontFace(Block::size, (float)x, (float)y, (float)z, TexturesBlocks::Front(block.type));
 							targetVertices->insert(targetVertices->end(), frontFace.begin(), frontFace.end());

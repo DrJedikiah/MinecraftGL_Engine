@@ -7,9 +7,9 @@ out vec4 FragColor;
 uniform sampler2D gColor;
 uniform sampler2D gNormal;
 uniform sampler2D gPosition;
-
 uniform sampler2D shadowMap;
 uniform sampler2D shadowMapLarge;
+uniform sampler2D ambientOcclusion;
 
 uniform vec3 viewPos;
 uniform vec3 lightPos;
@@ -26,12 +26,14 @@ vec3 lightDir = normalize(lightPos - fragPos);
 vec3 viewDir = normalize(viewPos - fragPos);
 
 float ShadowCalculation(vec3 frag, sampler2D map, float threshold);
+float blurredAmbientOcclusion();
 
 void main()
 {
 	float ambient =  0.3f;
 	float diffuse = max(dot(normal, lightDir), 0.0);
 	float spec = pow(max(dot( normalize(viewDir+lightDir), normal), 0.0), 16);
+	float occlusion = blurredAmbientOcclusion();
 
 	float shadow = 1;
 
@@ -43,8 +45,35 @@ void main()
 	else if (fragPosLightSpaceLarge.x <= 1.f && fragPosLightSpaceLarge.x >= -1.f && fragPosLightSpaceLarge.y <= 1.f && fragPosLightSpaceLarge.y >= -1.f)
 		shadow = ShadowCalculation(fragPosLightSpaceLarge.xyz, shadowMapLarge, 0.00025f); 
 
-	FragColor =  vec4( (ambient + shadow * (diffuse+spec)) * color.xyz  * lightColor , color.w  );
+	FragColor =  vec4( occlusion*(ambient + shadow * (diffuse+spec)) * color.xyz  * lightColor , color.w  );
 }  
+
+
+
+
+vec2 texelSize = 1.f / textureSize(ambientOcclusion, 0);
+const int size = 5;
+float kernel[size*size] = 
+{
+    0.5 , 1.0 , 2.0 , 1.0 , 0.5, 
+    1.0 , 2.0 , 2.0 , 2.0 , 1.0 , 
+    2.0 , 2.0 , 2.0 , 2.0 , 2.0 , 
+	1.0 , 2.0 , 2.0 , 2.0 , 1.0 ,
+    0.5 , 1.0 , 2.0 , 1.0 , 0.5 
+};
+
+float blurredAmbientOcclusion()
+{
+	float occlusion = 1;
+	for( int x = 0; x < size; ++x )
+		for( int y = 0; y < size; ++y )
+		{
+			vec2 pos = TexCoords +  vec2(x - size/2,y- size/2) * texelSize ;
+			occlusion += kernel[x + y * size] * texture(ambientOcclusion, pos).x ;
+		}
+	occlusion /= 26+10;
+	return occlusion;
+}
 
 float ShadowCalculation(vec3 frag, sampler2D map, float threshold)
 {

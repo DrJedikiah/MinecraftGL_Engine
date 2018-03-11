@@ -3,8 +3,10 @@
 in vec2 TexCoords;
 out vec4 FragColor;
 
-uniform sampler2D gDepth;
-vec2 texelSize = 1.f / textureSize(gDepth, 0);
+uniform sampler2D depthTexture;
+
+
+vec2 texelSize = 1.f / textureSize(depthTexture, 0);
 
 const int size = 3;
 float kernel[size*size] = 
@@ -21,7 +23,7 @@ void main()
 		for( int y = 0; y < size; ++y )
 		{
 			vec2 pos = vec2(TexCoords.x + (x - size/2)*texelSize.x, TexCoords.y + (y- size/2)*texelSize.y);
-			float depth = texture(gDepth,pos).x;
+			float depth = texture(depthTexture,pos).x;
 
 			average +=  50*kernel[x + y * size] * depth;
 		}
