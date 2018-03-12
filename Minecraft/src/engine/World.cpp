@@ -214,13 +214,7 @@ void World::SetBlock(glm::ivec3 position, Block::Type blockType)
 	if (BlockGenerated(position))
 		World::GetBlock(position).SetType(blockType);
 }
- 
-void World::AddBlock(glm::ivec3 position)
-{
-	SetBlock(position, Block::Type::glassRed);
-	UpdateAround(position);
-	//GenerateTree(position, 10.f);
-}
+
 
 void World::GenerateTree(glm::ivec3 position, float size)
 {

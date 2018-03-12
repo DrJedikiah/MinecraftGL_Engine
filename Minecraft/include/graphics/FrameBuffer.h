@@ -26,8 +26,8 @@ public:
 	GLuint m_fbo;
 	int m_width;
 	int m_height;
-	int m_aaSamples;
 	
+
 };
 
 //////////////////////////////// TextureDepthFBO ////////////////////////////////

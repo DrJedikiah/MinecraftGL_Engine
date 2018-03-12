@@ -31,7 +31,16 @@ void PlayerController::Update(float delta)
 
 		if (Mouse::ButtonPressed(Mouse::Button::right))
 			if (SelectSpace(blockCoord))
-				World::AddBlock(blockCoord);
+			{
+				World::SetBlock(blockCoord, Block::glassRed);
+				World::UpdateAround(blockCoord);
+			}
+		if (Mouse::ButtonPressed(Mouse::Button::button3))
+			if (SelectSpace(blockCoord))
+			{
+				World::SetBlock(blockCoord, Block::glassBlue);
+				World::UpdateAround(blockCoord);
+			}
 	} 
 } 
 

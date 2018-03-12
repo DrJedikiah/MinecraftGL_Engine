@@ -1,4 +1,4 @@
-#include "graphics/FrameBuffer.h"
+﻿#include "graphics/FrameBuffer.h"
 
 //////////////////////////////// FBO ////////////////////////////////
 
@@ -167,11 +167,12 @@ void PostProcessingFBO::Use() const
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 	glViewport(0, 0, m_width, m_height);
 	glEnable(GL_DEPTH_TEST);
+	
 }
 
 void PostProcessingFBO::Clear() const
 {
-	glClearColor(0, 0, 0, 0);
+	glClearColor(0,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -229,7 +230,7 @@ void ShadowMapFBO::Use() const
 void ShadowMapFBO::Clear() const
 {
 	glClearColor(0, 0, 0, 0);
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 ShadowMapFBO::~ShadowMapFBO()

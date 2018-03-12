@@ -34,7 +34,6 @@ public:
 	static Block & GetBlock(glm::ivec3 position);
 
 	static void RemoveBlock(glm::ivec3 position);
-	static void AddBlock(glm::ivec3 position);
 
 	static void GenerateTree(glm::ivec3 position, float size);
 

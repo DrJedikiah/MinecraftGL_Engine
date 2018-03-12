@@ -348,11 +348,11 @@
     <None Include="shaders\deferred\ssao.vs">
       <Filter>Shader\deferred</Filter>
     </None>
-    <None Include="shaders\deferred\borders.fs">
-      <Filter>Shader\deferred</Filter>
+    <None Include="shaders\postprocess\borders.fs">
+      <Filter>Shader\postprocess</Filter>
     </None>
-    <None Include="shaders\deferred\borders.vs">
-      <Filter>Shader\deferred</Filter>
+    <None Include="shaders\postprocess\borders.vs">
+      <Filter>Shader\postprocess</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -209,8 +209,6 @@
     <None Include="shaders\2D\drawTexture.vs" />
     <None Include="shaders\2D\text.fs" />
     <None Include="shaders\2D\text.vs" />
-    <None Include="shaders\deferred\borders.fs" />
-    <None Include="shaders\deferred\borders.vs" />
     <None Include="shaders\deferred\geometry.fs" />
     <None Include="shaders\deferred\geometry.vs" />
     <None Include="shaders\deferred\light.fs" />
@@ -225,6 +223,8 @@
     <None Include="shaders\forward\skybox.vs" />
     <None Include="shaders\forward\transparent.fs" />
     <None Include="shaders\forward\transparent.vs" />
+    <None Include="shaders\postprocess\borders.fs" />
+    <None Include="shaders\postprocess\borders.vs" />
     <None Include="shaders\postprocess\FXAA.fs" />
     <None Include="shaders\postprocess\FXAA.vs" />
     <None Include="shaders\postprocess\postprocess.fs" />

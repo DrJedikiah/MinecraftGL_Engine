@@ -75,12 +75,13 @@ void Minecraft::Start()
 	Shader shader_test("shaders/test.vs", "shaders/test.fs");
 
 	GrayFBO fboSSAO(m_width/5, m_height/5);
-	GrayFBO fboBorders(m_width, m_height);
+	TextureDepthFBO fboBorders(m_width, m_height);
 	TextureDepthFBO fboFXAA(m_width, m_height);
 	ShadowMapFBO fboShadow(2 * 2048, 2 * 2048);
 	ShadowMapFBO fboShadowLarge(2 * 2048, 2 * 2048);
 	DeferredFBO gBuffer(m_width, m_height);
 	PostProcessingFBO fboPostProc(m_width, m_height);
+	PostProcessingFBO fboPostProcTransparent(m_width, m_height);
 
 	Tiles::Initialize(4, 4);
 	TexturesBlocks::Initialize();
@@ -371,23 +372,34 @@ void Minecraft::Start()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glDepthFunc(GL_LESS);
 
+
+			fboPostProcTransparent.Use();
+			fboPostProcTransparent.Clear();
 			//Transparent objects
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glDepthFunc(GL_ALWAYS);
 			shader_transparent.Use();
 			textureBlocks.Use(TextureUnit::Unit0);
+			fboPostProc.UseDepth(TextureUnit::Unit1);
 			shader_transparent.setInt("textureBlocks", 0);
+			shader_transparent.setInt("depthTexture", 1);
 			shader_transparent.setMat4("projView", camera.projectionMatrix() * camera.viewMatrix());
-			
 			World::DrawTransparent(shader_transparent);
+			glDepthFunc(GL_LESS);
+
 
 			//////////////////////////////// BLACK BORDERS ////////////////////////////////
 			fboBorders.Use();
 			fboBorders.Clear();
+
 			shader_borders.Use();
 
 			fboPostProc.UseDepth(TextureUnit::Unit0);
+			fboPostProcTransparent.UseTexture(TextureUnit::Unit1);
 			shader_borders.setInt("depthTexture", 0);
+			shader_borders.setInt("transTexture", 1);
 
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
@@ -403,8 +415,10 @@ void Minecraft::Start()
 			//effects
 			fboPostProc.UseTexture(TextureUnit::Unit0);
 			fboBorders.UseTexture(TextureUnit::Unit1);
+			fboPostProcTransparent.UseTexture(TextureUnit::Unit2);
 			shader_postprocess.setInt("screenTexture", 0);
 			shader_postprocess.setInt("bordersTexture", 1);
+			shader_postprocess.setInt("transtex", 2);
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);

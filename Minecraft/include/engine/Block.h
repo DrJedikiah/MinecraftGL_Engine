@@ -17,7 +17,8 @@ public:
 		bedrock, 
 		wood, 
 		leaf, 
-		glassRed
+		glassRed,
+		glassBlue
 	};
 
 	const static float size;
@@ -60,6 +61,9 @@ public:
 			break;
 		case Block::glassRed:
 			type = glassRed;	solid = true; destructible = true; seeThrough = true, transparent = true;
+			break;
+		case Block::glassBlue:
+			type = glassBlue;	solid = true; destructible = true; seeThrough = true, transparent = true;
 			break;
 		default:
 			std::cerr << "Block::SetType : block not found " << newType << std::endl;
