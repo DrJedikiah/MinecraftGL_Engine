@@ -16,7 +16,6 @@ PlayerController::PlayerController(Camera& camera, PlayerAvatar& avatar) :
 }
 
 
-
 void PlayerController::Update(float delta)
 {
 	if (m_enabled)
@@ -32,13 +31,7 @@ void PlayerController::Update(float delta)
 		if (Mouse::ButtonPressed(Mouse::Button::right))
 			if (SelectSpace(blockCoord))
 			{
-				World::SetBlock(blockCoord, Block::glassRed);
-				World::UpdateAround(blockCoord);
-			}
-		if (Mouse::ButtonPressed(Mouse::Button::button3))
-			if (SelectSpace(blockCoord))
-			{
-				World::SetBlock(blockCoord, Block::glassBlue);
+				World::SetBlock(blockCoord, Block::Type(selectedBlock) );
 				World::UpdateAround(blockCoord);
 			}
 	} 
@@ -109,16 +102,14 @@ void PlayerController::MoveAvatar()
 void PlayerController::SetCamera()
 {
 	//Camera
-	m_camera.SetPosition(glm::toVec3(m_avatar.rb().transform().getOrigin()) + glm::vec3(0, 3.f * m_avatar.height / 4.f, 0));
+	m_camera.SetPosition(m_avatar.rb().Position() + glm::vec3(0, 3.f * m_avatar.height / 4.f, 0));
 	m_camera.RotateRight(m_mouseXspeed * Mouse::delta().x);
 	m_camera.RotateUp(-m_mouseYspeed * Mouse::delta().y);
 }
 
 bool PlayerController::SelectBlock(glm::ivec3 & blockCoord)
 {
-	btVector3 start = bt::toVec3(m_camera.position());
-	btVector3 direction = bt::toVec3(m_range * m_camera.forward());
-	btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(start, start + direction);
+	btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(m_camera.position(), m_camera.position() + m_range * m_camera.forward());
 	if (res.hasHit())
 	{
 		blockCoord = World::BlockAt(res.m_hitPointWorld - Block::size / 2 * res.m_hitNormalWorld);
@@ -129,9 +120,7 @@ bool PlayerController::SelectBlock(glm::ivec3 & blockCoord)
 
 bool PlayerController::SelectSpace(glm::ivec3 & blockCoord)
 {
-	btVector3 start = bt::toVec3(m_camera.position());
-	btVector3 direction = bt::toVec3(m_range * m_camera.forward());
-	btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(start, start + direction);
+	btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(m_camera.position(), m_camera.position() + m_range * m_camera.forward());
 	if (res.hasHit())
 	{
 		blockCoord = World::BlockAt(res.m_hitPointWorld + Block::size / 2 * res.m_hitNormalWorld);
@@ -144,17 +133,17 @@ bool PlayerController::SelectSpace(glm::ivec3 & blockCoord)
 bool PlayerController::isHittingFloor()
 {
 	//Raycast 4 corners near the player foot
-	btVector3 Direction = m_avatar.height *  btVector3(0, -1, 0);
-	btVector3 Start1 = m_avatar.rb().transform().getOrigin() + 0.5f*btVector3(m_avatar.radius, 0, m_avatar.radius);
-	btVector3 Start2 = m_avatar.rb().transform().getOrigin() + 0.5f*btVector3(m_avatar.radius, 0, -m_avatar.radius);
-	btVector3 Start3 = m_avatar.rb().transform().getOrigin() + 0.5f*btVector3(-m_avatar.radius, 0, m_avatar.radius);
-	btVector3 Start4 = m_avatar.rb().transform().getOrigin() + 0.5f*btVector3(-m_avatar.radius, 0, -m_avatar.radius);
+	glm::vec3 Direction = m_avatar.height *  glm::vec3(0, -1, 0);
+	glm::vec3 Start1 = m_avatar.rb().Position() + 0.5f*glm::vec3(m_avatar.radius, 0, m_avatar.radius);
+	glm::vec3 Start2 =m_avatar.rb().Position() + 0.5f*glm::vec3(m_avatar.radius, 0, -m_avatar.radius);
+	glm::vec3 Start3 = m_avatar.rb().Position() + 0.5f*glm::vec3(-m_avatar.radius, 0, m_avatar.radius);
+	glm::vec3 Start4 = m_avatar.rb().Position() + 0.5f*glm::vec3(-m_avatar.radius, 0, -m_avatar.radius);
 
 	if (PhysicsEngine::RayCast(Start1, Start1 + Direction).hasHit()) return true;
 	if (PhysicsEngine::RayCast(Start2, Start2 + Direction).hasHit()) return true;
 	if (PhysicsEngine::RayCast(Start3, Start3 + Direction).hasHit()) return true;
 	if (PhysicsEngine::RayCast(Start4, Start4 + Direction).hasHit()) return true;
-
+	
 
 	return false;
 }

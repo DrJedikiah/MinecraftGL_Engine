@@ -3,23 +3,29 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
+#define SOME_ENUM(DO) \
+    DO(air) \
+    DO(dirt) \
+	DO(grass) \
+	DO(water) \
+	DO(stone) \
+	DO(bedrock) \
+	DO(wood) \
+	DO(leaf) \
+	DO(glassRed) \
+	DO(glassBlue) \
+	DO(invalid) \
+	DO(count)
+
 class Block
 {
 public:
-	enum Type
-	{ 
-		invalid=0,
-		air, 
-		dirt, 
-		grass, 
-		water,
-		stone, 
-		bedrock, 
-		wood, 
-		leaf, 
-		glassRed,
-		glassBlue
-	};
+	#define MAKE_ENUM(VAR) VAR,
+		enum Type {
+			SOME_ENUM(MAKE_ENUM)
+		};
+
+	static const char* const typeName[];
 
 	const static float size;
 	Type type = dirt;

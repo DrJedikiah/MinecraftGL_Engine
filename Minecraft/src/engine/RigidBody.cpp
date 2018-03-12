@@ -15,11 +15,22 @@ RigidBody::RigidBody(const btRigidBodyConstructionInfo &constructionInfo, Tag ta
 Tag RigidBody::tag() const { return m_tag;  }
 void RigidBody::SetTag(Tag tag) { m_tag = tag; }
 
-btTransform RigidBody::transform() const
+glm::vec3 RigidBody::Position() const
 {
 	btTransform trans;
 	getMotionState()->getWorldTransform(trans);
-	return trans;
+	btVector3 pos = trans.getOrigin();
+
+	return glm::vec3(pos.getX(), pos.getY(), pos.getZ());
+}
+
+glm::quat RigidBody::Rotation() const
+{
+	btTransform trans;
+	getMotionState()->getWorldTransform(trans);
+	btQuaternion quat = trans.getRotation();
+
+	return glm::quat(quat.getW(), quat.getX(), quat.getY(), quat.getZ());
 }
 
 void RigidBody::ActivateCollisionSignals(bool state)

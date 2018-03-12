@@ -42,10 +42,14 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
 	 return false;
  }
 
- btCollisionWorld::ClosestRayResultCallback PhysicsEngine::RayCast(btVector3 Start, btVector3 End)
+ btCollisionWorld::ClosestRayResultCallback PhysicsEngine::RayCast(glm::vec3 Start, glm::vec3 End)
  {
-	 btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
-	 dynamicsWorld->rayTest(Start, End, RayCallback);
+	 btVector3 StartBt(Start.x, Start.y, Start.z);
+	 btVector3 EndBt(End.x, End.y, End.z);
+
+
+	 btCollisionWorld::ClosestRayResultCallback RayCallback(StartBt, EndBt);
+	 dynamicsWorld->rayTest(StartBt, EndBt, RayCallback);
 	 return RayCallback;
  }
 

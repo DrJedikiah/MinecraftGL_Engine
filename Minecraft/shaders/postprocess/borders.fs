@@ -33,10 +33,11 @@ void main()
 
 			vec3 transCol =  texture(transTexture,pos).rgb;
 			float gray = (transCol.r+transCol.g+transCol.b)/3.f;
-			averageTrans +=  50*kernel[x + y * size] * gray;
+			averageTrans += 10*kernel[x + y * size] * gray;
 		}
 
 	averageTrans = max(1 - averageTrans,0);
+
 	vec4 colorTrans = vec4( 0.5f  *(vec3(averageTrans) + blurredColor()) + 0.5f  *vec3(1,1,1), 1);
 	vec4 colorOpaque = vec4(vec3(1 - average*average),1);
 

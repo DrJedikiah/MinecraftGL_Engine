@@ -16,7 +16,7 @@ public:
 	static void StepSimulation( float timeStep );
 	static RigidBody* CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
 	static bool DeleteRigidBody(RigidBody* rigidBody);
-	static btCollisionWorld::ClosestRayResultCallback RayCast(btVector3 Start, btVector3 End);
+	static btCollisionWorld::ClosestRayResultCallback RayCast(glm::vec3 Start, glm::vec3 End);
 
 private:
 	//Singleton pattern

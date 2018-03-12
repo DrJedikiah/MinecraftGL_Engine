@@ -9,13 +9,7 @@
 #include "util/Input.h"
 #include "util/Signal.h"
 #include "util/Debug.h"
-
-
-inline glm::vec3 a( btVector3 vec )
-{
-
-};
-
+#include "util/Util.h"
 
 class PlayerController
 {
@@ -25,6 +19,8 @@ public:
 
 	void SetEnabled(bool state);
 	bool Enabled() const;
+
+	int selectedBlock = Block::dirt;
 
 private:
 	void MoveAvatar();

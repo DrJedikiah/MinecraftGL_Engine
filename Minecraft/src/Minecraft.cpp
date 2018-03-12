@@ -62,7 +62,6 @@ void Minecraft::Start()
 	
 	//Shaders forward
 	Shader shader_debug("shaders/forward/debug.vs", "shaders/forward/debug.fs");
-	Shader shader_shadows("shaders/forward/shadows.vs", "shaders/forward/shadows.fs");
 	Shader shader_skybox("shaders/forward/skybox.vs", "shaders/forward/skybox.fs");
 	Shader shader_transparent("shaders/forward/transparent.vs", "shaders/forward/transparent.fs");
 	
@@ -77,8 +76,6 @@ void Minecraft::Start()
 	GrayFBO fboSSAO(m_width/5, m_height/5);
 	TextureDepthFBO fboBorders(m_width, m_height);
 	TextureDepthFBO fboFXAA(m_width, m_height);
-	ShadowMapFBO fboShadow(2 * 2048, 2 * 2048);
-	ShadowMapFBO fboShadowLarge(2 * 2048, 2 * 2048);
 	DeferredFBO gBuffer(m_width, m_height);
 	PostProcessingFBO fboPostProc(m_width, m_height);
 	PostProcessingFBO fboPostProcTransparent(m_width, m_height);
@@ -100,9 +97,6 @@ void Minecraft::Start()
 	SetupSkyBox();
 
 	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
-	glm::mat4 lightProjection = glm::ortho(-20.f, 20.f, -15.f, 15.f, 0.1f, 1000.f);
-	glm::mat4 lightProjectionLarge = glm::ortho(-100.f, 100.f, -100.f, 100.f, 0.1f, 1000.f);
-
 
 	World::GenerateChunks();
 	World::GeneratePhysics();
@@ -121,13 +115,9 @@ void Minecraft::Start()
 	Cube cube;
 	cube.rb().translate(btVector3(4.5, 20, 4.5));
 
-	Light sunLight
-	{
-		(float)Chunck::size * glm::vec3((float)World::size / 4.F, 2 * World::height ,World::size)
-	};
-
-	Model sunModel(Cube::CreateCubeMesh(10));
-	sunModel.Translate(sunLight.position);
+	glm::vec3 sunDir = glm::normalize(glm::vec3(4, -4, 1));
+	DirectionalLight sunLight(sunDir, 20.f);
+	DirectionalLight sunLightLarge(sunDir, 100.f);
 
 	float drawTimer = 0.f;
 	float fixedUpdateTimer = 0.f;
@@ -179,9 +169,15 @@ void Minecraft::Start()
 
 	Texture ssaoNoiseTex(4, 4, ssaoNoise);
 
-	bool show_another_window = false;
-	ImVec4 clear_color = ImColor(114, 144, 154);
-	char text[64] = "";
+
+
+
+	//Imgui data
+
+	//items
+	std::stringstream ssItems;
+	for (int i = 0; i < Block::count; ++i)
+		ssItems << Block::typeName[i] << '\0';
 
 	// render loop
 	while (!glfwWindowShouldClose(m_window))
@@ -260,24 +256,8 @@ void Minecraft::Start()
 			}
 
 			//////////////////////////////// BAKE SHADOWS ////////////////////////////////
-			btVector3 posPlayer = player.rb().transform().getOrigin();
-			glm::mat4 lightView =
-				glm::lookAt(
-					sunLight.position,
-					glm::vec3(posPlayer.getX(), posPlayer.getY(), posPlayer.getZ()),
-					glm::vec3(0.0f, 1.0f, 0.0f));
-
-			shader_shadows.Use();
-			//////Close shadow
-			fboShadow.Use();
-			fboShadow.Clear();
-			shader_shadows.setMat4("projview", lightProjection*lightView);
-			World::DrawOpaque(shader_shadows);
-			//////Far shadow
-			fboShadowLarge.Use();
-			fboShadowLarge.Clear();
-			shader_shadows.setMat4("projview", lightProjectionLarge*lightView);
-			World::DrawOpaque(shader_shadows);
+			sunLight.BakeShadows(player.rb().Position());
+			sunLightLarge.BakeShadows(player.rb().Position());
 
 			//////////////////////////////// DEFERRED GEOMETRY ////////////////////////////////
 			shader_deferred_geometry.Use();
@@ -325,8 +305,8 @@ void Minecraft::Start()
 			gBuffer.UseColor(TextureUnit::Unit0);
 			gBuffer.UseNormal(TextureUnit::Unit1);
 			gBuffer.UsePosition(TextureUnit::Unit2);
-			fboShadow.UseTexture(TextureUnit::Unit3);
-			fboShadowLarge.UseTexture(TextureUnit::Unit4);
+			sunLight.fbo.UseTexture(TextureUnit::Unit3);
+			sunLightLarge.fbo.UseTexture(TextureUnit::Unit4);
 			fboSSAO.UseTexture(TextureUnit::Unit5);
 
 			shader_deferred_light.Use();
@@ -336,11 +316,12 @@ void Minecraft::Start()
 			shader_deferred_light.setInt("shadowMap", 3);
 			shader_deferred_light.setInt("shadowMapLarge", 4);
 			shader_deferred_light.setInt("ambientOcclusion", 5);
-			shader_deferred_light.setVec3("lightPos", sunLight.position);
+			shader_deferred_light.setVec3("lightDir", -sunDir);
 			shader_deferred_light.setVec3("viewPos", camera.position());
 			shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 255.f, 134.f / 255.f, 255.f / 255.f));
-			shader_deferred_light.setMat4("projectionViewLight", lightProjection*lightView);
-			shader_deferred_light.setMat4("projectionViewLightLarge", lightProjectionLarge*lightView);
+
+			shader_deferred_light.setMat4("projectionViewLight", sunLight.ProjectionView());
+			shader_deferred_light.setMat4("projectionViewLightLarge", sunLightLarge.ProjectionView());
 
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(postProcVAO);
@@ -350,14 +331,6 @@ void Minecraft::Start()
 			FBO::BlitDepth(gBuffer, fboPostProc);
 
 			//////////////////////////////// FORWARD RENDERING ////////////////////////////////
-			if (debugActivated)
-			{
-				shader_test.Use();
-				shader_test.setMat4("view", camera.viewMatrix());
-				shader_test.setMat4("projection", camera.projectionMatrix());
-				sunModel.Draw(shader_test);
-			}
-
 			//Draw skybox
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LEQUAL);
@@ -372,9 +345,9 @@ void Minecraft::Start()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glDepthFunc(GL_LESS);
 
-
 			fboPostProcTransparent.Use();
 			fboPostProcTransparent.Clear();
+
 			//Transparent objects
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -385,6 +358,7 @@ void Minecraft::Start()
 			fboPostProc.UseDepth(TextureUnit::Unit1);
 			shader_transparent.setInt("textureBlocks", 0);
 			shader_transparent.setInt("depthTexture", 1);
+			shader_transparent.setVec3("lightDir", -sunDir);
 			shader_transparent.setMat4("projView", camera.projectionMatrix() * camera.viewMatrix());
 			World::DrawTransparent(shader_transparent);
 			glDepthFunc(GL_LESS);
@@ -460,6 +434,12 @@ void Minecraft::Start()
 			ImGui::BulletText(" %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::BulletText(" %.1ik triangles", Statistics::GetTriangles() / 1000);
 			ImGui::End();
+
+			ImGui::Begin("Blocks");
+			ImGui::Combo("Block", &playerController.selectedBlock, ssItems.str().data(), Block::count-2);
+
+			ImGui::End();
+
 			ImGui::Render();
 
 			/////////////////////////////// DRAW ////////////////////////////////

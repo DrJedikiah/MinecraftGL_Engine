@@ -1,20 +1,64 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "engine/World.h"
+
+#include "graphics/Shader.h"
+#include "graphics/FrameBuffer.h"
 #include "graphics/Shader.h"
 
 class Light
 {
 public:
-	Light(
-		glm::vec3 Position,
-		glm::vec3 Ambient = glm::vec3(1.f, 1.f, 1.f),
-		glm::vec3 Diffuse = glm::vec3(1.f, 1.f, 1.f),
-		glm::vec3 Specular = glm::vec3(1.f, 1.f, 1.f)
-	);
+	Light(glm::vec3 colorLight = glm::vec3(1, 1, 1));
+	virtual ~Light();
+
+	glm::vec3 color;
+};
+
+
+class DirectionalLight : public Light
+{
+public:
+	DirectionalLight(glm::vec3 directionLight, float size = 20.f);
+	virtual ~DirectionalLight();
+	void BakeShadows(glm::vec3 lookPoint);
+
+	glm::mat4 ProjectionView();
+
+	ShadowMapFBO fbo;
+
+private:
+	glm::vec3 direction;
+	const glm::mat4 projection;
+	glm::mat4 view;
+
+	static Shader * shader;
+
+};
+
+class PointLight : public Light
+{
+public:
+	PointLight(glm::vec3 positionLight, float radiusLight);
+
+
 
 	glm::vec3 position;
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
+	float radius;
+
+
+};
+
+class AmbientLight : public Light
+{
+public:
+	AmbientLight( float intensityLight);
+
+
+
+	float intensity;
+
 };

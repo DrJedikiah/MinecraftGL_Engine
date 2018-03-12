@@ -12,7 +12,7 @@ uniform sampler2D shadowMapLarge;
 uniform sampler2D ambientOcclusion;
 
 uniform vec3 viewPos;
-uniform vec3 lightPos;
+uniform vec3 lightDir;
 uniform vec3 lightColor;
 
 uniform mat4 projectionViewLight;
@@ -22,7 +22,6 @@ vec4 color = texture(gColor, TexCoords);
 vec3 fragPos = texture(gPosition, TexCoords).xyz;
 vec3 normal = texture(gNormal, TexCoords).xyz;
 
-vec3 lightDir = normalize(lightPos - fragPos);  
 vec3 viewDir = normalize(viewPos - fragPos);
 
 float ShadowCalculation(vec3 frag, sampler2D map, float threshold);
@@ -40,12 +39,12 @@ void main()
 	vec4 fragPosLightSpace = projectionViewLight * vec4(fragPos,1);
 	vec4 fragPosLightSpaceLarge = projectionViewLightLarge * vec4(fragPos,1);
 
-	if( fragPosLightSpace.x <= 1.f && fragPosLightSpace.x >= -1.f && fragPosLightSpace.y <= 1.f && fragPosLightSpace.y >= -1.f)
+	if( fragPosLightSpace.x < 1.f && fragPosLightSpace.x > -1.f && fragPosLightSpace.y < 1.f && fragPosLightSpace.y > -1.f)
 		shadow = ShadowCalculation(fragPosLightSpace.xyz, shadowMap, 0.00015f);  
 	else if (fragPosLightSpaceLarge.x <= 1.f && fragPosLightSpaceLarge.x >= -1.f && fragPosLightSpaceLarge.y <= 1.f && fragPosLightSpaceLarge.y >= -1.f)
-		shadow = ShadowCalculation(fragPosLightSpaceLarge.xyz, shadowMapLarge, 0.00025f); 
+		shadow = ShadowCalculation(fragPosLightSpaceLarge.xyz, shadowMapLarge, 0.00025f);  
 
-	FragColor =  vec4( occlusion*(ambient + shadow * (diffuse+spec)) * color.xyz  * lightColor , color.w  );
+	FragColor =  vec4( occlusion*( ambient +  (shadow*0.8 + 0.2) * diffuse + shadow * spec) * color.xyz  * lightColor , color.w  );
 }  
 
 
@@ -55,11 +54,11 @@ vec2 texelSize = 1.f / textureSize(ambientOcclusion, 0);
 const int size = 5;
 float kernel[size*size] = 
 {
-    0.5 , 1.0 , 2.0 , 1.0 , 0.5, 
-    1.0 , 2.0 , 2.0 , 2.0 , 1.0 , 
-    2.0 , 2.0 , 2.0 , 2.0 , 2.0 , 
-	1.0 , 2.0 , 2.0 , 2.0 , 1.0 ,
-    0.5 , 1.0 , 2.0 , 1.0 , 0.5 
+	1 , 2 , 3 , 2 , 1, 
+    2 , 3 , 3 , 3 , 2 , 
+    3 , 3 , 3 , 3 , 3 , 
+	2 , 3 , 3 , 3 , 2 , 
+    1 , 2 , 3 , 2 , 1, 
 };
 
 float blurredAmbientOcclusion()
@@ -71,7 +70,7 @@ float blurredAmbientOcclusion()
 			vec2 pos = TexCoords +  vec2(x - size/2,y- size/2) * texelSize ;
 			occlusion += kernel[x + y * size] * texture(ambientOcclusion, pos).x ;
 		}
-	occlusion /= 26+10;
+	occlusion /=18+15+26;
 	return occlusion;
 }
 
@@ -90,5 +89,5 @@ float ShadowCalculation(vec3 frag, sampler2D map, float threshold)
 			shadow += currentDepth - bias > depth ? 1.0 : 0.0;  
 		}
 	shadow /= 3*3;
-    return 1 -shadow;
+    return 1 - shadow;
 } 

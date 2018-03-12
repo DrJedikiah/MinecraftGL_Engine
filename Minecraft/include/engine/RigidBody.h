@@ -7,6 +7,10 @@
 #include "util/Signal.h"
 #include "util/Util.h"
 
+
+#include <glm/gtc/type_ptr.hpp>
+
+
 class RigidBody : public btRigidBody
 {
 public:
@@ -16,7 +20,9 @@ public:
 
 	Tag tag() const;
 	void SetTag(Tag tag);
-	btTransform transform() const;
+
+	glm::vec3 Position() const;
+	glm::quat Rotation() const;
 
 	void ActivateCollisionSignals(bool state);
 	bool CollisionSignalsActivateds();

@@ -57,6 +57,12 @@
     <Filter Include="Shader\postprocess">
       <UniqueIdentifier>{103cec72-7f91-45a9-b99d-236995e7f301}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\graphics\components">
+      <UniqueIdentifier>{1a725b93-20e5-42a5-b857-83923881ba5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics\components">
+      <UniqueIdentifier>{196a86c2-b78a-4e68-975a-6785783c44f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Minecraft.h">
