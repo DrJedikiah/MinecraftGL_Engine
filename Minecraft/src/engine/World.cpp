@@ -256,6 +256,68 @@ void World::UpdateBlock(glm::ivec3 position)
 		GetChunck(position / Chunck::size).GenerateLater(); 
 }
 
+void World::EnableAllChuncks()
+{
+	for (int x = 0; x < size; ++x)
+		for (int y = 0; y < height; ++y)
+			for (int z = 0; z < size; ++z)
+				GetChunck({ x, y, z }).SetEnabled(true);
+}
+
+void World::ClipChuncks(const Camera & camera)
+{
+	std::vector<glm::vec3> chunckPoints =
+	{
+		 glm::vec3(0, 0, 0),
+		 glm::vec3(1, 0, 0),
+		 glm::vec3(1, 0, 1),
+		 glm::vec3(0, 0, 1),
+		 glm::vec3(0, 1, 0),
+		 glm::vec3(1, 1, 0),
+		 glm::vec3(1, 1, 1),
+		 glm::vec3(0, 1, 1),
+	};
+
+	std::vector<Plane> frustrumPlanes = camera.GetFrustrumPlanes();
+
+	for (int x = 0; x < size; ++x)
+		for (int y = 0; y < height; ++y)
+			for (int z = 0; z < size; ++z)
+			{
+				bool enabled = false;
+				for (glm::vec3 point : chunckPoints)
+				{
+					//If the chunck point is very close, set enabled true
+					glm::vec3 center = (float)Chunck::size * glm::vec3(x + 0.5, y + 0.5, z + 0.5);
+					float distance = glm::distance(center, camera.position());
+					if (distance < Chunck::size)
+					{
+						enabled = true;
+						break;
+					}
+
+					//If the chunck point is on the wrong side of a view frustrum plane
+					glm::vec3 worldPoint = (float)Chunck::size * (glm::vec3(x, y, z) + point);
+					bool outside = false;
+					for (Plane plane : frustrumPlanes)
+					{
+						if (plane.Right(worldPoint))
+						{
+							outside = true;
+							break;
+						}
+					}
+
+					if (!outside)
+					{
+						enabled = true;
+						break;
+					}
+				}
+				GetChunck({ x, y, z }).SetEnabled(enabled);
+			}
+}
+
 void World::Update(float delta)
 {
 	for (int x = 0; x < size; ++x)
@@ -285,10 +347,18 @@ void World::DrawTransparent(const Shader & shader)
 
 void World::DrawOpaque(const Shader & shader)
 {
+	for (int y = 0; y < height; ++y)
+		for (int z = 0; z < size; ++z)
+			for (int x = 0; x < size; ++x)
+				m_chuncks[x][y][z].DrawOpaque(shader);
+}
+
+void World::OnDrawDebug() const
+{
 	if (m_lastTree)
 	{
-		glm::vec3 red(1, 0, 0);
-		glm::vec3 green(0, 1, 0);
+		glm::vec4 red(1, 0, 0, 1.f);
+		glm::vec4 green(0, 1, 0, 1.f);
 
 		std::stack<Node * > stack;
 		stack.push(m_lastTree);
@@ -313,10 +383,6 @@ void World::DrawOpaque(const Shader & shader)
 				stack.push(n);
 		}
 	}
-	for (int y = 0; y < height; ++y)
-		for (int z = 0; z < size; ++z)
-			for (int x = 0; x < size; ++x)
-				m_chuncks[x][y][z].DrawOpaque(shader);
 }
 
 World::~World()

@@ -11,6 +11,9 @@ int Statistics::GetTriangles()
 {
 	int count = 0;
 	for (Statistics* ws : m_instances)
-		count += ws->STATS_triangles;
+	{
+		if(ws->STATS_enabled)
+			count += ws->STATS_triangles;
+	}
 	return count;
 }

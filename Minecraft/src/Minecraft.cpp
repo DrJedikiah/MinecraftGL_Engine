@@ -41,9 +41,11 @@ Minecraft::Minecraft(std::string name, int width, int height) :
 	glCullFace(GL_BACK);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glLineWidth(2);
 
 	glfwSwapInterval(0);
+
+	const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	Time::SetDeltaTime( 1.f / (float)mode->refreshRate );
 }
 
 void Minecraft::Start()
@@ -101,16 +103,21 @@ void Minecraft::Start()
 	World::GenerateChunks();
 	World::GeneratePhysics();
 
-	Camera camera(m_width, m_height, 1000.f, 0.2f);
-
+	
+	glm::vec3 startPos(World::size * Chunck::size / 2, World::height * Chunck::size, World::size * Chunck::size / 2);
 	PlayerAvatar player;
-	player.rb().translate(btVector3(World::size * Chunck::size / 2, World::height * Chunck::size, World::size * Chunck::size / 2));
+	player.rb().translate(btVector3(startPos.x, startPos.y, startPos.z));
 	//player.rb().translate(btVector3(World::size * Chunck::size / 2, World::height * Chunck::size / 16, World::size * Chunck::size / 2));
 
-	FreeCameraController freeCameraController(camera);
+	FreeCameraController freeCameraController( glm::vec2(m_width, m_height) );
 	freeCameraController.SetEnabled(false);
-	PlayerController playerController(camera, player);
+	freeCameraController.GetCamera().SetPosition(startPos);
+	PlayerController playerController(glm::vec2(m_width, m_height), player);
 	playerController.SetEnabled(true);
+
+	Camera* usedCamera = & freeCameraController.GetCamera();
+	if( !freeCameraController.Enabled())
+		usedCamera = & playerController.GetCamera();
 
 	Cube cube;
 	cube.rb().translate(btVector3(4.5, 20, 4.5));
@@ -130,12 +137,13 @@ void Minecraft::Start()
 	float time = Time::ElapsedSinceStartup();
 
 	bool initShader = true;
-	bool debugActivated = true;
 
 	float t2 = Time::ElapsedSinceStartup();
 	std::cout << 1000.f*(t2 - t1) << std::endl;
 
 	bool multisample = true;
+	bool viewFrustumCulling = true;
+	bool vSync = true;
 
 	//////////////////////////////////////////
 	std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between 0.0 - 1.0
@@ -169,12 +177,7 @@ void Minecraft::Start()
 
 	Texture ssaoNoiseTex(4, 4, ssaoNoise);
 
-
-
-
 	//Imgui data
-
-	//items
 	std::stringstream ssItems;
 	for (int i = 0; i < Block::count; ++i)
 		ssItems << Block::typeName[i] << '\0';
@@ -200,8 +203,20 @@ void Minecraft::Start()
 			//Toogle controllers
 			if (Keyboard::KeyPressed(GLFW_KEY_F1))
 			{
-				freeCameraController.SetEnabled(!freeCameraController.Enabled());
-				playerController.SetEnabled(!playerController.Enabled());
+				if (freeCameraController.Enabled())
+				{
+					freeCameraController.SetEnabled(false);
+					playerController.SetEnabled(true);
+					usedCamera = &playerController.GetCamera();
+				}
+				else
+				{
+					freeCameraController.SetEnabled(true);
+					playerController.SetEnabled(false);
+					usedCamera = &freeCameraController.GetCamera();
+				}
+				shader_debug.Use();
+				shader_debug.setMat4("projection", usedCamera->projectionMatrix());
 			}
 			//Set Shaders
 			if (Keyboard::KeyPressed(GLFW_KEY_F2) || initShader)
@@ -214,19 +229,12 @@ void Minecraft::Start()
 				shader_Text.setMat4("projection", textProjection);
 
 				shader_debug.Use();
-				shader_debug.setMat4("view", camera.viewMatrix());
-				shader_debug.setMat4("projection", camera.projectionMatrix());
+				shader_debug.setMat4("view", usedCamera->viewMatrix());
+				shader_debug.setMat4("projection", usedCamera->projectionMatrix());
 			}
 			if (Keyboard::KeyPressed(GLFW_KEY_F3))
-				debugActivated = !debugActivated;
-			if (Keyboard::KeyPressed(GLFW_KEY_F4))
-			{
-				multisample = !multisample;
-				if (multisample)
-					glEnable(GL_MULTISAMPLE);
-				else
-					glDisable(GL_MULTISAMPLE);
-			}
+				Debug::SetActivated(!Debug::Activated());
+
 
 			PhysicsEngine::StepSimulation(fixedUpdateTimer);
 
@@ -242,7 +250,7 @@ void Minecraft::Start()
 
 		//Draws
 		drawTimer += delta;
-		//if (drawTimer >= Time::DeltaTime())
+		if (drawTimer >= Time::DeltaTime() || !vSync)
 		{
 			drawTimer = 0.f;
 
@@ -255,6 +263,11 @@ void Minecraft::Start()
 				fpsDelta -= 1.f / updateRate;
 			}
 
+			float ttt1 = Time::ElapsedSinceStartup();
+			if(viewFrustumCulling)
+				World::ClipChuncks(playerController.GetCamera());
+			float ttt2 = Time::ElapsedSinceStartup();
+			std::cout << 1000.f * (ttt2 - ttt1) << std::endl;
 			//////////////////////////////// BAKE SHADOWS ////////////////////////////////
 			sunLight.BakeShadows(player.rb().Position());
 			sunLightLarge.BakeShadows(player.rb().Position());
@@ -267,7 +280,7 @@ void Minecraft::Start()
 
 			textureBlocks.Use(TextureUnit::Unit0);
 			shader_deferred_geometry.setInt("textureBlocks", 0);
-			shader_deferred_geometry.setMat4("projview", camera.projectionMatrix() * camera.viewMatrix());
+			shader_deferred_geometry.setMat4("projview", usedCamera->projectionMatrix() * usedCamera->viewMatrix());
 
 			player.UpdateModels();
 			player.Draw(shader_deferred_geometry);
@@ -289,7 +302,7 @@ void Minecraft::Start()
 			shader_deferred_SSAO.setInt("gPosition", 2);
 			shader_deferred_SSAO.setInt("gDepth", 3);
 			shader_deferred_SSAO.setInt("texNoise", 4);
-			shader_deferred_SSAO.setMat4("projView", camera.projectionMatrix() * camera.viewMatrix());
+			shader_deferred_SSAO.setMat4("projView", usedCamera->projectionMatrix() * usedCamera->viewMatrix());
 			shader_deferred_SSAO.setVec3Array("samples[0]", ssaoKernel);
 			shader_deferred_SSAO.setVec2("windowSize", glm::vec2(m_width, m_height));
 
@@ -317,7 +330,7 @@ void Minecraft::Start()
 			shader_deferred_light.setInt("shadowMapLarge", 4);
 			shader_deferred_light.setInt("ambientOcclusion", 5);
 			shader_deferred_light.setVec3("lightDir", -sunDir);
-			shader_deferred_light.setVec3("viewPos", camera.position());
+			shader_deferred_light.setVec3("viewPos", usedCamera->position());
 			shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 255.f, 134.f / 255.f, 255.f / 255.f));
 
 			shader_deferred_light.setMat4("projectionViewLight", sunLight.ProjectionView());
@@ -336,10 +349,10 @@ void Minecraft::Start()
 			glDepthFunc(GL_LEQUAL);
 			shader_skybox.Use();
 			shader_skybox.setInt("skybox", 0);
-			glm::vec3 oldPos = camera.position();
-			camera.SetPosition({ 0,0,0 });
-			shader_skybox.setMat4("projView", camera.projectionMatrix()*camera.viewMatrix());
-			camera.SetPosition(oldPos);
+			glm::vec3 oldPos = usedCamera->position();
+			usedCamera->SetPosition({ 0,0,0 });
+			shader_skybox.setMat4("projView", usedCamera->projectionMatrix()*usedCamera->viewMatrix());
+			usedCamera->SetPosition(oldPos);
 			cubeMap.UseTexture(TextureUnit::Unit0);
 			glBindVertexArray(skyboxVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -359,7 +372,7 @@ void Minecraft::Start()
 			shader_transparent.setInt("textureBlocks", 0);
 			shader_transparent.setInt("depthTexture", 1);
 			shader_transparent.setVec3("lightDir", -sunDir);
-			shader_transparent.setMat4("projView", camera.projectionMatrix() * camera.viewMatrix());
+			shader_transparent.setMat4("projView", usedCamera->projectionMatrix() * usedCamera->viewMatrix());
 			World::DrawTransparent(shader_transparent);
 			glDepthFunc(GL_LESS);
 
@@ -418,11 +431,11 @@ void Minecraft::Start()
 
 			//////////////////////////////// DEBUG ////////////////////////////////
 
-			if (debugActivated)
+			if (Debug::Activated())
 			{
 				glDisable(GL_DEPTH_TEST);
 				shader_debug.Use();
-				shader_debug.setMat4("view", camera.viewMatrix());
+				shader_debug.setMat4("view", usedCamera->viewMatrix());
 				Debug::Draw(shader_debug, shader_debug_ui);
 				glEnable(GL_DEPTH_TEST);
 			}
@@ -430,14 +443,45 @@ void Minecraft::Start()
 			//////////////////////////////// IMGUI ////////////////////////////////
 			ImGuiManager::NewFrame();
 
+			//PERFORMANCE
 			ImGui::Begin("Performance");
 			ImGui::BulletText(" %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::BulletText(" %.1ik triangles", Statistics::GetTriangles() / 1000);
 			ImGui::End();
 
+			//BLOCKS
 			ImGui::Begin("Blocks");
 			ImGui::Combo("Block", &playerController.selectedBlock, ssItems.str().data(), Block::count-2);
+			ImGui::End();
 
+			//GRAPHICS
+			ImGui::Begin("Graphics");
+				if (ImGui::CollapsingHeader("Engine", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					//Multisampling
+					bool oldValueMultisample = multisample;
+					ImGui::Checkbox("FXAA", &multisample);
+					if (oldValueMultisample != multisample)
+					{
+						if (multisample)
+							glEnable(GL_MULTISAMPLE);
+						else
+							glDisable(GL_MULTISAMPLE);
+					}
+
+					//View frustum culling
+					bool oldValueviewFrustumCulling = viewFrustumCulling;
+					ImGui::Checkbox("View frustum culling", &viewFrustumCulling);
+					if (oldValueviewFrustumCulling != viewFrustumCulling && !viewFrustumCulling)
+						World::EnableAllChuncks();
+				}
+
+				if (ImGui::CollapsingHeader("OpenGl", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					//vSync
+					ImGui::Checkbox("vSync", &vSync);
+
+				}
 			ImGui::End();
 
 			ImGui::Render();

@@ -1,7 +1,7 @@
 #include "engine/PlayerController.h"
 
-PlayerController::PlayerController(Camera& camera, PlayerAvatar& avatar) :
-	m_camera(camera),
+PlayerController::PlayerController(glm::ivec2 size, PlayerAvatar& avatar) :
+	m_camera(size.x, size.y, 300.f, 0.2f),
 	m_avatar(avatar)
 {
 	m_avatar.rb().setFriction(0.f);
@@ -143,7 +143,6 @@ bool PlayerController::isHittingFloor()
 	if (PhysicsEngine::RayCast(Start2, Start2 + Direction).hasHit()) return true;
 	if (PhysicsEngine::RayCast(Start3, Start3 + Direction).hasHit()) return true;
 	if (PhysicsEngine::RayCast(Start4, Start4 + Direction).hasHit()) return true;
-	
 
 	return false;
 }
@@ -173,6 +172,11 @@ void PlayerController::SetEnabled(bool state)
 			Mouse::LockCursor(true, 0.5f *glm::vec2(size.x, size.y));
 		}
 	}
+}
+
+Camera& PlayerController::GetCamera()
+{
+	return m_camera;
 }
 
 

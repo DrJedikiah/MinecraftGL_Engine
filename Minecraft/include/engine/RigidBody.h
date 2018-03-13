@@ -24,6 +24,8 @@ public:
 	glm::vec3 Position() const;
 	glm::quat Rotation() const;
 
+	void SetPosition(glm::vec3 position);
+
 	void ActivateCollisionSignals(bool state);
 	bool CollisionSignalsActivateds();
 

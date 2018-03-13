@@ -160,6 +160,7 @@
     <ClInclude Include="include\util\Debug.h" />
     <ClInclude Include="include\util\ImGuiManager.h" />
     <ClInclude Include="include\util\Input.h" />
+    <ClInclude Include="include\util\MoreMath.h" />
     <ClInclude Include="include\util\Perlin.h" />
     <ClInclude Include="include\util\Signal.h" />
     <ClInclude Include="include\util\Time.h" />

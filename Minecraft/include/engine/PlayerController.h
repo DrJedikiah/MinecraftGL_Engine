@@ -14,14 +14,14 @@
 class PlayerController
 {
 public:
-	PlayerController(Camera& camera, PlayerAvatar& avatar);
+	PlayerController(glm::ivec2 size, PlayerAvatar& avatar);
 	void Update(float delta);
 
 	void SetEnabled(bool state);
 	bool Enabled() const;
+	Camera& GetCamera();
 
 	int selectedBlock = Block::dirt;
-
 private:
 	void MoveAvatar();
 	void SetCamera();
@@ -29,7 +29,7 @@ private:
 	bool SelectBlock(glm::ivec3 & blockCoord);
 	bool SelectSpace(glm::ivec3 & blockCoord);
 
-	Camera & m_camera;
+	Camera m_camera;
 	PlayerAvatar& m_avatar;
 
 	bool isHittingFloor();

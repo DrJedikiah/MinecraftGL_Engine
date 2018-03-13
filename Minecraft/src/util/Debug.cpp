@@ -1,7 +1,36 @@
 #include "util/Debug.h"
 
+
+
+/////////////////////////////// IWithDebug ///////////////////////////////
+
+int IWithDebug::m_count = 0;
+std::map<int, IWithDebug*>* IWithDebug::m_IWithDebugInstances = nullptr; 
+
+IWithDebug::IWithDebug() :
+	m_id(m_count++)
+{
+	if ( ! m_IWithDebugInstances)
+		m_IWithDebugInstances = new std::map<int, IWithDebug*>();
+
+	(*m_IWithDebugInstances)[m_id] = this;
+}
+
+IWithDebug::~IWithDebug()
+{
+	m_IWithDebugInstances->erase(m_id);
+	if (m_IWithDebugInstances->size() == 0)
+	{
+		delete m_IWithDebugInstances;
+		m_IWithDebugInstances == nullptr;
+	}
+}
+
+/////////////////////////////// Debug ///////////////////////////////
+
 Debug Debug::m_instance = Debug();
 std::vector<Debug::Vertex> Debug::m_lines;
+bool Debug::m_activated = true;
 
 Debug::Debug()
 {
@@ -13,35 +42,51 @@ void Debug::Clear()
 	m_lines.clear();
 }
 
-void Debug::DrawLine(glm::vec3  start, glm::vec3  end, glm::vec3  color)
+void Debug::DrawLine(glm::vec3  start, glm::vec3  end, glm::vec4  color)
 {
-	m_lines.push_back({ start, color });
-	m_lines.push_back({ end,   color });
+	if (m_activated)
+	{
+		m_lines.push_back({ start, color });
+		m_lines.push_back({ end,   color });
+	}
 }
 
-void Debug::DrawCross(glm::vec3  position, float size, glm::vec3  color)
+void Debug::DrawCross(glm::vec3  position, float size, glm::vec4  color)
 {
-	Debug::DrawLine(position + glm::vec3(0, size, 0), position + glm::vec3(0, -size, 0), color);
-	Debug::DrawLine(position + glm::vec3(size, 0, 0), position + glm::vec3(-size, 0, 0), color);
-	Debug::DrawLine(position + glm::vec3(0, 0, size), position + glm::vec3(0, 0, -size), color);
+	if (m_activated)
+	{
+		Debug::DrawLine(position + glm::vec3(0, size, 0), position + glm::vec3(0, -size, 0), color);
+		Debug::DrawLine(position + glm::vec3(size, 0, 0), position + glm::vec3(-size, 0, 0), color);
+		Debug::DrawLine(position + glm::vec3(0, 0, size), position + glm::vec3(0, 0, -size), color);
+	}
 }
 
 
 void Debug::Draw(const Shader& shader, const Shader& shaderUi)
 {
-	DrawLines(shader);
-	DrawHud(shaderUi);
+	if (m_activated)
+	{
+		for (std::pair<int, IWithDebug *> pair : *IWithDebug::m_IWithDebugInstances)
+			pair.second->OnDrawDebug();
+
+		DrawLines(shader);
+		DrawHud(shaderUi);
+	}
 }
+
+void Debug::SetActivated(bool state){m_activated = state;}
+bool Debug::Activated(){return m_activated;}
 
 void Debug::DrawHud(const Shader& shader)
 {
+
 	shader.Use();
 
 	std::vector<Vertex> lines = {
-		{ {-0.01f,0.f,0.f },{1.f,1.f,1.f } },
-		{ {0.01f,0.f,0.f },{1.f,1.f,1.f } },
-		{ {0.f,-0.01f,0.f },{ 1.f,1.f,1.f }},
-		{ {0.f, 0.01f,0.f },{ 1.f,1.f,1.f } }
+		{ { -0.01f,0.f,0.f },{ 1.f,1.f,1.f,1.f } },
+	{ { 0.01f,0.f,0.f },{ 1.f,1.f,1.f,1.f } },
+	{ { 0.f,-0.01f,0.f },{ 1.f,1.f,1.f,1.f } },
+	{ { 0.f, 0.01f,0.f },{ 1.f,1.f,1.f,1.f } }
 	};
 
 	unsigned int VBO, VAO;
@@ -56,7 +101,7 @@ void Debug::DrawHud(const Shader& shader)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, color)));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, color)));
 	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -89,7 +134,7 @@ void Debug::DrawLines(const Shader& shader)
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 		glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, color)));
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, color)));
 		glEnableVertexAttribArray(1);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -97,6 +142,8 @@ void Debug::DrawLines(const Shader& shader)
 		glBindVertexArray(0);
 
 		glBindVertexArray(VAO);
+
+
 		glDrawArrays(GL_LINES, 0, m_lines.size());
 
 		glDeleteVertexArrays(1, &VAO);

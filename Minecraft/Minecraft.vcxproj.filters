@@ -170,6 +170,9 @@
     <ClInclude Include="include\dependencies\imgui\imgui_glfw.h">
       <Filter>Header Files\dependencies</Filter>
     </ClInclude>
+    <ClInclude Include="include\util\MoreMath.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

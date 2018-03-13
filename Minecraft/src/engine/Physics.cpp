@@ -13,9 +13,10 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
 	 dynamicsWorld->stepSimulation(timeStep, 1);
  }
 
- RigidBody* PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
+ RigidBody* PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, bool isTrigger)
  {
 	 bool isDynamic = (mass != 0.f);
+
 
 	 btVector3 localInertia(0, 0, 0);
 	 if (isDynamic)
@@ -24,6 +25,9 @@ PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
 	 btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	 btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
 	 RigidBody* body = new RigidBody(cInfo);
+
+	 if(isTrigger)
+		body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
 	 body->setUserIndex(-1);
 	 dynamicsWorld->addRigidBody(body);

@@ -5,7 +5,7 @@ Cube::Cube(float size) :
 	m_size(size),
 	m_model(CreateCubeMesh(size))
 {
-
+	
 }
 void Cube::Update(float delta)
 {

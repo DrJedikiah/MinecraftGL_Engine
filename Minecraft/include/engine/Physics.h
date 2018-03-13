@@ -14,7 +14,7 @@ class PhysicsEngine
 {
 public:
 	static void StepSimulation( float timeStep );
-	static RigidBody* CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape);
+	static RigidBody* CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, bool isTrigger = false);
 	static bool DeleteRigidBody(RigidBody* rigidBody);
 	static btCollisionWorld::ClosestRayResultCallback RayCast(glm::vec3 Start, glm::vec3 End);
 

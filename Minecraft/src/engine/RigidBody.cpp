@@ -33,6 +33,14 @@ glm::quat RigidBody::Rotation() const
 	return glm::quat(quat.getW(), quat.getX(), quat.getY(), quat.getZ());
 }
 
+void RigidBody::SetPosition(glm::vec3 position)
+{
+	btTransform trans;
+	getMotionState()->getWorldTransform(trans);
+	trans.setOrigin(btVector3(position.x, position.y, position.z));
+	getMotionState()->setWorldTransform(trans);
+}
+
 void RigidBody::ActivateCollisionSignals(bool state)
 {
 	if(state)

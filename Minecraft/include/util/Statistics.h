@@ -10,6 +10,7 @@ public:
 	static int GetTriangles();
 
 protected:
+	bool STATS_enabled = true;
 	int STATS_triangles = 0;
 
 private:

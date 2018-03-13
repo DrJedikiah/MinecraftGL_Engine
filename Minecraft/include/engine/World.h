@@ -6,12 +6,12 @@
 #include "engine/Chunck.h"
 #include "graphics/Drawable.h"
 #include "engine/TreeGen.h"
-
+#include "engine/Camera.h"
 #include <stack>
 
 class Chunck;
 
-class World
+class World : IWithDebug
 { 
 public:
 	//const static int size = 25;
@@ -43,7 +43,12 @@ public:
 	static void UpdateAround(glm::ivec3 position);
 	static void UpdateBlock(glm::ivec3 position);
 
+	static void EnableAllChuncks();
+	static void ClipChuncks( const Camera & camera );
+
 private:
+	void OnDrawDebug() const override;
+
 	//Singleton pattern
 	static World m_instance;
 	World& operator= (const World&) {}

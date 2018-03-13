@@ -1,7 +1,7 @@
 #include "engine/FreeCameraController.h"
 
-FreeCameraController::FreeCameraController(Camera& camera) :
-	m_camera(camera)
+FreeCameraController::FreeCameraController( glm::ivec2 size ) :
+	m_camera(size.x, size.y, 1000.f, 0.2f)
 {
 }
 
@@ -22,9 +22,9 @@ void FreeCameraController::Update(float delta)
 		if (Keyboard::KeyDown(Keyboard::AzertyKey::D))
 			m_camera.Translate(speed * m_camera.right());
 		if (Keyboard::KeyDown(Keyboard::AzertyKey::A))
-			m_camera.Translate(-speed * m_camera.up());
+			m_camera.Translate(-speed * m_camera.UpWorld());
 		if (Keyboard::KeyDown(Keyboard::AzertyKey::E))
-			m_camera.Translate(speed * m_camera.up());
+			m_camera.Translate(speed * m_camera.UpWorld());
 
 		if (Mouse::KeyDown(GLFW_MOUSE_BUTTON_RIGHT))
 		{
@@ -51,4 +51,10 @@ void FreeCameraController::SetEnabled(bool state)
 			Mouse::LockCursor(false);
 		}
 	}
+}
+
+Camera& FreeCameraController::GetCamera()
+{
+
+	return m_camera;
 }

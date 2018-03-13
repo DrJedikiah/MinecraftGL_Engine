@@ -1,7 +1,8 @@
 #include "engine/Chunck.h"
 
 
-Chunck::Chunck() : 
+Chunck::Chunck() :
+	m_enabled(true),
 	m_modelOpaque(nullptr),
 	m_modelTransparent(nullptr),
 	m_shape(nullptr),
@@ -29,11 +30,13 @@ void Chunck::Setup(World* world, glm::ivec3 position)
 
 void Chunck::DrawTransparent(const Shader & shader) const
 {
-	m_modelTransparent->Draw(shader);
+	if(m_enabled)
+		m_modelTransparent->Draw(shader);
 }
 void Chunck::DrawOpaque(const Shader & shader) const
 {
-	m_modelOpaque->Draw(shader);
+	if(m_enabled)
+		m_modelOpaque->Draw(shader);
 }
 
 
@@ -221,6 +224,9 @@ void Chunck::GenerateMesh()
 	//stats
 	STATS_triangles = verticesOpaque.size() / 3 + verticesTransparent.size() / 3;
 }
+
+void Chunck::SetEnabled(bool state) { m_enabled = state; STATS_enabled = state; }
+bool Chunck::Enabled() const {return m_enabled;}
 
 Chunck::~Chunck()
 {

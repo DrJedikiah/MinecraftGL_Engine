@@ -38,7 +38,11 @@ public:
 	void GenerateMesh();
 	void GenerateCollider();
 
+	void SetEnabled(bool state);
+	bool Enabled() const;
+
 private:
+	bool m_enabled;
 	bool m_generateLater = false;
 
 	World* m_world;
