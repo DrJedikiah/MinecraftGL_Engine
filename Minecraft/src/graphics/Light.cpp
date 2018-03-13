@@ -35,7 +35,7 @@ DirectionalLight::~DirectionalLight()
 void DirectionalLight::BakeShadows(glm::vec3 lookPoint)
 {
 	view = glm::lookAt(
-		lookPoint - 100.f*direction,
+		lookPoint - 500.f*direction,
 		lookPoint,
 		glm::vec3(0.0f, 1.0f, 0.0f));
 

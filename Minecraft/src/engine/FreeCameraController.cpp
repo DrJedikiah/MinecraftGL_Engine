@@ -28,8 +28,8 @@ void FreeCameraController::Update(float delta)
 
 		if (Mouse::KeyDown(GLFW_MOUSE_BUTTON_RIGHT))
 		{
-			m_camera.RotateRight(m_mouseXspeed * Mouse::delta().x);
-			m_camera.RotateUp(-m_mouseYspeed * Mouse::delta().y);
+			m_camera.RotateRight(m_mouseXspeed * Mouse::Delta().x);
+			m_camera.RotateUp(-m_mouseYspeed * Mouse::Delta().y);
 
 			glm::ivec2 size = Input::GetWindowSize();
 			Mouse::LockCursor(true);

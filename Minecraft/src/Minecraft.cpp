@@ -235,6 +235,8 @@ void Minecraft::Start()
 			if (Keyboard::KeyPressed(GLFW_KEY_F3))
 				Debug::SetActivated(!Debug::Activated());
 
+			playerController.selectedBlock = ( playerController.selectedBlock + Mouse::DeltaScroll().y + Block::count - 1) % (Block::count - 1);
+
 
 			PhysicsEngine::StepSimulation(fixedUpdateTimer);
 
@@ -263,11 +265,11 @@ void Minecraft::Start()
 				fpsDelta -= 1.f / updateRate;
 			}
 
-			float ttt1 = Time::ElapsedSinceStartup();
+
 			if(viewFrustumCulling)
 				World::ClipChuncks(playerController.GetCamera());
-			float ttt2 = Time::ElapsedSinceStartup();
-			std::cout << 1000.f * (ttt2 - ttt1) << std::endl;
+
+
 			//////////////////////////////// BAKE SHADOWS ////////////////////////////////
 			sunLight.BakeShadows(player.rb().Position());
 			sunLightLarge.BakeShadows(player.rb().Position());
@@ -331,7 +333,8 @@ void Minecraft::Start()
 			shader_deferred_light.setInt("ambientOcclusion", 5);
 			shader_deferred_light.setVec3("lightDir", -sunDir);
 			shader_deferred_light.setVec3("viewPos", usedCamera->position());
-			shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 255.f, 134.f / 255.f, 255.f / 255.f));
+			//shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 255.f, 134.f / 255.f, 255.f / 255.f));
+			shader_deferred_light.setVec3("lightColor", glm::vec3(190 / 255.f, 255 / 255.f, 255.f / 255.f));
 
 			shader_deferred_light.setMat4("projectionViewLight", sunLight.ProjectionView());
 			shader_deferred_light.setMat4("projectionViewLightLarge", sunLightLarge.ProjectionView());

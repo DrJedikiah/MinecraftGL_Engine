@@ -13,6 +13,9 @@
 
 class PlayerController
 {
+
+
+
 public:
 	PlayerController(glm::ivec2 size, PlayerAvatar& avatar);
 	void Update(float delta);

@@ -66,8 +66,9 @@ public:
 	enum CursorState { disabled = GLFW_CURSOR_DISABLED, hidden = GLFW_CURSOR_HIDDEN, normal = GLFW_CURSOR_NORMAL };
 	enum Button{left = 0, right = 1, button3, button4, button5, button6, button7, button8};
 
-	static glm::vec2 position();
-	static glm::vec2 delta();
+	static glm::vec2 Position();
+	static glm::vec2 Delta();
+	static glm::ivec2 DeltaScroll();
 
 	static void SetCursor(CursorState state );
 	static void LockCursor( bool state, glm::vec2  position = m_position);
@@ -75,9 +76,12 @@ public:
 	static bool KeyDown(int GLFW_MOUSE_BUTTON);
 	static bool ButtonPressed(int GLFW_MOUSE_BUTTON);
 	static bool ButtonReleased(int GLFW_MOUSE_BUTTON);
+
 private:
 	static void mouse_callback(GLFWwindow* window, double x, double y);
 	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 	static void Update(int count);
 
 	static bool m_lockCursor;
@@ -86,6 +90,7 @@ private:
 	static glm::vec2 m_oldPosition;
 	static glm::vec2 m_position;
 	static glm::vec2 m_delta;
+	static glm::ivec2 m_deltaScroll;
 
 	static std::array< unsigned, 11 > m_buttonsPressed;
 	static std::array< unsigned, 11 > m_buttonsReleased;

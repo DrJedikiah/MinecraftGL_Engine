@@ -158,9 +158,6 @@
     <ClInclude Include="include\graphics\CubeMap.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\TreeGen.h">
-      <Filter>Header Files\engine\generators</Filter>
-    </ClInclude>
     <ClInclude Include="include\util\ImGuiManager.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
@@ -172,6 +169,12 @@
     </ClInclude>
     <ClInclude Include="include\util\MoreMath.h">
       <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\generators\ChunckGen.h">
+      <Filter>Header Files\engine\generators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\generators\TreeGen.h">
+      <Filter>Header Files\engine\generators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -262,9 +265,6 @@
     <ClCompile Include="src\graphics\TexturesBlocks.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\TreeGen.cpp">
-      <Filter>Source Files\engine\generators</Filter>
-    </ClCompile>
     <ClCompile Include="src\util\ImGuiManager.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
@@ -276,6 +276,12 @@
     </ClCompile>
     <ClCompile Include="src\dependencies\imgui\imgui_glfw.cpp">
       <Filter>Source Files\dependencies\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\generators\TreeGen.cpp">
+      <Filter>Source Files\engine\generators</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\generators\ChunckGen.cpp">
+      <Filter>Source Files\engine\generators</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

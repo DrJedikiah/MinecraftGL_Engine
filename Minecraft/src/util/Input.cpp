@@ -18,6 +18,8 @@ void Input::Setup(GLFWwindow * window)
 	glfwSetMouseButtonCallback(m_window, Mouse::mouse_button_callback);
 	glfwSetScrollCallback(window, ImGuiManager::ScrollCallback);
 	glfwSetCharCallback(window, ImGuiManager::CharCallback);
+	glfwSetScrollCallback(window, Mouse::scroll_callback);
+	
 }
 
 
@@ -66,9 +68,6 @@ void Keyboard::key_callback(GLFWwindow* window, int key, int scancode, int actio
 }
 
 ////////////Mouse////////////
-
-glm::vec2 Mouse::position() { return m_position; }
-glm::vec2 Mouse::delta() { return m_delta; }
 std::array< unsigned, 11 > Mouse::m_buttonsPressed;
 std::array< unsigned, 11 > Mouse::m_buttonsReleased;
 glm::vec2 Mouse::m_lockPosition;
@@ -76,6 +75,11 @@ bool Mouse::m_lockCursor = false;
 glm::vec2 Mouse::m_oldPosition;
 glm::vec2 Mouse::m_position;
 glm::vec2 Mouse::m_delta;
+glm::ivec2 Mouse::m_deltaScroll;
+
+glm::vec2 Mouse::Position() { return m_position; }
+glm::vec2 Mouse::Delta() { return m_delta; }
+glm::ivec2 Mouse::DeltaScroll() { return m_deltaScroll; }
 
 void Mouse::SetCursor(CursorState state)
 {
@@ -103,6 +107,11 @@ bool Mouse::ButtonReleased(int GLFW_MOUSE_BUTTON) { return m_buttonsReleased[GLF
 void Mouse::mouse_callback(GLFWwindow* window, double x, double y)
 {
 	
+}
+
+void Mouse::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	m_deltaScroll += glm::ivec2(xoffset, yoffset);
 }
 
 void Mouse::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -136,4 +145,6 @@ void Mouse::Update(int count)
 		m_position = glm::vec2(x, y);
 		m_delta = m_position - m_oldPosition;
 	}
+
+	m_deltaScroll = glm::ivec2();
 }

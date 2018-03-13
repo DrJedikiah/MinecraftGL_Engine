@@ -5,7 +5,7 @@
 #include "engine/Physics.h"
 #include "engine/Chunck.h"
 #include "graphics/Drawable.h"
-#include "engine/TreeGen.h"
+#include "engine/generators/TreeGen.h"
 #include "engine/Camera.h"
 #include <stack>
 
@@ -14,13 +14,13 @@ class Chunck;
 class World : IWithDebug
 { 
 public:
-	//const static int size = 25;
-	//const static int height = 16;	
-	//const static int size = 16;
-	//const static int height = 8;
-	const static int size = 8;
-	const static int height = 4;
-	 
+	//const static int size = 12;
+	//const static int height = 8;	
+	//const static int size = 8;
+	//const static int height = 4;
+	const static int size = 4;
+	const static int height = 2;
+ 
 	static void Update(float delta);
 
 	static void DrawTransparent(const Shader & shader);

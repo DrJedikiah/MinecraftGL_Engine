@@ -1,14 +1,14 @@
 #include "engine/PlayerController.h"
 
 PlayerController::PlayerController(glm::ivec2 size, PlayerAvatar& avatar) :
-	m_camera(size.x, size.y, 300.f, 0.2f),
+	m_camera(size.x, size.y, 16*16, 0.2f),
 	m_avatar(avatar)
 {
 	m_avatar.rb().setFriction(0.f);
 
 	m_avatar.rb().onCollisionEnter.connect(&PlayerController::OnCollisionEnter, this);
 	m_avatar.rb().onCollisionExit.connect(&PlayerController::OnCollisionExit, this);
-
+	;
 	m_avatar.rb().ActivateCollisionSignals(true);
 	m_avatar.rb().setActivationState(DISABLE_DEACTIVATION);
 
@@ -103,8 +103,8 @@ void PlayerController::SetCamera()
 {
 	//Camera
 	m_camera.SetPosition(m_avatar.rb().Position() + glm::vec3(0, 3.f * m_avatar.height / 4.f, 0));
-	m_camera.RotateRight(m_mouseXspeed * Mouse::delta().x);
-	m_camera.RotateUp(-m_mouseYspeed * Mouse::delta().y);
+	m_camera.RotateRight(m_mouseXspeed * Mouse::Delta().x);
+	m_camera.RotateUp(-m_mouseYspeed * Mouse::Delta().y);
 }
 
 bool PlayerController::SelectBlock(glm::ivec3 & blockCoord)

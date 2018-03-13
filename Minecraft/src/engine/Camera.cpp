@@ -114,6 +114,7 @@ bool Camera::InsideFrustrum(glm::vec3 point) const
 	Plane topPlane = Plane(m_position, glm::cross(TL - TR, m_position - TL));
 	Plane botPlane = Plane(m_position, glm::cross(m_position - BL, BL - BR));
 
+
 	return  !rightPlane.Right(point) && !leftPlane.Right(point) && !topPlane.Right(point) && !botPlane.Right(point);
 		
 }
@@ -128,12 +129,14 @@ std::vector<Plane> Camera::GetFrustrumPlanes() const
 	glm::vec3 BR = farCenter - farHeight * m_up + farWidth * m_right;
 	glm::vec3 BL = farCenter - farHeight * m_up - farWidth * m_right;
 
+
 	Plane rightPlane = Plane(m_position, glm::cross(TR - BR, m_position - BR));
 	Plane leftPlane = Plane(m_position, glm::cross(m_position - BL, TL - BL));
 	Plane topPlane = Plane(m_position, glm::cross(TL - TR, m_position - TL));
 	Plane botPlane = Plane(m_position, glm::cross(m_position - BL, BL - BR));
+	Plane farPlane = Plane(m_position, glm::cross( TR - TL, TR - BR));
 
-	return { rightPlane, leftPlane, topPlane, botPlane };
+	return { rightPlane, leftPlane, topPlane, botPlane, farPlane };
 }
 
 

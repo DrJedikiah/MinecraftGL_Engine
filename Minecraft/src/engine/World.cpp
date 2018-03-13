@@ -26,6 +26,7 @@ World::World()
 				m_chuncks[x][y][z].Setup(this, glm::ivec3((float)x, (float)y, (float)z));
 } 
 
+
   
 Chunck & World::GetChunck(glm::ivec3 position) { return m_chuncks[position.x][position.y][position.z];}
 
@@ -62,11 +63,10 @@ void World::GenerateChunks()
 		for (int y = 0; y < height * Chunck::size; ++y)
 			for (int z = 0; z < size * Chunck::size; ++z)
 			{
+				float perlin = perlinGen.noise(x, y, z);
+
 				Block& block = GetBlock({ x, y, z });
-				if (y == 0)
-					block.SetType(Block::Type::dirt);
-				else
-					block.SetType(Block::Type::air);
+				block.SetType(Block::Type::dirt);
 				
 			}*/
 

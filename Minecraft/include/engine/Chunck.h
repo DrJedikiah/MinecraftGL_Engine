@@ -25,7 +25,7 @@ public:
 	~Chunck();
 	void Setup( World* world, glm::ivec3 position);
 
-	static const int size = 16;
+	static const int size = 32;
 
 	void Update(float delta);
 

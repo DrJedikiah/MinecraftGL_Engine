@@ -139,11 +139,12 @@
     <ClInclude Include="include\engine\Cube.h" />
     <ClInclude Include="include\engine\Entity.h" />
     <ClInclude Include="include\engine\FreeCameraController.h" />
+    <ClInclude Include="include\engine\generators\ChunckGen.h" />
+    <ClInclude Include="include\engine\generators\TreeGen.h" />
     <ClInclude Include="include\engine\Physics.h" />
     <ClInclude Include="include\engine\PlayerAvatar.h" />
     <ClInclude Include="include\engine\PlayerController.h" />
     <ClInclude Include="include\engine\RigidBody.h" />
-    <ClInclude Include="include\engine\TreeGen.h" />
     <ClInclude Include="include\engine\World.h" />
     <ClInclude Include="include\graphics\CubeMap.h" />
     <ClInclude Include="include\graphics\Drawable.h" />
@@ -178,11 +179,12 @@
     <ClCompile Include="src\engine\Cube.cpp" />
     <ClCompile Include="src\engine\Entity.cpp" />
     <ClCompile Include="src\engine\FreeCameraController.cpp" />
+    <ClCompile Include="src\engine\generators\ChunckGen.cpp" />
+    <ClCompile Include="src\engine\generators\TreeGen.cpp" />
     <ClCompile Include="src\engine\Physics.cpp" />
     <ClCompile Include="src\engine\PlayerAvatar.cpp" />
     <ClCompile Include="src\engine\PlayerController.cpp" />
     <ClCompile Include="src\engine\RigidBody.cpp" />
-    <ClCompile Include="src\engine\TreeGen.cpp" />
     <ClCompile Include="src\engine\World.cpp" />
     <ClCompile Include="src\graphics\CubeMap.cpp" />
     <ClCompile Include="src\graphics\Drawable.cpp" />

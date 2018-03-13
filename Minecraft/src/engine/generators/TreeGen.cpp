@@ -1,4 +1,4 @@
-#include "engine/TreeGen.h"
+#include "engine/generators/TreeGen.h"
 
 Node::Node(glm::vec3 pos, Node* parent2, int depth2) :
 	position(pos),
