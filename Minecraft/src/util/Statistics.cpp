@@ -1,19 +1,31 @@
 #include "util/Statistics.h"
 
-std::vector< Statistics* > Statistics::m_instances;
 
-Statistics::Statistics()
+std::map< int, Statistics* >* Statistics::m_instances = nullptr;
+
+int Statistics::m_count = 0;
+
+Statistics::Statistics() : 
+	m_index(m_count++)
 {
-	m_instances.push_back(this);
+	if (!m_instances)
+		m_instances = new std::map< int, Statistics* >();
+
+	(*m_instances)[m_index] = this;
 }
 
 int Statistics::GetTriangles()
 {
-	int count = 0;
-	for (Statistics* ws : m_instances)
+	int nbTriangles = 0;
+	for ( std::pair<int, Statistics*>  pair : (*m_instances))
 	{
-		if(ws->STATS_enabled)
-			count += ws->STATS_triangles;
+		if(pair.second->STATS_enabled)
+			nbTriangles += pair.second->STATS_triangles;
 	}
-	return count;
+	return nbTriangles;
+}
+
+Statistics::~Statistics()
+{
+	(*m_instances).erase(m_index);
 }

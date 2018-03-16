@@ -14,7 +14,7 @@
 class RigidBody : public btRigidBody
 {
 public:
-	friend class PhysicsEngine;
+	friend class Physics;
 
 	RigidBody(const btRigidBodyConstructionInfo &constructionInfo, Tag tag = Tag::def);
 
@@ -24,7 +24,7 @@ public:
 	glm::vec3 Position() const;
 	glm::quat Rotation() const;
 
-	void SetPosition(glm::vec3 position);
+	//void SetPosition(glm::vec3 position);
 
 	void ActivateCollisionSignals(bool state);
 	bool CollisionSignalsActivateds();

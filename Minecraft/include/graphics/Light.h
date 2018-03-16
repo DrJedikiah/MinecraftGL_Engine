@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "engine/World.h"
+#include "engine/map/World.h"
 
 #include "graphics/Shader.h"
 #include "graphics/FrameBuffer.h"

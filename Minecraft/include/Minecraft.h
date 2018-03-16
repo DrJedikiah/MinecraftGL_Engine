@@ -12,13 +12,14 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "util/ImGuiManager.h"
+#include "engine/map/World.h" 
 #include "engine/Physics.h"
 #include "engine/Camera.h"
 #include "engine/PlayerController.h"
 #include "engine/FreeCameraController.h"
-#include "engine/World.h" 
 #include "engine/Cube.h"
 #include "engine/PlayerAvatar.h"
+
 
 
 #include "graphics/Shader.h"
@@ -43,8 +44,6 @@ class Minecraft
 public:
 	Minecraft(std::string name, int width, int height);
 	~Minecraft();
-	 
-	enum PlayerState{ spectator, survival };
 	
 	void Start( ); 
 	   
@@ -57,15 +56,16 @@ private:
 
 	void SetupPostProcess();
 	void SetupSkyBox();
+	void SetupFXAA();
 
 	unsigned int m_width;
 	unsigned int m_height;
-	unsigned int m_samples;
 
 	static GLFWwindow* m_window;
 
 	unsigned int postProcVAO, postProcVBO;
 	unsigned int skyboxVAO, skyboxVBO;
-	 
-	PlayerState m_playerState = PlayerState::survival;
+
+	std::vector<glm::vec3> ssaoKernel;
+	Texture * ssaoNoiseTex;
 };   

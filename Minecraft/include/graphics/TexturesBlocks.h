@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphics/Tiles.h"
-#include "engine/Block.h"
+#include "engine/map/Block.h"
 
 #include <array>
 

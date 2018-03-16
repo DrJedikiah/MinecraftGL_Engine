@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/Entity.h"
-#include "engine/Block.h"
+#include "engine/map/Block.h"
 #include "graphics/Model.h"
 #include "graphics/TexturesBlocks.h"
 #include "graphics/Drawable.h"

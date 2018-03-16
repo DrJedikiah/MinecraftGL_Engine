@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/World.h"
+#include "engine/map/World.h"
 #include "engine/Camera.h"
 
 #include "util/Input.h"

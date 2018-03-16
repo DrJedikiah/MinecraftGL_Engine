@@ -6,7 +6,7 @@ PlayerAvatar::PlayerAvatar( float mass, float height, float radius) :
 	radius(radius),
 	m_modelBody(Cube::CreateCubeMesh(0.1f, Block::Type::invalid))
 {
-	rb().setAngularFactor(btVector3(0.f, 1.f, 0.f));
+	rb().setAngularFactor(btVector3(0, 1, 0));
 } 
 
 void PlayerAvatar::Update(float delta)

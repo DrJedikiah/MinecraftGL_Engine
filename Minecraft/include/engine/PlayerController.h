@@ -2,7 +2,7 @@
 
 #include<algorithm>
 
-#include "engine/World.h"
+#include "engine/map/World.h"
 #include "engine/Camera.h"
 #include "engine/PlayerAvatar.h"
 

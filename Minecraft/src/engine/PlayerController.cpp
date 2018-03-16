@@ -109,10 +109,10 @@ void PlayerController::SetCamera()
 
 bool PlayerController::SelectBlock(glm::ivec3 & blockCoord)
 {
-	btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(m_camera.position(), m_camera.position() + m_range * m_camera.forward());
+	btCollisionWorld::ClosestRayResultCallback res = Physics::RayCast(m_camera.position(), m_camera.position() + m_range * m_camera.forward());
 	if (res.hasHit())
 	{
-		blockCoord = World::BlockAt(res.m_hitPointWorld - Block::size / 2 * res.m_hitNormalWorld);
+		blockCoord = World::BlockAt( glm::toVec3( res.m_hitPointWorld - Block::size / 2 * res.m_hitNormalWorld));
 		return true;
 	}
 	return false;
@@ -120,10 +120,10 @@ bool PlayerController::SelectBlock(glm::ivec3 & blockCoord)
 
 bool PlayerController::SelectSpace(glm::ivec3 & blockCoord)
 {
-	btCollisionWorld::ClosestRayResultCallback res = PhysicsEngine::RayCast(m_camera.position(), m_camera.position() + m_range * m_camera.forward());
+	btCollisionWorld::ClosestRayResultCallback res = Physics::RayCast(m_camera.position(), m_camera.position() + m_range * m_camera.forward());
 	if (res.hasHit())
 	{
-		blockCoord = World::BlockAt(res.m_hitPointWorld + Block::size / 2 * res.m_hitNormalWorld);
+		blockCoord = World::BlockAt(glm::toVec3(res.m_hitPointWorld + Block::size / 2 * res.m_hitNormalWorld));
 		return true;
 	}
 	return false;
@@ -139,10 +139,10 @@ bool PlayerController::isHittingFloor()
 	glm::vec3 Start3 = m_avatar.rb().Position() + 0.5f*glm::vec3(-m_avatar.radius, 0, m_avatar.radius);
 	glm::vec3 Start4 = m_avatar.rb().Position() + 0.5f*glm::vec3(-m_avatar.radius, 0, -m_avatar.radius);
 
-	if (PhysicsEngine::RayCast(Start1, Start1 + Direction).hasHit()) return true;
-	if (PhysicsEngine::RayCast(Start2, Start2 + Direction).hasHit()) return true;
-	if (PhysicsEngine::RayCast(Start3, Start3 + Direction).hasHit()) return true;
-	if (PhysicsEngine::RayCast(Start4, Start4 + Direction).hasHit()) return true;
+	if (Physics::RayCast(Start1, Start1 + Direction).hasHit()) return true;
+	if (Physics::RayCast(Start2, Start2 + Direction).hasHit()) return true;
+	if (Physics::RayCast(Start3, Start3 + Direction).hasHit()) return true;
+	if (Physics::RayCast(Start4, Start4 + Direction).hasHit()) return true;
 
 	return false;
 }

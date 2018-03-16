@@ -36,9 +36,6 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{29de983d-6583-455f-9b05-ec21a34350e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\engine\generators">
-      <UniqueIdentifier>{71269b74-3350-4fb6-83cb-68ca796faf00}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\engine\generators">
       <UniqueIdentifier>{629bd0d3-787e-49a7-ac41-fecb774f529a}</UniqueIdentifier>
     </Filter>
@@ -63,6 +60,15 @@
     <Filter Include="Source Files\graphics\components">
       <UniqueIdentifier>{196a86c2-b78a-4e68-975a-6785783c44f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\engine\map">
+      <UniqueIdentifier>{4acc7954-c8b2-4121-abd4-f912462e183f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine\map">
+      <UniqueIdentifier>{9b00d4af-437b-42e3-b3e4-65a4e0ea91b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine\map\generators">
+      <UniqueIdentifier>{71269b74-3350-4fb6-83cb-68ca796faf00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Minecraft.h">
@@ -71,22 +77,13 @@
     <ClInclude Include="include\dependencies\stb_image.h">
       <Filter>Header Files\dependencies</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\Block.h">
-      <Filter>Header Files\engine</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\Camera.h">
-      <Filter>Header Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\Chunck.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\Physics.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\PlayerController.h">
-      <Filter>Header Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\World.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="include\graphics\Light.h">
@@ -123,9 +120,6 @@
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\Entity.h">
-      <Filter>Header Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\Cube.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="include\graphics\Tiles.h">
@@ -171,10 +165,28 @@
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\generators\ChunckGen.h">
-      <Filter>Header Files\engine\generators</Filter>
+      <Filter>Header Files\engine\map\generators</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\generators\TreeGen.h">
-      <Filter>Header Files\engine\generators</Filter>
+      <Filter>Header Files\engine\map\generators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\Cube.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\map\Block.h">
+      <Filter>Header Files\engine\map</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\map\Chunck.h">
+      <Filter>Header Files\engine\map</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\map\World.h">
+      <Filter>Header Files\engine\map</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\map\CircularArray.h">
+      <Filter>Header Files\engine\map</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\map\SubChunck.h">
+      <Filter>Header Files\engine\map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -187,22 +199,13 @@
     <ClCompile Include="src\dependencies\glad.c">
       <Filter>Source Files\dependencies</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\Block.cpp">
-      <Filter>Source Files\engine</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\Camera.cpp">
-      <Filter>Source Files\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\Chunck.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\Physics.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\PlayerController.cpp">
-      <Filter>Source Files\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\World.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics\Light.cpp">
@@ -282,6 +285,21 @@
     </ClCompile>
     <ClCompile Include="src\engine\generators\ChunckGen.cpp">
       <Filter>Source Files\engine\generators</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\map\Block.cpp">
+      <Filter>Source Files\engine\map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\map\Chunck.cpp">
+      <Filter>Source Files\engine\map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\map\World.cpp">
+      <Filter>Source Files\engine\map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\map\CircularArray.cpp">
+      <Filter>Source Files\engine\map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\map\SubChunck.cpp">
+      <Filter>Source Files\engine\map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -42,9 +42,12 @@ void main()
 	if( fragPosLightSpace.x < 1.f && fragPosLightSpace.x > -1.f && fragPosLightSpace.y < 1.f && fragPosLightSpace.y > -1.f)
 		shadow = ShadowCalculation(fragPosLightSpace.xyz, shadowMap, 0.00015f);  
 	else if (fragPosLightSpaceLarge.x <= 1.f && fragPosLightSpaceLarge.x >= -1.f && fragPosLightSpaceLarge.y <= 1.f && fragPosLightSpaceLarge.y >= -1.f)
-		shadow = ShadowCalculation(fragPosLightSpaceLarge.xyz, shadowMapLarge, 0.00025f);  
+		shadow = ShadowCalculation(fragPosLightSpaceLarge.xyz, shadowMapLarge, 0.0005f);  
 
 	FragColor =  vec4( occlusion*( ambient +  (shadow*0.8 + 0.2) * diffuse + shadow * spec) * color.xyz  * lightColor , color.w  );
+
+	//FragColor = vec4(vec3(texture(ambientOcclusion, TexCoords).x),1);
+	//FragColor = vec4(vec3(occlusion),1);
 }  
 
 

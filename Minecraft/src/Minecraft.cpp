@@ -4,8 +4,7 @@ GLFWwindow* Minecraft::m_window = nullptr;
 
 Minecraft::Minecraft(std::string name, int width, int height) :
 	m_width(width),
-	m_height(height),
-	m_samples(8)
+	m_height(height)
 {
 	// Setup window
 	glfwSetErrorCallback(error_callback);
@@ -75,12 +74,16 @@ void Minecraft::Start()
 	//Shaders test
 	Shader shader_test("shaders/test.vs", "shaders/test.fs");
 
-	GrayFBO fboSSAO(m_width/5, m_height/5);
+	GrayFBO fboSSAO(m_width/3, m_height/3);
 	TextureDepthFBO fboBorders(m_width, m_height);
 	TextureDepthFBO fboFXAA(m_width, m_height);
 	DeferredFBO gBuffer(m_width, m_height);
 	PostProcessingFBO fboPostProc(m_width, m_height);
 	PostProcessingFBO fboPostProcTransparent(m_width, m_height);
+
+	glm::vec3 sunDir = glm::normalize(glm::vec3(4, -4, 1));
+	DirectionalLight sunLight(sunDir, 20.f);
+	DirectionalLight sunLightLarge(sunDir, 100.f);
 
 	Tiles::Initialize(4, 4);
 	TexturesBlocks::Initialize();
@@ -97,17 +100,20 @@ void Minecraft::Start()
 
 	SetupPostProcess();
 	SetupSkyBox();
+	SetupFXAA();
 
 	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
 
 	World::GenerateChunks();
-	World::GeneratePhysics();
-
 	
-	glm::vec3 startPos(World::size * Chunck::size / 2, World::height * Chunck::size, World::size * Chunck::size / 2);
+	glm::vec3 startPos((World::GetOrigin().x + World::size / 2) * SubChunck::size, Chunck::height * SubChunck::size, (World::GetOrigin().x + World::size / 2) * SubChunck::size);
+	//startPos -= glm::vec3(5, 25, 5);
+	
 	PlayerAvatar player;
-	player.rb().translate(btVector3(startPos.x, startPos.y, startPos.z));
-	//player.rb().translate(btVector3(World::size * Chunck::size / 2, World::height * Chunck::size / 16, World::size * Chunck::size / 2));
+	player.rb().translate( bt::toVec3(startPos));
+
+	Cube cube;
+	cube.rb().translate(bt::toVec3(startPos));
 
 	FreeCameraController freeCameraController( glm::vec2(m_width, m_height) );
 	freeCameraController.SetEnabled(false);
@@ -118,13 +124,6 @@ void Minecraft::Start()
 	Camera* usedCamera = & freeCameraController.GetCamera();
 	if( !freeCameraController.Enabled())
 		usedCamera = & playerController.GetCamera();
-
-	Cube cube;
-	cube.rb().translate(btVector3(4.5, 20, 4.5));
-
-	glm::vec3 sunDir = glm::normalize(glm::vec3(4, -4, 1));
-	DirectionalLight sunLight(sunDir, 20.f);
-	DirectionalLight sunLightLarge(sunDir, 100.f);
 
 	float drawTimer = 0.f;
 	float fixedUpdateTimer = 0.f;
@@ -145,38 +144,6 @@ void Minecraft::Start()
 	bool viewFrustumCulling = true;
 	bool vSync = true;
 
-	//////////////////////////////////////////
-	std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between 0.0 - 1.0
-	std::default_random_engine generator;
-	std::vector<glm::vec3> ssaoKernel;
-	ssaoKernel.reserve(64);
-	for (unsigned int i = 0; i < 64; ++i)
-	{
-		glm::vec3 sample(
-			randomFloats(generator) * 2.0 - 1.0,
-			randomFloats(generator) * 2.0 - 1.0,
-			randomFloats(generator)
-		);
-		sample = glm::normalize(sample);
-		sample *= randomFloats(generator);
-		float scale = (float)i / 64.f;
-		scale = glm::Lerp(0.1f, 1.0f, scale * scale);
-		sample *= scale;
-		ssaoKernel.push_back(sample);
-	}
-
-	std::vector<glm::vec3> ssaoNoise;
-	for (unsigned int i = 0; i < 16; i++)
-	{
-		glm::vec3 noise(
-			randomFloats(generator) * 2.0 - 1.0,
-			randomFloats(generator) * 2.0 - 1.0,
-			0.0f);
-		ssaoNoise.push_back(noise);
-	}
-
-	Texture ssaoNoiseTex(4, 4, ssaoNoise);
-
 	//Imgui data
 	std::stringstream ssItems;
 	for (int i = 0; i < Block::count; ++i)
@@ -195,6 +162,7 @@ void Minecraft::Start()
 		if (fixedUpdateTimer >= Time::FixedDeltaTime())
 		{
 			Input::Update();
+
 
 			//Exit app
 			if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE))
@@ -235,12 +203,13 @@ void Minecraft::Start()
 			if (Keyboard::KeyPressed(GLFW_KEY_F3))
 				Debug::SetActivated(!Debug::Activated());
 
-			playerController.selectedBlock = ( playerController.selectedBlock + Mouse::DeltaScroll().y + Block::count - 1) % (Block::count - 1);
+			Physics::StepSimulation(fixedUpdateTimer);
 
-
-			PhysicsEngine::StepSimulation(fixedUpdateTimer);
+			World::CenterChuncksAround(player.rb().Position() / (float)SubChunck::size);
+			//World::CenterChuncksAround(freeCameraController.GetCamera().position() / (float) SubChunck::size);
 
 			freeCameraController.Update(fixedUpdateTimer);
+			playerController.selectedBlock = (playerController.selectedBlock + Mouse::DeltaScroll().y + Block::count - 1) % (Block::count - 1);
 			playerController.Update(fixedUpdateTimer);
 
 			player.Update(fixedUpdateTimer);
@@ -299,7 +268,7 @@ void Minecraft::Start()
 			gBuffer.UseNormal(TextureUnit::Unit1);
 			gBuffer.UsePosition(TextureUnit::Unit2);
 			gBuffer.UseDepth(TextureUnit::Unit3);
-			ssaoNoiseTex.Use(TextureUnit::Unit4);
+			ssaoNoiseTex->Use(TextureUnit::Unit4);
 			shader_deferred_SSAO.setInt("gNormal", 1);
 			shader_deferred_SSAO.setInt("gPosition", 2);
 			shader_deferred_SSAO.setInt("gDepth", 3);
@@ -333,8 +302,8 @@ void Minecraft::Start()
 			shader_deferred_light.setInt("ambientOcclusion", 5);
 			shader_deferred_light.setVec3("lightDir", -sunDir);
 			shader_deferred_light.setVec3("viewPos", usedCamera->position());
-			//shader_deferred_light.setVec3("lightColor", glm::vec3(135.f / 255.f, 134.f / 255.f, 255.f / 255.f));
-			shader_deferred_light.setVec3("lightColor", glm::vec3(190 / 255.f, 255 / 255.f, 255.f / 255.f));
+			shader_deferred_light.setVec3("lightColor", glm::vec3(255 / 255.f, 255 / 255.f, 255.f / 255.f));
+
 
 			shader_deferred_light.setMat4("projectionViewLight", sunLight.ProjectionView());
 			shader_deferred_light.setMat4("projectionViewLightLarge", sunLightLarge.ProjectionView());
@@ -433,7 +402,6 @@ void Minecraft::Start()
 			glEnable(GL_DEPTH_TEST);
 
 			//////////////////////////////// DEBUG ////////////////////////////////
-
 			if (Debug::Activated())
 			{
 				glDisable(GL_DEPTH_TEST);
@@ -497,6 +465,40 @@ void Minecraft::Start()
 
 	ImGuiManager::Shutdown();
 	glfwTerminate();
+}
+
+void Minecraft::SetupFXAA()
+{
+	std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between 0.0 - 1.0
+	std::default_random_engine generator;
+
+	ssaoKernel.reserve(64);
+	for (unsigned int i = 0; i < 64; ++i)
+	{
+		glm::vec3 sample(
+			randomFloats(generator) * 2.0 - 1.0,
+			randomFloats(generator) * 2.0 - 1.0,
+			randomFloats(generator)
+		);
+		sample = glm::normalize(sample);
+		sample *= randomFloats(generator);
+		float scale = (float)i / 64.f;
+		scale = glm::Lerp(0.1f, 1.0f, scale * scale);
+		sample *= scale;
+		ssaoKernel.push_back(sample);
+	}
+
+	std::vector<glm::vec3> ssaoNoise;
+	for (unsigned int i = 0; i < 16; i++)
+	{
+		glm::vec3 noise(
+			randomFloats(generator) * 2.0 - 1.0,
+			randomFloats(generator) * 2.0 - 1.0,
+			0.0f);
+		ssaoNoise.push_back(noise);
+	}
+
+	ssaoNoiseTex = new Texture(4, 4, ssaoNoise);
 }
 
 void Minecraft::SetupPostProcess()

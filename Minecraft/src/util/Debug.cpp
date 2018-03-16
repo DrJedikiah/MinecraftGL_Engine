@@ -22,7 +22,7 @@ IWithDebug::~IWithDebug()
 	if (m_IWithDebugInstances->size() == 0)
 	{
 		delete m_IWithDebugInstances;
-		m_IWithDebugInstances == nullptr;
+		m_IWithDebugInstances = nullptr;
 	}
 }
 

@@ -1,7 +1,7 @@
 #include "engine/Cube.h"
 
 Cube::Cube(float size) : 
-	Entity(size*size*size, new btBoxShape(btVector3(size/2.f,size / 2.f,size / 2.f))),
+	Entity(size, new btBoxShape(btVector3(size/2.f,size / 2.f,size / 2.f))),
 	m_size(size),
 	m_model(CreateCubeMesh(size))
 {
@@ -14,16 +14,8 @@ void Cube::Update(float delta)
 
 void Cube::UpdateModels()
 {
-	btTransform trans;
-	rb().getMotionState()->getWorldTransform(trans);
-	glm::vec3 euler;
-	trans.getRotation().getEulerZYX(euler.z, euler.y, euler.x);
-	m_model.SetPosition({
-		trans.getOrigin().getX(),
-		trans.getOrigin().getY(),
-		trans.getOrigin().getZ()
-	});
-	m_model.SetRotation(euler);
+	m_model.SetPosition(rb().Position());
+	m_model.SetRotation( glm::eulerAngles(rb().Rotation()));
 }
 
 void Cube::Draw(const Shader & shader) const

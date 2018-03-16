@@ -1,11 +1,12 @@
 #pragma once
 
-#include <vector>
+#include <map>
 
 class Statistics
 {
 public:
 	Statistics();
+	~Statistics();
 
 	static int GetTriangles();
 
@@ -14,6 +15,8 @@ protected:
 	int STATS_triangles = 0;
 
 private:
-	int index;
-	static std::vector< Statistics* > m_instances;
+	int m_index;
+
+	static int m_count;
+	static std::map< int, Statistics* > * m_instances;
 };

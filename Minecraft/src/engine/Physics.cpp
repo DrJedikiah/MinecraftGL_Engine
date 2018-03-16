@@ -1,127 +1,127 @@
 #include "engine/Physics.h"
 
-PhysicsEngine PhysicsEngine::m_instance = PhysicsEngine();
+Physics Physics::m_instance = Physics();
 
- btDefaultCollisionConfiguration * PhysicsEngine::collisionConfiguration;
- btCollisionDispatcher* PhysicsEngine::dispatcher;
- btBroadphaseInterface* PhysicsEngine::overlappingPairCache;
- btSequentialImpulseConstraintSolver* PhysicsEngine::solver;
- btDiscreteDynamicsWorld* PhysicsEngine::dynamicsWorld;
+btDefaultCollisionConfiguration * Physics::collisionConfiguration;
+btCollisionDispatcher* Physics::dispatcher;
+btBroadphaseInterface* Physics::overlappingPairCache;
+btSequentialImpulseConstraintSolver* Physics::solver;
+btDiscreteDynamicsWorld* Physics::dynamicsWorld;
 
- void PhysicsEngine::StepSimulation(float timeStep)
- {
-	 dynamicsWorld->stepSimulation(timeStep, 1);
- }
+void Physics::StepSimulation(float timeStep)
+{
+	dynamicsWorld->stepSimulation(timeStep, 1);
+}
 
- RigidBody* PhysicsEngine::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, bool isTrigger)
- {
-	 bool isDynamic = (mass != 0.f);
+RigidBody* Physics::CreateRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, bool isTrigger)
+{
+	bool isDynamic = (mass != 0.f);
 
 
-	 btVector3 localInertia(0, 0, 0);
-	 if (isDynamic)
-		 shape->calculateLocalInertia(mass, localInertia);
+	btVector3 localInertia(0, 0, 0);
+	if (isDynamic)
+		shape->calculateLocalInertia(mass, localInertia);
 
-	 btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-	 btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-	 RigidBody* body = new RigidBody(cInfo);
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
+	RigidBody* body = new RigidBody(cInfo);
 
-	 if(isTrigger)
+	if (isTrigger)
 		body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
-	 body->setUserIndex(-1);
-	 dynamicsWorld->addRigidBody(body);
-	 return body;
- }
+	body->setUserIndex(-1);
+	dynamicsWorld->addRigidBody(body);
+	return body;
+}
 
 
 
- bool PhysicsEngine::DeleteRigidBody(RigidBody* rigidBody)
- {
-	 if (rigidBody && rigidBody->getMotionState())
-	 	 delete rigidBody->getMotionState();
-	 dynamicsWorld->removeCollisionObject(rigidBody);
-	 delete rigidBody;
+bool Physics::DeleteRigidBody(RigidBody* rigidBody)
+{
+	if (rigidBody && rigidBody->getMotionState())
+		delete rigidBody->getMotionState();
+	dynamicsWorld->removeCollisionObject(rigidBody);
+	delete rigidBody;
 
-	 return false;
- }
+	return false;
+}
 
- btCollisionWorld::ClosestRayResultCallback PhysicsEngine::RayCast(glm::vec3 Start, glm::vec3 End)
- {
-	 btVector3 StartBt(Start.x, Start.y, Start.z);
-	 btVector3 EndBt(End.x, End.y, End.z);
+btCollisionWorld::ClosestRayResultCallback Physics::RayCast(glm::vec3 Start, glm::vec3 End)
+{
+	btVector3 StartBt(Start.x, Start.y, Start.z);
+	btVector3 EndBt(End.x, End.y, End.z);
 
 
-	 btCollisionWorld::ClosestRayResultCallback RayCallback(StartBt, EndBt);
-	 dynamicsWorld->rayTest(StartBt, EndBt, RayCallback);
-	 return RayCallback;
- }
+	btCollisionWorld::ClosestRayResultCallback RayCallback(StartBt, EndBt);
+	dynamicsWorld->rayTest(StartBt, EndBt, RayCallback);
+	return RayCallback;
+}
 
- bool PhysicsEngine::ContactAdded(btManifoldPoint& pt, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
- {
-	 //Get the two RigidBodies
-	 RigidBody* objA = (RigidBody*)colObj0Wrap->getCollisionObject();
-	 RigidBody* objB = (RigidBody*)colObj1Wrap->getCollisionObject();
+bool Physics::ContactAdded(btManifoldPoint& pt, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
+{
+	//Get the two RigidBodies
+	RigidBody* objA = (RigidBody*)colObj0Wrap->getCollisionObject();
+	RigidBody* objB = (RigidBody*)colObj1Wrap->getCollisionObject();
 
-	 //If the contact has not been processed yet
-	 if (pt.m_userPersistentData == nullptr)
-	 {
-		 //colA and colB are set if their CollisionSignals are Activateds
-		 RigidBody::Collision * colA = nullptr;
-		 RigidBody::Collision * colB = nullptr;
-		 if(objA->CollisionSignalsActivateds())
-			 colA = &(objA->m_collisions[objB->id()]);
-		 if (objB->CollisionSignalsActivateds())
-			 colB = &(objB->m_collisions[objA->id()]);
+	//If the contact has not been processed yet
+	if (pt.m_userPersistentData == nullptr)
+	{
+		//colA and colB are set if their CollisionSignals are Activateds
+		RigidBody::Collision * colA = nullptr;
+		RigidBody::Collision * colB = nullptr;
+		if (objA->CollisionSignalsActivateds())
+			colA = &(objA->m_collisions[objB->id()]);
+		if (objB->CollisionSignalsActivateds())
+			colB = &(objB->m_collisions[objA->id()]);
 
-		 //Get the first RigidBody::Collision activated, returns if none is
-		 RigidBody::Collision * col = nullptr;
-		 if (colA)
-			 col = colA;
-		 else
-			 col = colB;
-		 if ( ! col )
-			 return false;
+		//Get the first RigidBody::Collision activated, returns if none is
+		RigidBody::Collision * col = nullptr;
+		if (colA)
+			col = colA;
+		else
+			col = colB;
+		if (!col)
+			return false;
 
-		 //Set the  RigidBody::Collision data and the point PersistentData for Destruction lk
+		//Set the  RigidBody::Collision data and the point PersistentData for Destruction lk
 		pt.m_userPersistentData = (void*)col;
 		++col->numContacts;
 		col->rb1 = objA;
 		col->rb2 = objB;
 
 		//Send signals if it is the first contact
-		 if (col->numContacts == 1)
-		 {
-			if(colA)
+		if (col->numContacts == 1)
+		{
+			if (colA)
 				objA->onCollisionEnter.emmit(*objB, pt);
 			if (colB)
 				objB->onCollisionEnter.emmit(*objA, pt);
-		 } 
-	 }
-	 return false;
- }
+		}
+	}
+	return false;
+}
 
- bool PhysicsEngine::ContactDestroyed(void* userPersistentData)
- {
+bool Physics::ContactDestroyed(void* userPersistentData)
+{
 
-	 //Get the RigidBody::Collision data
-	 RigidBody::Collision * col = ((RigidBody::Collision*)userPersistentData);
-	 --col->numContacts;
+	//Get the RigidBody::Collision data
+	RigidBody::Collision * col = ((RigidBody::Collision*)userPersistentData);
+	--col->numContacts;
 
-	 //Send signals if there is no more contact
-	 if (col->numContacts == 0)
-	 {
-		 if (col->rb1->CollisionSignalsActivateds())
-			 col->rb1->onCollisionExit.emmit(*col->rb2);
-		 if (col->rb2->CollisionSignalsActivateds())
-			 col->rb2->onCollisionExit.emmit(*col->rb1);
-	 }
+	//Send signals if there is no more contact
+	if (col->numContacts == 0)
+	{
+		if (col->rb1->CollisionSignalsActivateds())
+			col->rb1->onCollisionExit.emmit(*col->rb2);
+		if (col->rb2->CollisionSignalsActivateds())
+			col->rb2->onCollisionExit.emmit(*col->rb1);
+	}
 
-	 return false;
- }
+	return false;
+}
 
 
-PhysicsEngine::PhysicsEngine()
+Physics::Physics()
 {
 	///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
 	collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -143,28 +143,28 @@ PhysicsEngine::PhysicsEngine()
 	gContactDestroyedCallback = ContactDestroyed;
 }
 
-PhysicsEngine::~PhysicsEngine()
+Physics::~Physics()
 {
 	//cleanup in the reverse order of creation/initialization
 	//remove the rigidbodies from the dynamics world and delete them
 	/*for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
-		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState())
-		{
-			delete body->getMotionState();
-		}
-		dynamicsWorld->removeCollisionObject(obj);
-		delete obj;
+	btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+	btRigidBody* body = btRigidBody::upcast(obj);
+	if (body && body->getMotionState())
+	{
+	delete body->getMotionState();
+	}
+	dynamicsWorld->removeCollisionObject(obj);
+	delete obj;
 	}
 
 	//delete collision shapes
 	for (int j = 0; j < collisionShapes.size(); j++)
 	{
-		btCollisionShape* shape = collisionShapes[j];
-		collisionShapes[j] = 0;
-		delete shape;
+	btCollisionShape* shape = collisionShapes[j];
+	collisionShapes[j] = 0;
+	delete shape;
 	}
 
 	//delete dynamics world
