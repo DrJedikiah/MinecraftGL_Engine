@@ -171,13 +171,21 @@ void Chunck::DrawOpaque(const Shader & shader) const
 			m_subChuncks[y]->DrawOpaque(shader);
 }
 
-void Chunck::SetEnabled(bool state) 
+void Chunck::SetEnabled(bool state)
 {
-	m_enabled = state; 
-	for (int y = 0; y <Chunck::height; ++y)
-		m_subChuncks[y]->STATS_enabled = state; 
+	m_enabled = state;
+	for (int y = 0; y < Chunck::height; ++y)
+		m_subChuncks[y]->SetEnabled(state);
 }
+
+void Chunck::SetSubChunckEnabled(int subChunck, bool state)
+{
+	m_subChuncks[subChunck]->SetEnabled(state);
+}
+
 bool Chunck::Enabled() const { return m_enabled; }
+
+glm::ivec3 Chunck::Position() const{return glm::ivec3(m_positionX,0, m_positionZ);}
 
 Chunck::~Chunck()
 {

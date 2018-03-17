@@ -1,6 +1,6 @@
 #include "engine/map/World.h"
 
-const int seed = 23;
+const int seed = 33;
 
 CircularArray World::m_array(World::size, 30,30);
 PerlinNoise World::perlinGen(seed);
@@ -122,40 +122,37 @@ void World::EnableAllChuncks()
 
 void World::ClipChuncks(const Camera & camera)
 {
-	/*std::vector<glm::vec3> chunckPoints =
+	std::vector<glm::vec3> chunckPoints =
 	{
-		 glm::vec3(0, 0, 0),
-		 glm::vec3(1, 0, 0),
-		 glm::vec3(1, 0, 1),
-		 glm::vec3(0, 0, 1),
-		 glm::vec3(0, 1, 0),
-		 glm::vec3(1, 1, 0),
-		 glm::vec3(1, 1, 1),
-		 glm::vec3(0, 1, 1),
+		glm::vec3(0, 0, 0),
+		glm::vec3(1, 0, 0),
+		glm::vec3(1, 0, 1),
+		glm::vec3(0, 0, 1),
+		glm::vec3(0, Chunck::height, 0),
+		glm::vec3(1, Chunck::height, 0),
+		glm::vec3(1, Chunck::height, 1),
+		glm::vec3(0, Chunck::height, 1),
 	};
 
-	std::vector<Plane> frustrumPlanes = camera.GetFrustrumPlanes();
+	std::vector<Plane> planes = camera.GetFrustrumPlanes();
+	std::vector<Plane> leftRightPlanes = { planes[0], planes[1] };
 
-	for (int x = 0; x < size; ++x)
-		for (int y = 0; y < height; ++y)
-			for (int z = 0; z < size; ++z)
+	std::vector<Chunck*> enabledChuncks;
+	//First pass to eliminate full chuncks
+	for (int z = 0; z < size; ++z)
+		for (int x = 0; x < size; ++x)
+		{
+			glm::ivec3 chunckPos = glm::ivec3(m_array.OriginX() + x, 0, m_array.OriginZ() + z);
+			Chunck * chunck = GetChunck(chunckPos.x, chunckPos.z);
+			if (chunck)
 			{
 				bool enabled = false;
 				for (glm::vec3 point : chunckPoints)
 				{
-					//If the chunck point is very close, set enabled true
-					glm::vec3 center = (float)Chunck::size * glm::vec3(x + 0.5, y + 0.5, z + 0.5);
-					float distance = glm::distance(center, camera.position());
-					if (distance < Chunck::size)
-					{
-						enabled = true;
-						break;
-					}
-
 					//If the chunck point is on the wrong side of a view frustrum plane
-					glm::vec3 worldPoint = (float)Chunck::size * (glm::vec3(x, y, z) + point);
+					glm::vec3 worldPoint = (float)SubChunck::size * ( glm::vec3(chunckPos) + point);
 					bool outside = false;
-					for (Plane plane : frustrumPlanes)
+					for (Plane plane : leftRightPlanes)
 					{
 						if (plane.Right(worldPoint))
 						{
@@ -163,15 +160,69 @@ void World::ClipChuncks(const Camera & camera)
 							break;
 						}
 					}
-
 					if (!outside)
 					{
 						enabled = true;
+						enabledChuncks.push_back(chunck);
 						break;
 					}
 				}
-				GetChunck({ x, y, z }).SetEnabled(enabled);
-			}*/
+				chunck->SetEnabled(enabled);
+			}
+		}
+
+	std::vector<glm::vec3> subChunckPoints =
+	{
+		glm::vec3(0, 0, 0),
+		glm::vec3(1, 0, 0),
+		glm::vec3(1, 0, 1),
+		glm::vec3(0, 0, 1),
+		glm::vec3(0, 1, 0),
+		glm::vec3(1, 1, 0),
+		glm::vec3(1, 1, 1),
+		glm::vec3(0, 1, 1),
+	};
+
+	std::vector<Plane> topBotPlanes = { planes[2], planes[3] };
+
+	for (Chunck * chunck : enabledChuncks)
+	{
+		for (int y = 0; y < Chunck::height; ++y)
+		{
+			bool enabled = false;
+			for (glm::vec3 point : subChunckPoints)
+			{
+				glm::ivec3 subChunckPos = glm::ivec3(chunck->Position().x, y, chunck->Position().z);
+
+				//If the chunck point is very close, set enabled true
+				glm::vec3 center = (float)SubChunck::size * (glm::vec3(subChunckPos) + glm::vec3(0.5, 0.5, 0.5));
+				float distance = glm::distance(center, camera.position());
+				if (distance < SubChunck::size)
+				{
+					enabled = true;
+					break;
+				}
+
+				//If the chunck point is on the wrong side of a view frustrum plane
+				glm::vec3 worldPoint = (float)SubChunck::size * (glm::vec3(subChunckPos) + point);
+				bool outside = false;
+				for (Plane plane : topBotPlanes)
+				{
+					if (plane.Right(worldPoint))
+					{
+						outside = true;
+						break;
+					}
+				}
+				if (!outside)
+				{
+					enabled = true;
+					break;
+				}
+			}
+			chunck->SetSubChunckEnabled(y, enabled);
+		}
+	}
 }
 
 void World::Update(float delta)
@@ -183,6 +234,7 @@ void World::Update(float delta)
 
 void World::CenterChuncksAround(glm::ivec3 chunckPos)
 {
+	//Generates colliders around the center
 	for (int x = -1; x < 2; ++x)
 		for (int y = -1; y < 2; ++y)
 			for (int z = -1; z < 2; ++z)

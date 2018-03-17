@@ -44,12 +44,17 @@ void SubChunck::CheckEmpty()
 	m_isEmpty = true;
 }
 
+void SubChunck::SetEnabled(bool state)
+{
+	m_enabled = state;
+	STATS_enabled = m_enabled;
+}
+
 void SubChunck::GenerateCollider()
 {
 	m_colliderGenerated = true;
 	if (!m_isEmpty)
 	{
-		std::cerr << "GenerateCollider" << m_position.x << " " << m_position.y << " " << m_position.z << " " << std::endl;
 
 		std::vector<btVector3> btVertices;
 		btVertices.reserve(SubChunck::size*SubChunck::size*SubChunck::size);
@@ -237,13 +242,13 @@ void SubChunck::GenerateMesh()
 
 void SubChunck::DrawTransparent(const Shader & shader) const
 {
-	if(m_modelTransparent)
+	if(m_modelTransparent && m_enabled)
 		m_modelTransparent->Draw(shader);
 }
 
 void SubChunck::DrawOpaque(const Shader & shader) const
 {
-	if(m_modelOpaque)
+	if(m_modelOpaque && m_enabled)
 		m_modelOpaque->Draw(shader);
 }
 

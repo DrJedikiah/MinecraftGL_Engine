@@ -17,8 +17,6 @@ Camera::Camera(int width, int height, float farPlane, float nearPlane, float fov
 	float farWidth = (m_size.x / m_size.y) * farHeight;
 }
 
-
-
 void Camera::SetPosition(glm::vec3 vector)
 {
 	m_position = vector;
@@ -135,6 +133,8 @@ std::vector<Plane> Camera::GetFrustrumPlanes() const
 	Plane topPlane = Plane(m_position, glm::cross(TL - TR, m_position - TL));
 	Plane botPlane = Plane(m_position, glm::cross(m_position - BL, BL - BR));
 	Plane farPlane = Plane(m_position, glm::cross( TR - TL, TR - BR));
+
+
 
 	return { rightPlane, leftPlane, topPlane, botPlane, farPlane };
 }

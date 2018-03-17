@@ -16,7 +16,7 @@ class Chunck;
 class World : IWithDebug
 { 
 public:
-	const static int size = 16;
+	const static int size = 28;
  
 	static void Update(float delta);
 

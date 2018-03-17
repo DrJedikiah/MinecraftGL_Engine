@@ -20,11 +20,13 @@ class SubChunck : public Statistics
 {
 public:
 	friend class Chunck;
+	static const int size = 16;
 
 	SubChunck(glm::ivec3 position);
 	~SubChunck();
 
 	void Update(float delta);
+	void SetEnabled(bool state);
 
 	void GenerateCollider();
 	void GenerateMesh();
@@ -32,7 +34,7 @@ public:
 	void DrawTransparent(const Shader & shader) const;
 	void DrawOpaque(const Shader & shader) const;
 
-	static const int size = 16;
+	
 
 	Block* GetBlock(glm::ivec3 position);
 private:
@@ -40,6 +42,7 @@ private:
 	bool m_isEmpty = true;
 	bool m_colliderGenerated = false;
 	bool m_regenerateLater = false;
+	bool m_enabled = true;
 
 	glm::ivec3 m_position;
 

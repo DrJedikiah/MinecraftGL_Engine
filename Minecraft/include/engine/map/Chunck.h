@@ -26,7 +26,11 @@ public:
 	void GenerateCollider(int subChunck, bool regenerate = false );
 
 	void SetEnabled(bool state);
+	void SetSubChunckEnabled(int subChunck, bool state);
+
 	bool Enabled() const;
+
+	glm::ivec3 Position() const;
 
 private:
 	bool m_enabled;
