@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/map/SubChunck.h"
+#include "util/Perlin.h"
 
 class SubChunck;
 
@@ -11,7 +12,7 @@ public:
 	Chunck(  int x, int z );
 	~Chunck();
 
-	static const int height = 16;
+	static const int height = 20;
 
 	void Update(float delta);
 
@@ -22,7 +23,10 @@ public:
 
 	void GenerateLater( int subChunck );
 	void GenerateBlocks();
+
 	void GenerateMesh(int subChunck);
+	void GenerateModels(int subChunck);
+
 	void GenerateCollider(int subChunck, bool regenerate = false );
 
 	void SetEnabled(bool state);
@@ -32,16 +36,17 @@ public:
 
 	glm::ivec3 Position() const;
 
+	bool generating = false;
 private:
 	bool m_enabled;
 	bool m_generateLater = false;
 	bool m_blocksGenerated = false;
 
+	
+
 	int m_positionX;
 	int m_positionZ;
 
-
-
 	SubChunck * m_subChuncks[Chunck::height];
-
+	static PerlinNoise perlinGen;
 };

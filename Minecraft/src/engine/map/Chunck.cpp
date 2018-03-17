@@ -1,5 +1,7 @@
 #include "engine/map/Chunck.h"
 
+const int seed = 33;
+PerlinNoise Chunck::perlinGen(seed);
 
 Chunck::Chunck(int x, int z) :
 	m_positionX(x),
@@ -7,7 +9,7 @@ Chunck::Chunck(int x, int z) :
 	m_enabled(true)
 { 
 	for( int y = 0; y < Chunck::height; ++y)
-		m_subChuncks[y] = new SubChunck(glm::ivec3(x, y, z));
+		m_subChuncks[y] = new SubChunck(glm::ivec3(x, y, z), this);
 }
 
 Block* Chunck::GetBlock(glm::ivec3 position)
@@ -45,18 +47,18 @@ void Chunck::GenerateBlocks()
 
 				//////////////////
 				float freq3D1 = 30.f;
-				float density3D1 = 1.f - 0.5f * (1.f + (float)World::perlinGen.noise(pos.x / freq3D1, pos.y / freq3D1, pos.z / freq3D1));
+				float density3D1 = 1.f - 0.5f * (1.f + (float)Chunck::perlinGen.noise(pos.x / freq3D1, pos.y / freq3D1, pos.z / freq3D1));
 				float freq3D2 = 10.f;
-				float density3D2 = 1.f - 0.5f * (1.f + (float)World::perlinGen.noise(pos.x / freq3D2, pos.y / freq3D2, pos.z / freq3D2));
+				float density3D2 = 1.f - 0.5f * (1.f + (float)Chunck::perlinGen.noise(pos.x / freq3D2, pos.y / freq3D2, pos.z / freq3D2));
 				
 				float density3D = 0.8f * density3D1 + 0.2f*density3D2;
 
 				
 				///////////
 				float freq2D1 = 150.f;
-				float perlin2D1 = 0.5f * (1.f + (float)World::perlinGen.noise(pos.x / freq2D1, pos.z / freq2D1));
+				float perlin2D1 = 0.5f * (1.f + (float)Chunck::perlinGen.noise(pos.x / freq2D1, pos.z / freq2D1));
 				float freq2D2 = 50.f;
-				float perlin2D2 = 0.5f * (1.f + (float)World::perlinGen.noise(pos.x / freq2D2, pos.z / freq2D2));
+				float perlin2D2 = 0.5f * (1.f + (float)Chunck::perlinGen.noise(pos.x / freq2D2, pos.z / freq2D2));
 				float perlin2D = 0.7f * perlin2D1 + 0.3f*perlin2D2;
 
 				//////////
@@ -81,13 +83,13 @@ void Chunck::GenerateBlocks()
 
 				int nbDirt = (int)(10.f * ( 1.f - (float)pos.y / (SubChunck::size * Chunck::height)));
 
-				Block* otherBlock = World::GetBlock(pos + glm::ivec3(0, 1, 0));
+				Block* otherBlock = GetBlock(glm::ivec3(x, y+1, z));
 				Block* block = GetBlock( glm::ivec3(x, y, z));
 
 				if (block->type == Block::Type::stone && (!otherBlock || !otherBlock->solid))
 					for (int i = 0; i < (int)nbDirt; ++i)
 					{
-						Block* blockDirt = World::GetBlock(pos - glm::ivec3(0, i, 0));
+						Block* blockDirt = GetBlock(glm::ivec3(x, y - i, z));
 						if (blockDirt && blockDirt->type == Block::Type::stone)
 							blockDirt->SetType(Block::Type::dirt);
 					}
@@ -103,9 +105,9 @@ void Chunck::GenerateBlocks()
 				float hratio = (float)pos.y / (SubChunck::size * Chunck::height);
 
 				float cavesFreqLow = 15;
-				float cavesLow = 0.5f *(1.f + (float)World::perlinGen.noise(pos.x / cavesFreqLow, pos.y / cavesFreqLow, pos.z / cavesFreqLow));
+				float cavesLow = 0.5f *(1.f + (float)Chunck::perlinGen.noise(pos.x / cavesFreqLow, pos.y / cavesFreqLow, pos.z / cavesFreqLow));
 				float cavesFreqHigh = cavesFreqLow/3;
-				float cavesHigh = 0.5f *(1.f + (float)World::perlinGen.noise(pos.x / cavesFreqHigh, pos.y / cavesFreqHigh, pos.z / cavesFreqHigh));
+				float cavesHigh = 0.5f *(1.f + (float)Chunck::perlinGen.noise(pos.x / cavesFreqHigh, pos.y / cavesFreqHigh, pos.z / cavesFreqHigh));
 
 				//cavesDensity
 				float cavesDensity = 0.8f*cavesLow + 0.2f*cavesHigh;
@@ -122,7 +124,7 @@ void Chunck::GenerateBlocks()
 			{
 				glm::ivec3 pos = glm::ivec3(SubChunck::size * m_positionX + x, y, SubChunck::size * m_positionZ + z);
 
-				Block* otherBlock = World::GetBlock(pos + glm::ivec3(0, 1, 0));
+				Block* otherBlock = GetBlock(glm::ivec3(x, y + 1, z));
 				if (GetBlock(glm::ivec3(x, y, z))->type == Block::Type::dirt && (!otherBlock || !otherBlock->solid))
 
 					GetBlock(glm::ivec3(x, y, z))->SetType(Block::Type::grass);
@@ -146,10 +148,20 @@ void Chunck::GenerateBlocks()
 void Chunck::GenerateMesh( int subChunck )
 { 
 	if (m_blocksGenerated)
+	
 		m_subChuncks[subChunck]->GenerateMesh();
 	else
 		std::cerr << "ERROR: Chunck::GenerateMesh blocks not generated" << std::endl;
 }
+
+void Chunck::GenerateModels(int subChunck)
+{
+	if (m_blocksGenerated)
+		m_subChuncks[subChunck]->GenerateModels();
+	else
+		std::cerr << "ERROR: Chunck::GenerateModels blocks not generated" << std::endl;
+}
+
 void Chunck::GenerateCollider( int subChunck, bool regenerate)
 {
 	if (subChunck >= 0 && subChunck < Chunck::height)

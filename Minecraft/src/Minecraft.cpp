@@ -104,7 +104,7 @@ void Minecraft::Start()
 
 	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<GLfloat>(m_width), 0.0f, static_cast<GLfloat>(m_height));
 
-	World::GenerateChunks();
+	//World::GenerateChunks();
 	
 	glm::vec3 startPos((World::GetOrigin().x + World::size / 2) * SubChunck::size, Chunck::height * SubChunck::size, (World::GetOrigin().x + World::size / 2) * SubChunck::size);
 	//startPos -= glm::vec3(5, 25, 5);
@@ -120,6 +120,8 @@ void Minecraft::Start()
 	freeCameraController.GetCamera().SetPosition(startPos);
 	PlayerController playerController(glm::vec2(m_width, m_height), player);
 	playerController.SetEnabled(true);
+
+	World::GenerateChunks();
 
 	Camera* usedCamera = & freeCameraController.GetCamera();
 	if( !freeCameraController.Enabled())
@@ -235,8 +237,9 @@ void Minecraft::Start()
 			}
 
 
-			if(viewFrustumCulling)
+			if (viewFrustumCulling)
 				World::ClipChuncks(playerController.GetCamera());
+
 
 
 			//////////////////////////////// BAKE SHADOWS ////////////////////////////////

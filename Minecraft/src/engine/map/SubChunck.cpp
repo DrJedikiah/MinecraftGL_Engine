@@ -1,7 +1,8 @@
 #include "engine/map/SubChunck.h"
 
-SubChunck::SubChunck(glm::ivec3 position) :
+SubChunck::SubChunck(glm::ivec3 position, Chunck * parent) :
 	m_position(position),
+	m_parent(parent),
 	m_modelOpaque(nullptr),
 	m_modelTransparent(nullptr),
 	m_shape(nullptr),
@@ -17,7 +18,8 @@ void SubChunck::Update(float delta)
 {
 	if (m_regenerateLater)
 	{
-		GenerateMesh();
+		/*GenerateMesh();
+		GenerateModels();*/
 		GenerateCollider();
 		m_regenerateLater = false;
 	}
@@ -144,8 +146,6 @@ void SubChunck::GenerateMesh()
 {
 	if (!m_isEmpty)
 	{
-		std::vector<Mesh::Vertex> verticesOpaque;
-		std::vector<Mesh::Vertex> verticesTransparent;
 		std::vector<Mesh::Vertex>* targetVertices = nullptr;
 
 		for (int x = 0; x < SubChunck::size; ++x)
@@ -156,9 +156,9 @@ void SubChunck::GenerateMesh()
 
 					//Set target
 					if (block->transparent)
-						targetVertices = &verticesTransparent;
+						targetVertices = &m_verticesTransparent;
 					else
-						targetVertices = &verticesOpaque;
+						targetVertices = &m_verticesOpaque;
 
 					//Create vertices
 					if (block->solid)
@@ -221,21 +221,32 @@ void SubChunck::GenerateMesh()
 
 					}
 				}
+	}
+}
 
-		//Delete previous model
+void SubChunck::GenerateModels()
+{
+	STATS_triangles = 0;
+
+	if (m_verticesOpaque.size() > 0)
+	{
 		if (m_modelOpaque) delete(m_modelOpaque);
-		if (m_modelTransparent) delete(m_modelTransparent);
-
-
-		//Set new models
-		m_modelOpaque = new Model(verticesOpaque);
+		m_modelOpaque = new Model(m_verticesOpaque);
 		m_modelOpaque->Translate(SubChunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
+		STATS_triangles += m_verticesOpaque.size() / 3;
+		m_verticesOpaque.clear();
+		m_verticesOpaque.shrink_to_fit();
+		
+	}
 
-		m_modelTransparent = new Model(verticesTransparent);
+	if (m_verticesTransparent.size() > 0)
+	{
+		if (m_modelTransparent) delete(m_modelTransparent);
+		m_modelTransparent = new Model(m_verticesTransparent);
 		m_modelTransparent->Translate(SubChunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
-
-		//stats
-		STATS_triangles = verticesOpaque.size() / 3 + verticesTransparent.size() / 3;
+		STATS_triangles += m_verticesTransparent.size() / 3;
+		m_verticesTransparent.clear();
+		m_verticesTransparent.shrink_to_fit();
 	}
 }
 

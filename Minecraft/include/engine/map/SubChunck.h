@@ -22,14 +22,16 @@ public:
 	friend class Chunck;
 	static const int size = 16;
 
-	SubChunck(glm::ivec3 position);
+	SubChunck(glm::ivec3 position, Chunck * parent);
 	~SubChunck();
 
 	void Update(float delta);
 	void SetEnabled(bool state);
 
 	void GenerateCollider();
+
 	void GenerateMesh();
+	void GenerateModels();
 
 	void DrawTransparent(const Shader & shader) const;
 	void DrawOpaque(const Shader & shader) const;
@@ -38,6 +40,8 @@ public:
 
 	Block* GetBlock(glm::ivec3 position);
 private:
+	Chunck * m_parent;
+
 	void CheckEmpty();
 	bool m_isEmpty = true;
 	bool m_colliderGenerated = false;
@@ -52,6 +56,9 @@ private:
 	RigidBody * m_rb;
 	btTriangleMesh m_btMesh;
 	btBvhTriangleMeshShape * m_shape = nullptr;
+
+	std::vector<Mesh::Vertex> m_verticesOpaque;
+	std::vector<Mesh::Vertex> m_verticesTransparent;
 
 	Model * m_modelOpaque;
 	Model * m_modelTransparent;

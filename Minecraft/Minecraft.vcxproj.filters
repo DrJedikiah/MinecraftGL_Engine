@@ -164,9 +164,6 @@
     <ClInclude Include="include\util\MoreMath.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\generators\ChunckGen.h">
-      <Filter>Header Files\engine\map\generators</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\generators\TreeGen.h">
       <Filter>Header Files\engine\map\generators</Filter>
     </ClInclude>
@@ -187,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="include\engine\map\SubChunck.h">
       <Filter>Header Files\engine\map</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\generators\ChunckGenerator.h">
+      <Filter>Header Files\engine\map\generators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -283,9 +283,6 @@
     <ClCompile Include="src\engine\generators\TreeGen.cpp">
       <Filter>Source Files\engine\generators</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\generators\ChunckGen.cpp">
-      <Filter>Source Files\engine\generators</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\map\Block.cpp">
       <Filter>Source Files\engine\map</Filter>
     </ClCompile>
@@ -300,6 +297,9 @@
     </ClCompile>
     <ClCompile Include="src\engine\map\SubChunck.cpp">
       <Filter>Source Files\engine\map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\generators\ChunckGenerator.cpp">
+      <Filter>Source Files\engine\generators</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

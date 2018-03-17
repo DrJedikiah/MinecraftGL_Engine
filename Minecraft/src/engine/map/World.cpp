@@ -1,9 +1,7 @@
 #include "engine/map/World.h"
 
-const int seed = 33;
+CircularArray World::m_array(World::size, 100,100);
 
-CircularArray World::m_array(World::size, 30,30);
-PerlinNoise World::perlinGen(seed);
 TreeGen World::m_treeGen;
 Node * World::m_lastTree = nullptr;
 
@@ -41,7 +39,7 @@ glm::ivec3 World::BlockAt(glm::vec3 worldPos)
 
 void World::GenerateChunks() 
 {
-	for (int z = 0; z < size; ++z)
+	/*for (int z = 0; z < size; ++z)
 		for (int x = 0; x < size; ++x)
 		{
 			Chunck * newChunck = new Chunck(m_array.OriginX() + x, m_array.OriginZ() + z);
@@ -52,7 +50,7 @@ void World::GenerateChunks()
 	for (int x = 0; x < size; ++x)
 			for (int z = 0; z < size; ++z)
 				for (int i = 0; i < Chunck::height; ++i)
-					GetChunck(m_array.OriginX() + x, m_array.OriginZ() + z)->GenerateMesh(i);
+					GetChunck(m_array.OriginX() + x, m_array.OriginZ() + z)->GenerateMesh(i);*/
 }
 
 void World::RemoveBlock(glm::ivec3 position)
@@ -115,9 +113,13 @@ void World::UpdateBlock(glm::ivec3 position)
 
 void World::EnableAllChuncks()
 {
-	/*for (int x = 0; x < size; ++x)
-			for (int z = 0; z < size; ++z)
-				GetChunck({ x, 0, z }).SetEnabled(true);*/
+	for (int x = 0; x < size; ++x)
+		for (int z = 0; z < size; ++z)
+			{
+				Chunck * chunck = World::GetChunck(m_array.OriginX() + x, m_array.OriginZ() + z);
+				if (chunck)
+					chunck->SetEnabled(true);
+			}
 }
 
 void World::ClipChuncks(const Camera & camera)
@@ -213,6 +215,7 @@ void World::ClipChuncks(const Camera & camera)
 						outside = true;
 						break;
 					}
+
 				}
 				if (!outside)
 				{
@@ -227,9 +230,17 @@ void World::ClipChuncks(const Camera & camera)
 
 void World::Update(float delta)
 {
+	m_array.Update(delta);
+
+	//Update chuncks
 	for (int x = 0; x < size; ++x)
-			for (int z = 0; z < size; ++z)
-				GetChunck(m_array.OriginX() + x, m_array.OriginZ() + z )->Update(delta);
+		for (int z = 0; z < size; ++z)
+		{
+			Chunck * chunck = GetChunck(m_array.OriginX() + x, m_array.OriginZ() + z);
+			if( chunck )
+				chunck->Update(delta);
+		}
+				
 }
 
 void World::CenterChuncksAround(glm::ivec3 chunckPos)
@@ -247,72 +258,14 @@ void World::CenterChuncksAround(glm::ivec3 chunckPos)
 
 	//Generates missing chuncks
 	if (chunckPos.x < m_array.OriginX() + World::size / 2 - 1 )
-	{
-		//Move delete and generate
 		m_array.MoveLeft();
-		for (int z = 0; z < size; ++z)
-		{
-			delete m_array.Get(m_array.OriginX(), m_array.OriginZ() + z);
-			m_array.Set(m_array.OriginX(), m_array.OriginZ() + z, new Chunck(m_array.OriginX(), m_array.OriginZ() + z));
-			GetChunck(m_array.OriginX(), m_array.OriginZ() + z)->GenerateBlocks();
-			
-			for (int y = 0; y < Chunck::height; ++y)
-			{
-				GetChunck(m_array.OriginX(), m_array.OriginZ() + z)->GenerateMesh(y);
-				GetChunck(m_array.OriginX() + 1, m_array.OriginZ() + z)->GenerateMesh(y);
-			}
-		}
-	}
 	else if (chunckPos.x > m_array.OriginX() + World::size / 2 + 1 )
-	{
-		//Move delete and generate
 		m_array.MoveRight();
-		for (int z = 0; z < size; ++z)
-		{
-			delete m_array.Get(m_array.OriginX() + size - 1, m_array.OriginZ() + z);
-			m_array.Set(m_array.OriginX() + size - 1, m_array.OriginZ() + z, new Chunck(m_array.OriginX() + size - 1, m_array.OriginZ() + z));
-			GetChunck(m_array.OriginX() + size - 1, m_array.OriginZ() + z)->GenerateBlocks();
-			
-			for (int y = 0; y < Chunck::height; ++y)
-			{
-				GetChunck(m_array.OriginX() + size - 1, m_array.OriginZ() + z)->GenerateMesh(y);
-				GetChunck(m_array.OriginX() + size - 2, m_array.OriginZ() + z)->GenerateMesh(y);
-			}
-		}
-	}
-
 	else if (chunckPos.z > m_array.OriginZ() + World::size / 2 + 1)
-	{
 		m_array.MoveFront();
-		for (int x = 0; x < size; ++x)
-		{
-			delete m_array.Get(m_array.OriginX() + x, m_array.OriginZ() + size - 1);
-			m_array.Set(m_array.OriginX() + x, m_array.OriginZ() + size - 1, new Chunck(m_array.OriginX() + x, m_array.OriginZ() + size - 1));
-			GetChunck(m_array.OriginX() + x, m_array.OriginZ() + size - 1)->GenerateBlocks();
-			
-			for (int y = 0; y < Chunck::height; ++y)
-			{
-				GetChunck(m_array.OriginX() + x, m_array.OriginZ() + size - 1)->GenerateMesh(y);
-				GetChunck(m_array.OriginX() + x, m_array.OriginZ() + size - 2)->GenerateMesh(y);
-			}
-		}
-	}
 	else if (chunckPos.z < m_array.OriginZ() + World::size / 2 - 1)
-	{
 		m_array.MoveBack();
-		for (int x = 0; x < size; ++x)
-		{
-			delete m_array.Get(m_array.OriginX() + x, m_array.OriginZ());
-			m_array.Set(m_array.OriginX() + x, m_array.OriginZ(), new Chunck(m_array.OriginX() + x, m_array.OriginZ()));
-			GetChunck(m_array.OriginX() + x, m_array.OriginZ())->GenerateBlocks();
-			for (int y = 0; y < Chunck::height; ++y)
-			{
-				GetChunck(m_array.OriginX() + x, m_array.OriginZ())->GenerateMesh(y);
-				GetChunck(m_array.OriginX() + x, m_array.OriginZ() + 1)->GenerateMesh(y);
-			}
-
-		}
-	}
+	
 }
 
 void World::UpdateAround(glm::ivec3 position)

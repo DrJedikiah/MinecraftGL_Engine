@@ -53,7 +53,6 @@ private:
 		fprintf(stderr, "Error %d: %s\n", error, description);
 	}
 
-
 	void SetupPostProcess();
 	void SetupSkyBox();
 	void SetupFXAA();

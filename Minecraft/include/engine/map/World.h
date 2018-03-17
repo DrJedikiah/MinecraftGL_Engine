@@ -12,11 +12,13 @@
 #include "util/Perlin.h"
 
 class Chunck;
+class CircularArray;
+
 
 class World : IWithDebug
 { 
 public:
-	const static int size = 28;
+	const static int size = 25;
  
 	static void Update(float delta);
 
@@ -40,7 +42,7 @@ public:
 	static void EnableAllChuncks();
 	static void ClipChuncks( const Camera & camera );
 
-	static PerlinNoise perlinGen;
+
 
 	static glm::ivec3 GetOrigin();
 private:

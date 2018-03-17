@@ -137,7 +137,7 @@
     <ClInclude Include="include\engine\Cube.h" />
     <ClInclude Include="include\engine\Entity.h" />
     <ClInclude Include="include\engine\FreeCameraController.h" />
-    <ClInclude Include="include\engine\generators\ChunckGen.h" />
+    <ClInclude Include="include\engine\generators\ChunckGenerator.h" />
     <ClInclude Include="include\engine\generators\TreeGen.h" />
     <ClInclude Include="include\engine\map\Block.h" />
     <ClInclude Include="include\engine\map\Chunck.h" />
@@ -179,7 +179,7 @@
     <ClCompile Include="src\engine\Cube.cpp" />
     <ClCompile Include="src\engine\Entity.cpp" />
     <ClCompile Include="src\engine\FreeCameraController.cpp" />
-    <ClCompile Include="src\engine\generators\ChunckGen.cpp" />
+    <ClCompile Include="src\engine\generators\ChunckGenerator.cpp" />
     <ClCompile Include="src\engine\generators\TreeGen.cpp" />
     <ClCompile Include="src\engine\map\Block.cpp" />
     <ClCompile Include="src\engine\map\Chunck.cpp" />
