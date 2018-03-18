@@ -12,13 +12,14 @@ public:
 	Chunck(  int x, int z );
 	~Chunck();
 
-	static const int height = 20;
+	static const int height = 16;
 
 	void Update(float delta);
 
 	void DrawTransparent(const Shader & shader) const;
 	void DrawOpaque(const Shader & shader) const;
 
+	SubChunck* GetSubChunck( int  height);
 	Block* GetBlock(glm::ivec3 position);
 
 	void GenerateLater( int subChunck );
@@ -36,13 +37,12 @@ public:
 
 	glm::ivec3 Position() const;
 
-	bool generating = false;
+	bool gettingDeleted = false;
+
 private:
 	bool m_enabled;
 	bool m_generateLater = false;
 	bool m_blocksGenerated = false;
-
-	
 
 	int m_positionX;
 	int m_positionZ;

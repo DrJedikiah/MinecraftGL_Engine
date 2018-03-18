@@ -37,22 +37,6 @@ glm::ivec3 World::BlockAt(glm::vec3 worldPos)
 	return worldPos + 0.5f * glm::vec3(Block::size, Block::size, Block::size);
 }
 
-void World::GenerateChunks() 
-{
-	/*for (int z = 0; z < size; ++z)
-		for (int x = 0; x < size; ++x)
-		{
-			Chunck * newChunck = new Chunck(m_array.OriginX() + x, m_array.OriginZ() + z);
-			m_array.Set(m_array.OriginX() + x, m_array.OriginZ() + z, newChunck);
-			newChunck->GenerateBlocks();
-		}
-
-	for (int x = 0; x < size; ++x)
-			for (int z = 0; z < size; ++z)
-				for (int i = 0; i < Chunck::height; ++i)
-					GetChunck(m_array.OriginX() + x, m_array.OriginZ() + z)->GenerateMesh(i);*/
-}
-
 void World::RemoveBlock(glm::ivec3 position)
 {
 		Block* block = GetBlock(position);
@@ -107,8 +91,12 @@ void World::GenerateTree(glm::ivec3 position, float size)
 void World::UpdateBlock(glm::ivec3 position)
 {
 	Chunck* chunck = GetChunck(position.x / SubChunck::size, position.z / SubChunck::size);
-	if (chunck)
-		chunck->GenerateLater(position.y / SubChunck::size);
+	if (chunck && !chunck->gettingDeleted)
+	{
+		SubChunck * subChunck = chunck->GetSubChunck(position.y / SubChunck::size);
+		m_array.UpdateSubChunckMesh(subChunck);
+		subChunck->GenerateCollider();
+	}
 }
 
 void World::EnableAllChuncks()
@@ -215,7 +203,6 @@ void World::ClipChuncks(const Camera & camera)
 						outside = true;
 						break;
 					}
-
 				}
 				if (!outside)
 				{
@@ -251,7 +238,7 @@ void World::CenterChuncksAround(glm::ivec3 chunckPos)
 			for (int z = -1; z < 2; ++z)
 			{
 				Chunck * chunck = World::GetChunck(chunckPos.x+x, chunckPos.z+z);
-				if (!chunck) continue;
+				if (chunck )
 					chunck->GenerateCollider(chunckPos.y + y);
 			}
 

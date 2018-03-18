@@ -11,6 +11,7 @@
 #include "engine/map/Chunck.h"
 
 class Chunck;
+class SubChunck;
 
 class ChunckGenerator
 {
@@ -21,10 +22,10 @@ public:
 	void UpdateMesh();
 
 	void GenerateBlocks( int x, int z );
-	void GenerateMesh(Chunck * chunck);
+	void GenerateMesh(SubChunck * chunck);
 
 	std::vector<Chunck *> PopChuncksGenerateds();
-	std::vector<Chunck *> PopMeshGenerateds();
+	std::vector<SubChunck *> PopMeshGenerateds();
 	
 private:
 	void UpdateBlocks();
@@ -36,10 +37,12 @@ private:
 
 
 	std::mutex m_chuncksGenMeshMtx;
-	std::stack< Chunck *> m_chuncksGenMesh;
+	std::stack< SubChunck *> m_chuncksGenMesh;
 	std::mutex m_chuncksMeshGeneratedsMtx;
-	std::vector<Chunck * > m_chuncksMeshGenerateds;
+	std::vector<SubChunck * > m_chuncksMeshGenerateds;
 
+
+	bool m_meshGenerationPaused = true;
 
 	std::thread *  m_updateBlocksThread;
 	std::thread *  m_updateMeshThread;

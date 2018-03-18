@@ -24,6 +24,14 @@ Block* Chunck::GetBlock(glm::ivec3 position)
 		return nullptr;
 }
 
+SubChunck*  Chunck::GetSubChunck(int  height)
+{
+	if (height < 0 || height >= Chunck::height)
+		return nullptr;
+	else
+		return m_subChuncks[height];
+}
+
 void Chunck::Update(float delta)
 {
 	for (int y = 0; y < Chunck::height; ++y)
@@ -148,7 +156,6 @@ void Chunck::GenerateBlocks()
 void Chunck::GenerateMesh( int subChunck )
 { 
 	if (m_blocksGenerated)
-	
 		m_subChuncks[subChunck]->GenerateMesh();
 	else
 		std::cerr << "ERROR: Chunck::GenerateMesh blocks not generated" << std::endl;
@@ -164,9 +171,10 @@ void Chunck::GenerateModels(int subChunck)
 
 void Chunck::GenerateCollider( int subChunck, bool regenerate)
 {
-	if (subChunck >= 0 && subChunck < Chunck::height)
-		if (!m_subChuncks[subChunck]->m_colliderGenerated || regenerate)
-			 m_subChuncks[subChunck]->GenerateCollider();
+	if(!gettingDeleted)
+		if (subChunck >= 0 && subChunck < Chunck::height)
+			if (!m_subChuncks[subChunck]->m_colliderGenerated || regenerate)
+				 m_subChuncks[subChunck]->GenerateCollider();
 }
 
 void Chunck::DrawTransparent(const Shader & shader) const

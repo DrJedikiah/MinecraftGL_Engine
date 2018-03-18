@@ -18,14 +18,12 @@ class CircularArray;
 class World : IWithDebug
 { 
 public:
-	const static int size = 25;
+	const static int size = 16;
  
 	static void Update(float delta);
 
 	static void DrawTransparent(const Shader & shader);
 	static void DrawOpaque(const Shader & shader);
-
-	static void GenerateChunks();
 
 	static Chunck* GetChunck( int x, int z );
 	static Block* GetBlock(glm::ivec3 position);
@@ -41,9 +39,6 @@ public:
 	static void CenterChuncksAround(glm::ivec3 chunckPos);
 	static void EnableAllChuncks();
 	static void ClipChuncks( const Camera & camera );
-
-
-
 	static glm::ivec3 GetOrigin();
 private:
 	void OnDrawDebug() const override;

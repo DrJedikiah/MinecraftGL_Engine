@@ -29,16 +29,15 @@ public:
 	void SetEnabled(bool state);
 
 	void GenerateCollider();
-
 	void GenerateMesh();
 	void GenerateModels();
 
 	void DrawTransparent(const Shader & shader) const;
 	void DrawOpaque(const Shader & shader) const;
 
-	
-
 	Block* GetBlock(glm::ivec3 position);
+
+	bool generating = false;
 private:
 	Chunck * m_parent;
 

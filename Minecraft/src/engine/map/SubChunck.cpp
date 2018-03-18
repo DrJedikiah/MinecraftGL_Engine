@@ -20,7 +20,7 @@ void SubChunck::Update(float delta)
 	{
 		/*GenerateMesh();
 		GenerateModels();*/
-		GenerateCollider();
+		//GenerateCollider();
 		m_regenerateLater = false;
 	}
 }
@@ -228,26 +228,22 @@ void SubChunck::GenerateModels()
 {
 	STATS_triangles = 0;
 
-	if (m_verticesOpaque.size() > 0)
-	{
-		if (m_modelOpaque) delete(m_modelOpaque);
-		m_modelOpaque = new Model(m_verticesOpaque);
-		m_modelOpaque->Translate(SubChunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
-		STATS_triangles += m_verticesOpaque.size() / 3;
-		m_verticesOpaque.clear();
-		m_verticesOpaque.shrink_to_fit();
-		
-	}
+	//Generates opaque
+	if (m_modelOpaque) delete(m_modelOpaque);
+	m_modelOpaque = new Model(m_verticesOpaque);
+	m_modelOpaque->Translate(SubChunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
+	STATS_triangles += m_verticesOpaque.size() / 3;
+	m_verticesOpaque.clear();
+	m_verticesOpaque.shrink_to_fit();
 
-	if (m_verticesTransparent.size() > 0)
-	{
-		if (m_modelTransparent) delete(m_modelTransparent);
-		m_modelTransparent = new Model(m_verticesTransparent);
-		m_modelTransparent->Translate(SubChunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
-		STATS_triangles += m_verticesTransparent.size() / 3;
-		m_verticesTransparent.clear();
-		m_verticesTransparent.shrink_to_fit();
-	}
+	//Generates transparent
+	if (m_modelTransparent) delete(m_modelTransparent);
+	m_modelTransparent = new Model(m_verticesTransparent);
+	m_modelTransparent->Translate(SubChunck::size * Block::size * glm::vec3(m_position.x, m_position.y, m_position.z));
+	STATS_triangles += m_verticesTransparent.size() / 3;
+	m_verticesTransparent.clear();
+	m_verticesTransparent.shrink_to_fit();
+
 }
 
 

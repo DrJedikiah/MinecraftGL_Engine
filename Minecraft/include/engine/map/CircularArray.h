@@ -11,6 +11,7 @@
 class ChunckGenerator;
 class World;
 class Chunck;
+class SubChunck;
 
 class CircularArray
 {
@@ -19,7 +20,7 @@ public:
 	~CircularArray();
 
 	void Update(float delta);
-
+	void UpdateSubChunckMesh( SubChunck* subChunck);
 	bool InsideArray(int x, int z) const;
 
 	void MoveRight();
@@ -35,6 +36,8 @@ public:
 	int OriginZ() const;
 
 private:
+	void DeleteChunck( Chunck * chunck);
+
 	ChunckGenerator * m_chunckGenerator;
 
 	std::vector< std::vector<Chunck*>> m_array;
@@ -45,4 +48,4 @@ private:
 	int m_zOrigin;
 	int m_xOffset;
 	int m_zOffset;
-};
+}; 

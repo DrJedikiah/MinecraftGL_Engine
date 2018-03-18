@@ -20,13 +20,7 @@ int Statistics::GetTriangles()
 		return 0;
 	int nbTriangles = 0;
 	for ( std::pair<int, Statistics*>  pair : (*m_instances))
-	{
-		if (!pair.second)
-		{
-			(*m_instances).erase(pair.first);
-			return 0;
-		}
-			
+	{	
 		if(pair.second->STATS_enabled)
 			nbTriangles += pair.second->STATS_triangles;
 	}

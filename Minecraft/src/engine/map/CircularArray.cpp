@@ -26,19 +26,52 @@ bool  CircularArray::InsideArray(int x, int z) const
 	return true;
 }
 
+void CircularArray::UpdateSubChunckMesh(SubChunck* subChunck)
+{
+	if (subChunck)
+		if (!subChunck->generating)
+			m_chunckGenerator->GenerateMesh(subChunck);
+		
+}
+
+void CircularArray::DeleteChunck(Chunck * chunck)
+{
+	if (chunck)
+	{
+		chunck->gettingDeleted = true;
+		m_toDelete.push_back(chunck);
+	}
+}
+
 void CircularArray::Update(float delta)
 {
-	if (m_toDelete.size() > 0)
+	//Delete chuncks
+	for (int i = 0; i < (int)m_toDelete.size(); ++i)
 	{
-		Chunck * chunck = m_toDelete[m_toDelete.size()-1];
-		if ( ! chunck)
-			m_toDelete.pop_back();
-		else if(!chunck->generating)
+		Chunck * chunck = m_toDelete[i];
+		if (!chunck)
 		{
-			delete chunck;
+			m_toDelete[i] = m_toDelete[m_toDelete.size() - 1];
 			m_toDelete.pop_back();
+			--i;
 		}
-
+		else
+		{
+			bool generating = false;
+			for( int y = 0; y < Chunck::height; ++y)
+				if (chunck->GetSubChunck(y)->generating)
+				{
+					generating = true;
+					break;
+				}
+			if (!generating)
+			{
+				delete chunck;
+				m_toDelete[i] = m_toDelete[m_toDelete.size() - 1];
+				m_toDelete.pop_back();
+				--i;
+			}
+		}
 	}
 
 	//Get the chuncks generated
@@ -48,17 +81,17 @@ void CircularArray::Update(float delta)
 		{
 			//Send to generator for mesh creation
 			Set(chunck->Position().x, chunck->Position().z, chunck);
-			m_chunckGenerator->GenerateMesh(chunck);
+			for( int i = 0; i < Chunck::height; ++i)
+				m_chunckGenerator->GenerateMesh(chunck->GetSubChunck(i));
 		}
 		else
-			m_toDelete.push_back(chunck);
+			DeleteChunck(chunck);
 	}
 
 	//Generates models
-	for (Chunck * chunck : m_chunckGenerator->PopMeshGenerateds())
+	for (SubChunck * chunck : m_chunckGenerator->PopMeshGenerateds())
 	{
-		for (int i = 0; i < Chunck::height; ++i)
-			chunck->GenerateModels(i);
+		chunck->GenerateModels();
 	}
 }
 
@@ -69,12 +102,14 @@ void CircularArray::MoveRight()
 
 	for (int z = 0; z < m_size; ++z)
 	{
-		m_toDelete.push_back(Get(OriginX() + m_size - 1, OriginZ() + z));
+		DeleteChunck(Get(OriginX() + m_size - 1, OriginZ() + z));
 		m_chunckGenerator->GenerateBlocks(OriginX() + m_size - 1, OriginZ() + z);
 		Set(OriginX() + m_size - 1, OriginZ() + z, nullptr);
-		/*Chunck * chunck = World::GetChunck(OriginX() + m_size - 2, OriginZ() + z);
-		if(chunck)
-			m_chunckGenerator->GenerateMesh(chunck);*/
+
+		Chunck * chunck = Get(OriginX() + m_size - 2, OriginZ() + z);
+		if (chunck)
+			for (int y = 0; y < Chunck::height; ++y)
+				UpdateSubChunckMesh(chunck->GetSubChunck(y));
 	}
 }
 
@@ -85,12 +120,14 @@ void CircularArray::MoveLeft()
 
 	for (int z = 0; z < m_size; ++z)
 	{
-		m_toDelete.push_back(Get(OriginX(), OriginZ() + z)); 
+		DeleteChunck(Get(OriginX(), OriginZ() + z));
 		Set(OriginX(), OriginZ() + z, nullptr);
 		m_chunckGenerator->GenerateBlocks(OriginX(), OriginZ() + z);
-		/*Chunck * chunck = World::GetChunck(OriginX() + 1, OriginZ() + z);
+
+		Chunck * chunck = Get(OriginX() + 1, OriginZ() + z);
 		if (chunck)
-			m_chunckGenerator->GenerateMesh(chunck);*/
+			for (int y = 0; y < Chunck::height; ++y)
+				UpdateSubChunckMesh(chunck->GetSubChunck(y));
 	}
 }
 
@@ -101,13 +138,15 @@ void CircularArray::MoveBack()
 
 	for (int x = 0; x < m_size; ++x)
 	{
-		m_toDelete.push_back(Get(OriginX() + x, OriginZ()));
+		DeleteChunck(Get(OriginX() + x, OriginZ()));
 
 		Set(OriginX() + x, OriginZ(), nullptr);
 		m_chunckGenerator->GenerateBlocks(OriginX() + x, OriginZ());
-		/*Chunck * chunck = World::GetChunck(OriginX() + x, OriginZ() + 1);
+
+		Chunck * chunck = Get(OriginX() + x, OriginZ() + 1);
 		if (chunck)
-			m_chunckGenerator->GenerateMesh(chunck);*/
+			for (int y = 0; y < Chunck::height; ++y)
+				UpdateSubChunckMesh(chunck->GetSubChunck(y));
 	}
 }
 
@@ -118,13 +157,15 @@ void CircularArray::MoveFront()
 
 	for (int x = 0; x < m_size; ++x)
 	{
-		m_toDelete.push_back(Get(OriginX() + x, OriginZ() + m_size - 1));
+		DeleteChunck(Get(OriginX() + x, OriginZ() + m_size - 1));
 
 		Set(OriginX() + x, OriginZ() + m_size - 1, nullptr);
 		m_chunckGenerator->GenerateBlocks(OriginX() + x, OriginZ() + m_size - 1);
-		/*Chunck * chunck = World::GetChunck(OriginX() + x, OriginZ() + m_size - 2);
+
+		Chunck * chunck = Get(OriginX() + x, OriginZ() + m_size - 2);
 		if (chunck)
-			m_chunckGenerator->GenerateMesh(chunck);*/
+			for (int y = 0; y < Chunck::height; ++y)
+				UpdateSubChunckMesh(chunck->GetSubChunck(y));
 	}
 }
 
