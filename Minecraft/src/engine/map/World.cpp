@@ -1,10 +1,6 @@
 #include "engine/map/World.h"
 
 CircularArray World::m_array(World::size, 100,100);
-
-TreeGen World::m_treeGen;
-Node * World::m_lastTree = nullptr;
-
 World World::m_instance = World();
 
 World::World() 
@@ -55,47 +51,17 @@ void World::SetBlock(glm::ivec3 position, Block::Type blockType)
 		block->SetType(blockType);
 }
 
-
-void World::GenerateTree(glm::ivec3 position, float size)
-{
-	delete(m_lastTree);
-	m_lastTree = m_treeGen.GenerateTree(position, size);
-
-	std::stack<Node * > stack;
-	stack.push(m_lastTree);
-	while (!stack.empty())
-	{
-		Node * node = stack.top();
-		stack.pop();
-
-		Block* block = GetBlock(node->position);
-		if (block)
-		{
-			if (node->depth <= 2 && (block->type == Block::air || block->type == Block::leaf))
-			{
-				SetBlock(node->position, Block::Type::wood);
-				UpdateBlock(node->position);
-			}
-			else if (block->type == Block::air)
-			{
-				SetBlock(node->position, Block::Type::leaf);
-				UpdateBlock(node->position);
-			}
-		}
-		for (Node * n : node->next)
-			stack.push(n);
-	}
-}
-
-
 void World::UpdateBlock(glm::ivec3 position)
 {
 	Chunck* chunck = GetChunck(position.x / SubChunck::size, position.z / SubChunck::size);
 	if (chunck)
 	{
 		SubChunck * subChunck = chunck->GetSubChunck(position.y / SubChunck::size);
-		m_array.UpdateSubChunckMesh(subChunck);
-		subChunck->GenerateCollider();
+		if (subChunck)
+		{
+			m_array.UpdateSubChunckMesh(subChunck);
+			subChunck->GenerateCollider();
+		}
 	}
 }
 
@@ -291,7 +257,7 @@ void World::DrawOpaque(const Shader & shader)
 
 void World::OnDrawDebug() const
 {
-	if (m_lastTree)
+	/*if (m_lastTree)
 	{
 		glm::vec4 red(1, 0, 0, 1.f);
 		glm::vec4 green(0, 1, 0, 1.f);
@@ -318,7 +284,7 @@ void World::OnDrawDebug() const
 			for (Node * n : node->next)
 				stack.push(n);
 		}
-	}
+	}*/
 }
 
 glm::ivec3 World::GetOrigin() { return { m_array.OriginX(), 0, m_array.OriginZ() }; }

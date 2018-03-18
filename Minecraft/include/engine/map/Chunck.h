@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/map/SubChunck.h"
+#include "engine/generators/TreeGen.h"
 #include "util/Perlin.h"
 
 class SubChunck;
@@ -22,12 +23,13 @@ public:
 	SubChunck* GetSubChunck( int  height);
 	Block* GetBlock(glm::ivec3 position);
 
-	void GenerateLater( int subChunck );
-	void GenerateBlocks();
-
+	void GenerateBlocks(); 
+	void LateGenerateBlocks();
 	void GenerateMesh(int subChunck);
 	void GenerateModels(int subChunck);
 	void GenerateCollider(int subChunck, bool regenerate = false );
+
+	void GenerateTree(Node * tree);
 
 	void SetEnabled(bool state);
 	void SetSubChunckEnabled(int subChunck, bool state);
@@ -47,4 +49,10 @@ private:
 
 	SubChunck * m_subChuncks[Chunck::height];
 	static PerlinNoise perlinGen;
+
+	std::vector< Node *> m_pendingTrees;
+
+	static TreeGen m_treeGen;
+	static std::default_random_engine generator;
+	static std::uniform_real_distribution<float> distribution;
 };

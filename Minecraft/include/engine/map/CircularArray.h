@@ -1,7 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <list>
+
+#include <unordered_set>
 #include <iostream>
 
 #include "engine/map/World.h"
@@ -43,7 +44,8 @@ private:
 	std::vector< std::vector<Chunck*>> m_array;
 
 	std::vector<Chunck*> m_toDelete;
-	std::vector<Chunck*> m_waitingFirstMeshGen;
+	std::vector<Chunck*> m_waitingFirstGen;//Wait for neighbours generation
+	std::unordered_set<SubChunck*> m_genMeshLater;
 
 	int m_size;
 	int m_xOrigin;

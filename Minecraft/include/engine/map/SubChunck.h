@@ -28,7 +28,7 @@ public:
 	void Update(float delta);
 	void SetEnabled(bool state);
 
-	void GenerateCollider();
+	void GenerateCollider(bool now = false);
 	void GenerateMesh();
 	void GenerateModels();
 
@@ -45,7 +45,7 @@ private:
 	void CheckEmpty();
 	bool m_isEmpty = true;
 	bool m_colliderGenerated = false;
-	bool m_regenerateLater = false;
+	bool m_regenerateColliderNextUpdate = false;
 	bool m_enabled = true;
 
 	glm::ivec3 m_position;

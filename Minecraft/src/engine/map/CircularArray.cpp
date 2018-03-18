@@ -21,8 +21,7 @@ CircularArray::CircularArray(int size, int originX, int originZ) :
 			glm::vec2 center = glm::vec2((float)m_size/2);
 			float dist = glm::distance(center, pos);
 			m_chunckGenerator->GenerateBlocks(OriginX() + x, OriginZ() + z, dist);
-		}
-			
+		}	
 }
 
 bool  CircularArray::InsideArray(int x, int z) const
@@ -35,14 +34,9 @@ bool  CircularArray::InsideArray(int x, int z) const
 void CircularArray::UpdateSubChunckMesh(SubChunck* subChunck)
 {
 	if (subChunck)
-		if (!subChunck->generating)
-		{
-			glm::vec2 pos = glm::vec2(subChunck->Position().x, subChunck->Position().z);
-			glm::vec2 center = glm::vec2(m_xOrigin + m_size / 2, m_zOrigin + m_size / 2);
-			float dist = glm::distance(center, glm::vec2(pos.x, pos.y));
-			m_chunckGenerator->GenerateMesh(subChunck, dist);
-		}
-			
+		m_genMeshLater.emplace(subChunck);
+	else
+		std::cout << "zob6" << std::endl;
 }
 
 void CircularArray::DeleteChunck(Chunck * chunck)
@@ -81,20 +75,22 @@ void CircularArray::Update(float delta)
 			}
 		}
 	}
+	
+	//Add newly allocated chuncks to world
 	std::vector<Chunck*> chuncks = m_chunckGenerator->PopChuncksGenerateds();
 	for (Chunck * chunck : chuncks)
 		if (InsideArray(chunck->Position().x, chunck->Position().z))
 		{
-			m_waitingFirstMeshGen.push_back(chunck);
+			m_waitingFirstGen.push_back(chunck);
 			Set(chunck->Position().x, chunck->Position().z, chunck);
 		}
 		else
 			DeleteChunck(chunck);
 	
-
-	for (int i = 0; i < (int)m_waitingFirstMeshGen.size(); ++i)
+	//Generates mesh of newly allocateds chuncks
+	for (int i = 0; i < (int)m_waitingFirstGen.size(); ++i)
 	{
-		Chunck * chunck = m_waitingFirstMeshGen[i];
+		Chunck * chunck = m_waitingFirstGen[i];
 
 		glm::ivec2 pos = glm::ivec2(chunck->Position().x, chunck->Position().z);
 
@@ -104,54 +100,39 @@ void CircularArray::Update(float delta)
 			Get(pos.x, pos.y - 1) && Get(pos.x, pos.y - 1)->BlocksGenerated()
 			)
 		{
-			//Send to generator for mesh creation
+			//Generates additionnal content (trees)
+			chunck->LateGenerateBlocks();
+
+			//Send subChunck to generator for mesh creation
 			glm::vec2 center = glm::vec2(m_xOrigin + m_size / 2, m_zOrigin + m_size / 2);
 			float dist = glm::distance(center, glm::vec2(pos.x, pos.y));
 			for (int i = 0; i < Chunck::height; ++i)
 				m_chunckGenerator->GenerateMesh(chunck->GetSubChunck(i), dist);
 
-			m_waitingFirstMeshGen[i] = m_waitingFirstMeshGen[m_waitingFirstMeshGen.size() - 1];
-			m_waitingFirstMeshGen.pop_back();
+			m_waitingFirstGen[i] = m_waitingFirstGen[m_waitingFirstGen.size() - 1];
+			m_waitingFirstGen.pop_back();
 			--i;
 		}
 	}
 
-		
-		/*for (Chunck * chunck : chuncks)
-			if (InsideArray(chunck->Position().x, chunck->Position().z))
-				Set(chunck->Position().x, chunck->Position().z, chunck);
-			else
-				DeleteChunck(chunck);
-
-		for (Chunck * chunck : chuncks)
+	//Send subChuncks to generator for mesh creation
+	for (SubChunck * subChunck : m_genMeshLater)
+	{
+		if (!subChunck->generating)
 		{
-			if (InsideArray(chunck->Position().x, chunck->Position().z))
-			{
-				glm::ivec2 pos = glm::ivec2(chunck->Position().x, chunck->Position().z);
-
-				//If neighbours generateds, boost priority for immediate generation
-				float boost = 1.f;
-				if (Get(pos.x + 1, pos.y) && Get(pos.x + 1, pos.y)->BlocksGenerated() &&
-					Get(pos.x - 1, pos.y) && Get(pos.x - 1, pos.y)->BlocksGenerated() &&
-					Get(pos.x, pos.y + 1) && Get(pos.x, pos.y + 1)->BlocksGenerated() &&
-					Get(pos.x, pos.y - 1) && Get(pos.x, pos.y - 1)->BlocksGenerated()
-					)
-					boost = 100.f;
+			glm::vec2 pos = glm::vec2(subChunck->Position().x, subChunck->Position().z);
+			glm::vec2 center = glm::vec2(m_xOrigin + m_size / 2, m_zOrigin + m_size / 2);
+			float dist = glm::distance(center, glm::vec2(pos.x, pos.y));
+			m_chunckGenerator->GenerateMesh(subChunck, dist);
+		}
+	}
+	m_genMeshLater.clear();
 
 
-				//Send to generator for mesh creation
-				glm::vec2 center = glm::vec2(m_xOrigin + m_size / 2, m_zOrigin + m_size / 2);
-				float dist = glm::distance(center, glm::vec2(pos.x, pos.y));
-				for (int i = 0; i < Chunck::height; ++i)
-					m_chunckGenerator->GenerateMesh(chunck->GetSubChunck(i), dist / boost);//, boost + m_size * m_size - dist + i);
-			}	
-		}*/
 
 	//Generates models
 	for (SubChunck * chunck : m_chunckGenerator->PopMeshGenerateds())
-	{
 		chunck->GenerateModels();
-	}
 }
 
 void CircularArray::MoveRight()

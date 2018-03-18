@@ -7,18 +7,16 @@
 #include "engine/Physics.h"
 #include "engine/map/Chunck.h"
 #include "engine/Camera.h"
-#include "engine/generators/TreeGen.h"
 #include "engine/map/CircularArray.h"
 #include "util/Perlin.h"
 
 class Chunck;
 class CircularArray;
 
-
 class World : IWithDebug
 { 
 public:
-	const static int size = 32;
+	const static int size = 24;
  
 	static void Update(float delta);
 
@@ -30,7 +28,6 @@ public:
 
 	static void RemoveBlock(glm::ivec3 position);
 
-	static void GenerateTree(glm::ivec3 position, float size);
 
 	static void SetBlock(glm::ivec3 position, Block::Type blockType);
 	static glm::ivec3 BlockAt(glm::vec3 worldPos);
@@ -40,6 +37,7 @@ public:
 	static void EnableAllChuncks();
 	static void ClipChuncks( const Camera & camera );
 	static glm::ivec3 GetOrigin();
+
 private:
 	void OnDrawDebug() const override;
 
@@ -50,8 +48,8 @@ private:
 	World(); 
 	~World();
 
-	static TreeGen m_treeGen;
-	static Node * m_lastTree;
+	
+	
 
 	static CircularArray m_array;
 };

@@ -3,6 +3,11 @@
 const int seed = 33;
 PerlinNoise Chunck::perlinGen(seed);
 
+TreeGen Chunck::m_treeGen;
+std::default_random_engine Chunck::generator(seed);
+std::uniform_real_distribution<float> Chunck::distribution(0.f, 1.f);
+
+
 Chunck::Chunck(int x, int z) :
 	m_positionX(x),
 	m_positionZ(z),
@@ -36,12 +41,6 @@ void Chunck::Update(float delta)
 {
 	for (int y = 0; y < Chunck::height; ++y)
 		m_subChuncks[y]->Update(delta);
-}
-
-void Chunck::GenerateLater(int subChunck)	
-{ 
-	if (subChunck >= 0 && subChunck < Chunck::height)
-		m_subChuncks[subChunck]->m_regenerateLater = true;
 }
 
 void Chunck::GenerateBlocks()	
@@ -134,10 +133,16 @@ void Chunck::GenerateBlocks()
 
 				Block* otherBlock = GetBlock(glm::ivec3(x, y + 1, z));
 				if (GetBlock(glm::ivec3(x, y, z))->type == Block::Type::dirt && (!otherBlock || !otherBlock->solid))
-
+				{
 					GetBlock(glm::ivec3(x, y, z))->SetType(Block::Type::grass);
+					
+					if (distribution(generator) < 0.01f)
+					{
+						Node * treeRoot = m_treeGen.GenerateTree(pos, 6 + distribution(generator) * 6);
+						m_pendingTrees.push_back(treeRoot);
+					}
+				}
 			}
-
 	//Set bedrock
 	for (int x = 0; x < SubChunck::size; ++x)
 		for (int y = 0; y < 5; ++y)
@@ -148,11 +153,14 @@ void Chunck::GenerateBlocks()
 			}
 
 	m_blocksGenerated = true;
-
-	for (int y = 0; y < Chunck::height; ++y)
-		m_subChuncks[y]->CheckEmpty();
-
 }
+
+void Chunck::LateGenerateBlocks()
+{
+	for( Node * tree : m_pendingTrees)
+		GenerateTree(tree);
+}
+
 void Chunck::GenerateMesh( int subChunck )
 { 
 	if (m_blocksGenerated)
@@ -207,6 +215,34 @@ bool Chunck::BlocksGenerated() const { return m_blocksGenerated; }
 
 
 glm::ivec3 Chunck::Position() const{return glm::ivec3(m_positionX,0, m_positionZ);}
+
+void Chunck::GenerateTree(Node * tree)
+{
+	std::stack<Node * > stack;
+	stack.push(tree);
+	while (!stack.empty())
+	{
+		Node * node = stack.top();
+		stack.pop();
+
+		Block* block = World::GetBlock(node->position);
+		if (block)
+		{
+			if (node->depth <= 2 && (block->type == Block::air || block->type == Block::leaf))
+			{
+				World::SetBlock(node->position, Block::Type::wood);
+				World::UpdateBlock(node->position);
+			}
+			else if (block->type == Block::air)
+			{
+				World::SetBlock(node->position, Block::Type::leaf);
+				World::UpdateBlock(node->position);
+			}
+		}
+		for (Node * n : node->next)
+			stack.push(n);
+	}
+}
 
 Chunck::~Chunck()
 {
