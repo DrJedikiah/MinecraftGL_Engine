@@ -12,7 +12,7 @@ public:
 	Chunck(  int x, int z );
 	~Chunck();
 
-	static const int height = 16;
+	static const int height = 12;
 
 	void Update(float delta);
 
@@ -27,19 +27,17 @@ public:
 
 	void GenerateMesh(int subChunck);
 	void GenerateModels(int subChunck);
-
 	void GenerateCollider(int subChunck, bool regenerate = false );
 
 	void SetEnabled(bool state);
 	void SetSubChunckEnabled(int subChunck, bool state);
 
 	bool Enabled() const;
+	bool BlocksGenerated() const;
 
 	glm::ivec3 Position() const;
-
-	bool gettingDeleted = false;
-
 private:
+	
 	bool m_enabled;
 	bool m_generateLater = false;
 	bool m_blocksGenerated = false;

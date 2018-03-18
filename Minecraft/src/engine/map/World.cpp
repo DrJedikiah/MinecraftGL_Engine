@@ -91,7 +91,7 @@ void World::GenerateTree(glm::ivec3 position, float size)
 void World::UpdateBlock(glm::ivec3 position)
 {
 	Chunck* chunck = GetChunck(position.x / SubChunck::size, position.z / SubChunck::size);
-	if (chunck && !chunck->gettingDeleted)
+	if (chunck)
 	{
 		SubChunck * subChunck = chunck->GetSubChunck(position.y / SubChunck::size);
 		m_array.UpdateSubChunckMesh(subChunck);
@@ -274,7 +274,7 @@ void World::DrawTransparent(const Shader & shader)
 			if(chunck)
 				chunck->DrawTransparent(shader);
 		}
-			
+			 
 }
 
 void World::DrawOpaque(const Shader & shader)

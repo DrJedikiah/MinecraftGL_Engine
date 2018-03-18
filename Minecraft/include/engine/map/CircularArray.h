@@ -41,7 +41,9 @@ private:
 	ChunckGenerator * m_chunckGenerator;
 
 	std::vector< std::vector<Chunck*>> m_array;
+
 	std::vector<Chunck*> m_toDelete;
+	std::vector<Chunck*> m_waitingFirstMeshGen;
 
 	int m_size;
 	int m_xOrigin;

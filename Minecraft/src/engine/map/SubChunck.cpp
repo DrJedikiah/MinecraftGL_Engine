@@ -30,6 +30,11 @@ Block* SubChunck::GetBlock(glm::ivec3 position)
 	return &m_blocks[position.x][position.y][position.z];
 }
 
+glm::ivec3 SubChunck::Position() const
+{
+	return m_position;
+}
+
 void SubChunck::CheckEmpty()
 {
 	for (int x = 0; x < SubChunck::size; ++x)

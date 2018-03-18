@@ -18,7 +18,7 @@ class CircularArray;
 class World : IWithDebug
 { 
 public:
-	const static int size = 16;
+	const static int size = 32;
  
 	static void Update(float delta);
 

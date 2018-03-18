@@ -1,10 +1,13 @@
 #include  "engine/generators/ChunckGenerator.h"
 
-ChunckGenerator::ChunckGenerator()
+ChunckGenerator::ChunckGenerator() : 
+	m_chuncksGenBlocks(cmpChuncksGen),
+	m_chuncksGenMesh(cmpMeshGen)
 {
-	new std::thread(&ChunckGenerator::UpdateBlocks, this);
-	new std::thread(&ChunckGenerator::UpdateMesh, this);
+	m_updateBlocksThread = new std::thread(&ChunckGenerator::UpdateBlocks, this);
+	m_updateMeshThread = new std::thread(&ChunckGenerator::UpdateMesh, this);
 }
+
 
 std::vector<Chunck *> ChunckGenerator::PopChuncksGenerateds()
 {
@@ -26,7 +29,6 @@ std::vector<SubChunck *>  ChunckGenerator::PopMeshGenerateds()
 		chuncks.push_back(chunck);
 		chunck->generating = false;
 	}
-		
 	m_chuncksMeshGenerateds.clear();
 	m_chuncksMeshGeneratedsMtx.unlock();
 	return chuncks;
@@ -34,7 +36,7 @@ std::vector<SubChunck *>  ChunckGenerator::PopMeshGenerateds()
 
 void ChunckGenerator::UpdateBlocks()
 {
-	while (true)
+	while ( !m_quitting )
 	{
 		//Get the Blocks positions
 		std::vector <glm::ivec2> positions;
@@ -42,19 +44,18 @@ void ChunckGenerator::UpdateBlocks()
 		m_chuncksGenBlocksMtx.lock();
 		if (!m_chuncksGenBlocks.empty())
 		{
-			m_meshGenerationPaused = true;
+			//m_meshGenerationPaused = true;
 			int count = 0;
-			while (!m_chuncksGenBlocks.empty() && count++ < 4)
+			while (!m_chuncksGenBlocks.empty() && count++ < 16)
 			{
-				positions.push_back(m_chuncksGenBlocks.top());
+				positions.push_back(m_chuncksGenBlocks.top().first);
 				m_chuncksGenBlocks.pop();
-				
 			}
 			m_chuncksGenBlocksMtx.unlock();
 		}
 		else
 		{
-			m_meshGenerationPaused = false;
+			//m_meshGenerationPaused = false;
 			m_chuncksGenBlocksMtx.unlock();
 			std::this_thread::sleep_for(std::chrono::duration<float>(0.1));
 		}
@@ -66,8 +67,6 @@ void ChunckGenerator::UpdateBlocks()
 			newChunck->GenerateBlocks();
 			chuncks.push_back(newChunck);
 		}
-		
-
 		//Returns the chuncks
 		m_chuncksBlocksGeneratedsMtx.lock();
 		for (Chunck * newChunck : chuncks)
@@ -77,13 +76,13 @@ void ChunckGenerator::UpdateBlocks()
 }
 void ChunckGenerator::UpdateMesh()
 {
-	while (true)
+	while (!m_quitting)
 	{
-		
 		//Get the chuncks
 		std::vector <SubChunck * > chuncks;
 		
 		m_chuncksGenMeshMtx.lock();
+		//Sleeps when no mesh to generate
 		if (m_chuncksGenMesh.empty())
 		{
 			m_chuncksGenMeshMtx.unlock();
@@ -91,21 +90,17 @@ void ChunckGenerator::UpdateMesh()
 		}
 		else
 		{
-			if (!m_meshGenerationPaused)
+			int count = 0;
+			while (!m_chuncksGenMesh.empty() && count++ < 16)
 			{
-				int count = 0;
-				while (!m_chuncksGenMesh.empty() && count++ < 8)
-				{
-					chuncks.push_back(m_chuncksGenMesh.top());
-					m_chuncksGenMesh.pop();
-				}
+				chuncks.push_back(m_chuncksGenMesh.top().first);
+				m_chuncksGenMesh.pop();
 			}
 			m_chuncksGenMeshMtx.unlock();
 		}
-
 		//Generates the meshs
 		for (SubChunck * chunck : chuncks)
-				chunck->GenerateMesh();
+			chunck->GenerateMesh();
 
 		//Returns the chuncks
 		m_chuncksMeshGeneratedsMtx.lock();
@@ -115,26 +110,31 @@ void ChunckGenerator::UpdateMesh()
 	}
 }
 
-
-
-void ChunckGenerator::GenerateBlocks(int  x, int z )
+void ChunckGenerator::GenerateBlocks(int  x, int z, float priority )
 {
 	m_chuncksGenBlocksMtx.lock();
-	m_chuncksGenBlocks.push(glm::ivec2(x,z));
+	m_chuncksGenBlocks.push( std::make_pair(glm::ivec2(x,z), priority));
 	m_chuncksGenBlocksMtx.unlock();
 }
 
-void ChunckGenerator::GenerateMesh( SubChunck * chunck )
+
+void ChunckGenerator::GenerateMesh( SubChunck * chunck, float priority)
 {
-	if (chunck->generating)
+	if ( ! chunck->generating)
 	{
-		std::cerr << "ERROR : ChunckGenerator::GenerateMesh; " << std::endl;
-		return;
+		chunck->generating = true;
+		m_chuncksGenMeshMtx.lock();
+		m_chuncksGenMesh.push(std::make_pair(chunck, priority));
+		m_chuncksGenMeshMtx.unlock();
 	}
-		
-	chunck->generating = true;
-	m_chuncksGenMeshMtx.lock();
-	m_chuncksGenMesh.push(chunck);
-	m_chuncksGenMeshMtx.unlock();
 }
 
+ChunckGenerator::~ChunckGenerator()
+{
+	m_quitting = true;
+	m_updateBlocksThread->join();
+	m_updateMeshThread->join();
+
+	delete m_updateBlocksThread;
+	delete m_updateMeshThread;
+}

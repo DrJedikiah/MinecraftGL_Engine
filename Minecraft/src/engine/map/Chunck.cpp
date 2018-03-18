@@ -8,7 +8,7 @@ Chunck::Chunck(int x, int z) :
 	m_positionZ(z),
 	m_enabled(true)
 { 
-	for( int y = 0; y < Chunck::height; ++y)
+	for (int y = 0; y < Chunck::height; ++y)
 		m_subChuncks[y] = new SubChunck(glm::ivec3(x, y, z), this);
 }
 
@@ -171,10 +171,9 @@ void Chunck::GenerateModels(int subChunck)
 
 void Chunck::GenerateCollider( int subChunck, bool regenerate)
 {
-	if(!gettingDeleted)
-		if (subChunck >= 0 && subChunck < Chunck::height)
-			if (!m_subChuncks[subChunck]->m_colliderGenerated || regenerate)
-				 m_subChuncks[subChunck]->GenerateCollider();
+	if (subChunck >= 0 && subChunck < Chunck::height)
+		if (!m_subChuncks[subChunck]->m_colliderGenerated || regenerate)
+			 m_subChuncks[subChunck]->GenerateCollider();
 }
 
 void Chunck::DrawTransparent(const Shader & shader) const
@@ -204,6 +203,8 @@ void Chunck::SetSubChunckEnabled(int subChunck, bool state)
 }
 
 bool Chunck::Enabled() const { return m_enabled; }
+bool Chunck::BlocksGenerated() const { return m_blocksGenerated; }
+
 
 glm::ivec3 Chunck::Position() const{return glm::ivec3(m_positionX,0, m_positionZ);}
 

@@ -36,6 +36,7 @@ public:
 	void DrawOpaque(const Shader & shader) const;
 
 	Block* GetBlock(glm::ivec3 position);
+	glm::ivec3 Position() const;
 
 	bool generating = false;
 private:
