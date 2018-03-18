@@ -35,8 +35,6 @@ void CircularArray::UpdateSubChunckMesh(SubChunck* subChunck)
 {
 	if (subChunck)
 		m_genMeshLater.emplace(subChunck);
-	else
-		std::cout << "zob6" << std::endl;
 }
 
 void CircularArray::DeleteChunck(Chunck * chunck)
@@ -87,6 +85,9 @@ void CircularArray::Update(float delta)
 		else
 			DeleteChunck(chunck);
 	
+
+	static std::stack<Chunck*> THISISTEMPORARY;
+
 	//Generates mesh of newly allocateds chuncks
 	for (int i = 0; i < (int)m_waitingFirstGen.size(); ++i)
 	{
@@ -100,20 +101,34 @@ void CircularArray::Update(float delta)
 			Get(pos.x, pos.y - 1) && Get(pos.x, pos.y - 1)->BlocksGenerated()
 			)
 		{
-			//Generates additionnal content (trees)
-			chunck->LateGenerateBlocks();
+			THISISTEMPORARY.push(chunck);
 
-			//Send subChunck to generator for mesh creation
-			glm::vec2 center = glm::vec2(m_xOrigin + m_size / 2, m_zOrigin + m_size / 2);
-			float dist = glm::distance(center, glm::vec2(pos.x, pos.y));
-			for (int i = 0; i < Chunck::height; ++i)
-				m_chunckGenerator->GenerateMesh(chunck->GetSubChunck(i), dist);
 
 			m_waitingFirstGen[i] = m_waitingFirstGen[m_waitingFirstGen.size() - 1];
 			m_waitingFirstGen.pop_back();
 			--i;
 		}
 	}
+
+	//AAAARGh
+	if (!THISISTEMPORARY.empty())
+	{
+		
+		Chunck* chunck = THISISTEMPORARY.top();
+		THISISTEMPORARY.pop();
+		//Generates additionnal content (trees)
+		chunck->LateGenerateBlocks();
+
+		//Send subChunck to generator for mesh creation
+		glm::ivec2 pos = glm::ivec2(chunck->Position().x, chunck->Position().z);
+
+		glm::vec2 center = glm::vec2(m_xOrigin + m_size / 2, m_zOrigin + m_size / 2);
+		float dist = glm::distance(center, glm::vec2(pos.x, pos.y));
+		for (int i = 0; i < Chunck::height; ++i)
+			m_chunckGenerator->GenerateMesh(chunck->GetSubChunck(i), dist);
+	}
+
+
 
 	//Send subChuncks to generator for mesh creation
 	for (SubChunck * subChunck : m_genMeshLater)

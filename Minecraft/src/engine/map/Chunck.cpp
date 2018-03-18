@@ -136,7 +136,11 @@ void Chunck::GenerateBlocks()
 				{
 					GetBlock(glm::ivec3(x, y, z))->SetType(Block::Type::grass);
 					
-					if (distribution(generator) < 0.01f)
+					float heightRatio = (float)y / SubChunck::size * Chunck::height;
+
+
+
+					if (heightRatio * distribution(generator) < 0.3f)
 					{
 						Node * treeRoot = m_treeGen.GenerateTree(pos, 6 + distribution(generator) * 6);
 						m_pendingTrees.push_back(treeRoot);
@@ -158,7 +162,7 @@ void Chunck::GenerateBlocks()
 void Chunck::LateGenerateBlocks()
 {
 	for( Node * tree : m_pendingTrees)
-		GenerateTree(tree);
+    		GenerateTree(tree);
 }
 
 void Chunck::GenerateMesh( int subChunck )
